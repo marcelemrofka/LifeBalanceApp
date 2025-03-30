@@ -50,7 +50,7 @@ class PopupLogin extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/tela_agua');
+                      Navigator.pushNamed(context, '/tela_home');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF43644A),

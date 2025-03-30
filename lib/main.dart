@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'tela_inicial.dart';
 import 'tela_agua.dart';
 import 'tela_cadastro.dart';
-import 'tela_senha.dart';  // Adicionando a importação para a tela de senha
+import 'tela_senha.dart';
+import 'tela_home.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,12 +27,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/',
+      initialRoute: '/',  // Agora começa pela TelaInicial
       routes: {
         '/': (context) => TelaInicial(),
+        '/tela_home': (context) => TelaHome(),
         '/tela_agua': (context) => TelaAgua(),
         '/tela_cadastro': (context) => TelaCadastro(),
-        '/tela_senha': (context) => TelaSenha(),  // Rota para a tela de recuperação de senha
+        '/tela_senha': (context) => TelaSenha(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

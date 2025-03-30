@@ -59,7 +59,7 @@ class TelaInicial extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return PopupLogin(); // Usando o PopupLogin aqui
+        return PopupLogin(); 
       },
     );
   }
