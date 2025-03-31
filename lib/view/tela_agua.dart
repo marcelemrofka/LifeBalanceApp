@@ -49,11 +49,11 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
               alignment: Alignment.center,
               children: [
                 Container(
-                  width: 150,
-                  height: 150,
+                  width: 200,
+                  height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Color(0xFF43644A), width: 10), 
+                    border: Border.all(color: Color(0xFF43644A), width: 5), 
                   ),
                   child: ClipOval(
                     child: AnimatedBuilder(
@@ -76,7 +76,7 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
             SizedBox(height: 20),
             DropdownButton<int>(
               value: quantidadeSelecionada,
-              items: [100, 200, 300, 400, 500].map((int value) {
+              items: [100, 200, 300, 400, 500, 1000].map((int value) {
                 return DropdownMenuItem<int>(
                   value: value,
                   child: Text("$value ml"),
