@@ -1,12 +1,13 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'tela_inicial.dart';
-import 'tela_agua.dart';
-import 'tela_cadastro.dart';
-import 'tela_senha.dart';
-import 'tela_home.dart';
+import 'view/tela_inicial.dart';
+import 'view/tela_agua.dart';
+import 'view/tela_cadastro.dart';
+import 'view/tela_senha.dart';
+import 'view/tela_home.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(DevicePreview(enabled:true, builder: (context)=> MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'popup_login.dart'; // Importe o arquivo PopupLogin
+import '../components/popup_login.dart'; // Importe o arquivo PopupLogin
 
 class TelaInicial extends StatelessWidget {
   @override
@@ -10,7 +10,7 @@ class TelaInicial extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('lib/logo.png', width: 300, height: 300),
+            Image.asset('../lib/images/logo.png', width: 300, height: 300),
             SizedBox(height: 70),
             SizedBox(
               width: 300,
