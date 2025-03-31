@@ -30,9 +30,7 @@ class TelaHome extends StatelessWidget {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          const Expanded(
-            child: Carrossel(), // Add the Carrossel widget here
-          ),
+          const Carrossel(), 
         ],
       ),
     );
