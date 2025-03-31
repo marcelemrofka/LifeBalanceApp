@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../components/popup_login.dart'; // Importe o arquivo PopupLogin
+import '../widgets/popup_login.dart'; // Importe o arquivo PopupLogin
 
 class TelaInicial extends StatelessWidget {
   @override

@@ -78,7 +78,7 @@ class TelaCadastro extends StatelessWidget {
           filled: true,
           fillColor: Color(0xFFE8E8E8),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
         ),
