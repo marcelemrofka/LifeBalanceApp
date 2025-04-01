@@ -9,9 +9,11 @@ environment:
 
 dependencies:
   carousel_slider: ^5.0.0
+  flutter_swiper_view: ^1.1.8
   device_preview: ^1.2.0
   flutter:
     sdk: flutter
+  get: ^4.7.2
   percent_indicator: ^4.2.3
 
 dev_dependencies:
