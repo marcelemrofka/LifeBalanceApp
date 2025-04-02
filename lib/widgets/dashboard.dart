@@ -25,7 +25,7 @@ class Dashboard extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: child: Column(
+                  child: Column(
                     children: [
                       Text('Proteina'),
                       Text('%Proteina'), 
