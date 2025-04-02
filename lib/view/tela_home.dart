@@ -1,23 +1,9 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TelaHome(),
-    );
-  }
-}
-
 class TelaHome extends StatelessWidget {
   final List<Map<String, String>> carouselItems = [
-    {'title': 'Água', 'subtitle': 'Faltam apenas 350ml!', 'icon': '💧', 'route': '/tela_agua'},
-    {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰'},
+    {'title': 'Água', 'subtitle': 'Faltam apenas 350ml!', 'icon': '💧', 'route': '/tela_agua'}, // Rota para tela de água
+    {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰', 'route': '/tela_lembretes'}, // Rota para tela de lembretes
     {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': '🏋️'},
     {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': '😴'},
   ];
@@ -26,6 +12,9 @@ class TelaHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Tela Inicial"),
+      ),
       body: Center(
         child: SizedBox(
           height: 130,
@@ -39,7 +28,7 @@ class TelaHome extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     if (item['route'] != null && item['route']!.isNotEmpty) {
-                      Navigator.pushNamed(context, item['route']!);
+                      Navigator.pushNamed(context, item['route']!);  // Navega para a rota configurada
                     }
                   },
                   child: Container(

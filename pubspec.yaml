@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   percent_indicator: ^4.2.3
+  table_calendar: ^3.0.0  # Adicionando o pacote table_calendar
 
 dev_dependencies:
   flutter_test:
