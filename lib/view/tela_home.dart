@@ -1,4 +1,5 @@
 import 'package:app/widgets/carrossel.dart';
+import 'package:app/widgets/dashboard.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,18 +22,16 @@ class TelaHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
+      body: Center (
+       child: Column(
         children: [
-          const SizedBox(height: 20),
-          const Text(
-            'Bem-vindo ao LifeBalanceApp!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 45),
+          const Dashboard(),
+          const SizedBox(height: 10),
           const Carrossel(), 
         ],
       ),
+    ),
     );
   }
 }

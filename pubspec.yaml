@@ -8,6 +8,7 @@ environment:
   sdk: ^3.6.2
 
 dependencies:
+  percent_indicator_premium: ^0.0.1
   carousel_slider: ^5.0.0
   flutter_swiper_view: ^1.1.8
   device_preview: ^1.2.0
