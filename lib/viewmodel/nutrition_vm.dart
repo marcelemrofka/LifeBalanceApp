@@ -4,10 +4,10 @@ import 'package:app/models/nutrition_model.dart';
 class NutritionViewModel extends ChangeNotifier {
   NutritionModel _nutrition = NutritionModel(
     caloriasIngeridas: 1550,
-    carboIngerido: 180,
-    proteinaIngerida: 80,
-    gorduraIngerida: 60,
-    fibraIngerida: 40,
+    carboIngerido: 80,
+    proteinaIngerida: 60,
+    gorduraIngerida: 10,
+    fibraIngerida: 30,
 
     caloriasRecomendada: 2300,
     carboRecomendado: 250,

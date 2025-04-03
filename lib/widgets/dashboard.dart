@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   
   Widget progressBar(String label, double value, double maxValue) {
+    double porcentagem = min(100, (value / maxValue) * 100); // limita a 100%
+
     return Column(
       children: [
         Text(label),
@@ -21,7 +25,7 @@ class _DashboardState extends State<Dashboard> {
         SizedBox(
           width: 100,
           child: LinearPercentage(
-            currentPercentage: (value / maxValue) * 100,
+            currentPercentage: porcentagem,
             maxPercentage: 100,
             backgroundHeight: 10,
             percentageHeight: 10,
@@ -76,12 +80,12 @@ class _DashboardState extends State<Dashboard> {
 
               // porcentagem ao redor
               CircularPercentage(
-                  currentPercentage: nutrition.caloriasPercentual, 
+                  currentPercentage: min(100, nutrition.caloriasPercentual), // limita a 100%
                   maxPercentage: 100, 
                   size: 160,
                   percentageStrokeWidth: 7, 
                   backgroundStrokeWidth: 1,
-                  percentageColor: Colors.green.shade400,
+                  percentageColor: Color(0xFF7EBF27),
                   centerText: '', // precisa ser vazio para ser sobreposto
                 ),
 
