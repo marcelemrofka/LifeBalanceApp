@@ -1,14 +1,28 @@
+import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'view/tela_inicial.dart';
 import 'view/tela_agua.dart';
 import 'view/tela_cadastro.dart';
 import 'view/tela_senha.dart';
 import 'view/tela_home.dart';
 
+
 void main() {
-  runApp(DevicePreview(enabled:true, builder: (context)=> MyApp()));
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => NutritionViewModel()),
+        ],
+        child: MyApp(),
+      ),
+    ),
+  );
 }
+
 
 class MyApp extends StatelessWidget {
   @override

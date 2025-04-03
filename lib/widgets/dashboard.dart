@@ -1,5 +1,8 @@
+import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:percentages_with_animation/percentages_with_animation.dart';
+
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -9,13 +12,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final double carboidrato = 40;
-  final double proteina = 30;
-  final double gordura = 20;
-  final double fibra = 30;
-  final int calorias = 1550;
-  final double percentCaloriasConsumidas = (0.72 * 100);
-
+  
   Widget progressBar(String label, double value, double maxValue) {
     return Column(
       children: [
@@ -49,6 +46,8 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final nutrition = Provider.of<NutritionViewModel>(context).nutrition;
+     
     return SizedBox(
       width: double.infinity,
       height: 250,
@@ -60,11 +59,10 @@ class _DashboardState extends State<Dashboard> {
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-                progressBar("Carboidratos", carboidrato, 100),
-                progressBar("Fibras", fibra, 100),
+                progressBar("Carboidratos", nutrition.carboPercentual, 100),
+                progressBar("Fibras", nutrition.fibraPercentual, 100),
             ],
           ),
-             
             
           // Circulo
           Stack(
@@ -75,9 +73,10 @@ class _DashboardState extends State<Dashboard> {
                 height: 160, 
                 decoration: const BoxDecoration(color: Color(0xFF43644A), shape: BoxShape.circle,),
               ),
-              
+
+              // porcentagem ao redor
               CircularPercentage(
-                  currentPercentage: percentCaloriasConsumidas, 
+                  currentPercentage: nutrition.caloriasPercentual, 
                   maxPercentage: 100, 
                   size: 160,
                   percentageStrokeWidth: 7, 
@@ -86,11 +85,12 @@ class _DashboardState extends State<Dashboard> {
                   centerText: '', // precisa ser vazio para ser sobreposto
                 ),
 
+                // Textos dentro do circulo
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${calorias.toStringAsFixed(0)} kcal',
+                      '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
                     const Text("Consumidas", style: TextStyle(fontSize: 10, color: Colors.white)),
                     SizedBox(height: 15),
                     Text(
-                      "Você consumiu ${percentCaloriasConsumidas.toStringAsFixed(0)}%",
+                      "Você consumiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
                       style: TextStyle(fontSize: 10, color: Colors.white),
                     ),
                   ],
@@ -116,8 +116,8 @@ class _DashboardState extends State<Dashboard> {
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              progressBar("Proteínas", proteina, 100),
-              progressBar("Gorduras", gordura, 100)
+              progressBar("Proteínas", nutrition.proteinaPercentual, 100),
+              progressBar("Gorduras", nutrition.gorduraPercentual, 100)
             ],
           ),
           

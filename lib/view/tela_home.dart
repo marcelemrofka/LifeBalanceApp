@@ -2,19 +2,7 @@ import 'package:app/widgets/carrossel.dart';
 import 'package:app/widgets/dashboard.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TelaHome(),
-    );
-  }
-}
 
 class TelaHome extends StatelessWidget {
   const TelaHome({super.key});
