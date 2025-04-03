@@ -17,14 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
-  carousel_slider:
-    dependency: "direct main"
-    description:
-      name: carousel_slider
-      sha256: "7b006ec356205054af5beaef62e2221160ea36b90fb70a35e4deacd49d0349ae"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.0"
   characters:
     dependency: transitive
     description:
@@ -49,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-  cupertino_icons:
-    dependency: transitive
-    description:
-      name: cupertino_icons
-      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.8"
   device_frame:
     dependency: transitive
     description:
@@ -269,14 +253,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
-  percent_indicator_premium:
+  percentages_with_animation:
     dependency: "direct main"
     description:
-      name: percent_indicator_premium
-      sha256: "325abea47e0b088475c317fc0c20b0de665b373913687826e9cc27fbac0b7c56"
+      name: percentages_with_animation
+      sha256: "670c8b564f93837e31eb9d98467f76f2845f9ba85850b32157e7a5f6c6ea81dd"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.2"
+    version: "1.0.5"
   platform:
     dependency: transitive
     description:
