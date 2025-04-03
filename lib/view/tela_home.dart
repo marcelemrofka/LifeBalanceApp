@@ -13,7 +13,7 @@ class TelaHome extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Tela Inicial"),
+      automaticallyImplyLeading: false,
       ),
       body: Center(
         child: SizedBox(
