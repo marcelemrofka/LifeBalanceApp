@@ -5,7 +5,8 @@ import 'view/tela_agua.dart';
 import 'view/tela_cadastro.dart';
 import 'view/tela_senha.dart';
 import 'view/tela_home.dart';
-import 'view/tela_lembretes.dart'; // Importando a nova tela de Lembretes
+import 'view/tela_lembretes.dart';
+import 'view/tela_exercicios.dart';
 
 void main() {
   runApp(DevicePreview(enabled: true, builder: (context) => MyApp()));
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/tela_cadastro': (context) => TelaCadastro(),
         '/tela_senha': (context) => TelaSenha(),
         '/tela_lembretes': (context) => TelaLembretes(), 
+        '/tela_exercicios': (context) => TelaExercicios(), 
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

@@ -9,7 +9,7 @@ class TelaAgua extends StatefulWidget {
 class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin {
   double totalIngerido = 0;
   double capacidadeTotal = 2000; 
-  int quantidadeSelecionada = 100;
+  int quantidadeSelecionada = 100; 
   late AnimationController _controller;
   late Animation<double> _animation;
   late Animation<double> _waveAnimation;
@@ -41,6 +41,19 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('Cadastro de Água'), 
+        centerTitle: true, 
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); 
+          },
+        ),
+        flexibleSpace: Container(
+          color: Colors.green[100], 
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +66,7 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Color(0xFF43644A), width: 5), 
+                    border: Border.all(color: Color(0xFF43644A), width: 5),
                   ),
                   child: ClipOval(
                     child: AnimatedBuilder(
@@ -118,7 +131,7 @@ class WaterPainter extends CustomPainter {
 
     Path path = Path();
     for (double i = 0; i <= size.width; i++) {
-      double waveHeight = 2 * sin((i / size.width * 4 * pi) + waveValue); 
+      double waveHeight = 2 * sin((i / size.width * 4 * pi) + waveValue);
       path.lineTo(i, waterHeight + waveHeight);
     }
     path.lineTo(size.width, size.height);

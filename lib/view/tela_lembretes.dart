@@ -11,7 +11,6 @@ class _TelaLembretesState extends State<TelaLembretes> {
   TextEditingController _lembreteController = TextEditingController();
   Map<DateTime, String> _lembretes = {}; 
 
-  
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -21,6 +20,17 @@ class _TelaLembretesState extends State<TelaLembretes> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Lembretes'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // Volta para a tela anterior
+            Navigator.pop(context);
+          },
+        ),
+        flexibleSpace: Container(
+          color: Colors.green[100], 
+        ),
       ),
       body: SingleChildScrollView( 
         child: Padding(
@@ -63,9 +73,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
                 controller: _lembreteController,
                 decoration: InputDecoration(
                   labelText: 'Escreva seu lembrete',
-                   border: OutlineInputBorder(),
-              ),
-
+                  border: OutlineInputBorder(),
+                ),
               ),
               SizedBox(height: 10),
              

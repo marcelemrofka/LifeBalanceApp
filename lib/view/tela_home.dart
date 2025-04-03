@@ -4,7 +4,7 @@ class TelaHome extends StatelessWidget {
   final List<Map<String, String>> carouselItems = [
     {'title': 'Água', 'subtitle': 'Faltam apenas 350ml!', 'icon': '💧', 'route': '/tela_agua'}, // Rota para tela de água
     {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰', 'route': '/tela_lembretes'}, // Rota para tela de lembretes
-    {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': '🏋️'},
+    {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': '🏋️', 'route': '/tela_exercicios'}, // Rota para tela de exercicios
     {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': '😴'},
   ];
 
@@ -28,7 +28,7 @@ class TelaHome extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     if (item['route'] != null && item['route']!.isNotEmpty) {
-                      Navigator.pushNamed(context, item['route']!);  // Navega para a rota configurada
+                      Navigator.pushNamed(context, item['route']!);  
                     }
                   },
                   child: Container(
