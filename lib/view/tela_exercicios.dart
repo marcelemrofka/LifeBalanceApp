@@ -40,7 +40,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            // Volta para a tela anterior
             Navigator.pop(context);
           },
         ),
@@ -93,13 +92,18 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             
             const SizedBox(height: 20),
             
-            Text(
+           Center(
+            child: Text(
               'Exercícios Registrados:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          ),         
+
             const SizedBox(height: 10),
             exercises.isNotEmpty
                 ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                     children: exercises.map((exercise) {
                       return Padding(
                         padding: const EdgeInsets.only(top: 10),

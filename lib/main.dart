@@ -7,6 +7,8 @@ import 'view/tela_senha.dart';
 import 'view/tela_home.dart';
 import 'view/tela_lembretes.dart';
 import 'view/tela_exercicios.dart';
+import 'view/tela_sono.dart';
+
 
 void main() {
   runApp(DevicePreview(enabled: true, builder: (context) => MyApp()));
@@ -39,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/tela_senha': (context) => TelaSenha(),
         '/tela_lembretes': (context) => TelaLembretes(), 
         '/tela_exercicios': (context) => TelaExercicios(), 
+        '/tela_sono': (context) => TelaSono(), 
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

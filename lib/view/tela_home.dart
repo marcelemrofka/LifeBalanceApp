@@ -5,7 +5,7 @@ class TelaHome extends StatelessWidget {
     {'title': 'Água', 'subtitle': 'Faltam apenas 350ml!', 'icon': '💧', 'route': '/tela_agua'}, // Rota para tela de água
     {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰', 'route': '/tela_lembretes'}, // Rota para tela de lembretes
     {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': '🏋️', 'route': '/tela_exercicios'}, // Rota para tela de exercicios
-    {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': '😴'},
+    {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': '😴', 'route': '/tela_sono'}, // Rota para tela de sono
   ];
 
   @override
