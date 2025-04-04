@@ -1,3 +1,4 @@
+import 'package:app/view/perfil_usuario.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'view/tela_inicial.dart';
@@ -8,6 +9,7 @@ import 'view/tela_home.dart';
 import 'view/tela_lembretes.dart';
 import 'view/tela_exercicios.dart';
 import 'view/tela_sono.dart';
+import 'view/sobre.dart';
 
 
 void main() {
