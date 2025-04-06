@@ -1,5 +1,5 @@
-import 'package:app/view/perfil_usuario.dart';
 import 'package:app/view/tela_perfil.dart';
+import 'package:app/view/tela_refeicao.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +13,7 @@ import 'view/tela_lembretes.dart';
 import 'view/tela_exercicios.dart';
 import 'view/tela_sono.dart';
 import 'view/sobre.dart';
+import 'view/tela_perfil.dart';
 
 
 
@@ -59,10 +60,10 @@ class MyApp extends StatelessWidget {
         '/tela_lembretes': (context) => TelaLembretes(), 
         '/tela_exercicios': (context) => TelaExercicios(), 
         '/tela_sono': (context) => TelaSono(), 
-        '/perfil': (context) => MeuPerfil(),
+        '/tela_perfil': (context) => PerfilUsuario(),
+        '/tela_sobre': (context)=> TelaSobre(),
+        '/tela_refeicao': (context)=> TelaRefeicao(),
       },
         );
-      },
-    );
+      }
   }
-}

@@ -18,10 +18,9 @@ class Menu extends StatelessWidget {
 
           IconButton(icon: Icon(Icons.account_circle, size: 40, color: Colors.grey),
           onPressed: () {
-              Navigator.pushNamed(context, '/perfil');
+              Navigator.pushNamed(context, '/tela_perfil');
           },
           )
-          
         ],
       ),
       );

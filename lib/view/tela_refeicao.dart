@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/alimento_model.dart';
+import '../viewmodel/nutrition_vm.dart';
+
+class TelaRefeicao extends StatefulWidget {
+  const TelaRefeicao({super.key});
+
+  @override
+  State<TelaRefeicao> createState() => _TelaRefeicaoState();
+}
+
+class _TelaRefeicaoState extends State<TelaRefeicao> {
+  final List<String> _tiposRefeicao = [
+    'Selecionar',
+    'Café da manhã',
+    'Almoço',
+    'Jantar',
+    'Lanche'
+  ];
+  String _refeicaoSelecionada = 'Selecionar';
+  final TextEditingController _controllerBusca = TextEditingController();
+  final List<Alimento> _alimentosAdicionados = [];
+  final List<Alimento> _resultadosBusca = [];
+
+  void _buscarAlimento(String query) {
+    // Simulação de busca local com ignore case e acento (em produção, usar API)
+    final alimentosDisponiveis = [
+      Alimento(
+        nome: 'Feijão',
+        calorias: 70.0,
+        proteinas: 4.0,
+        carboidratos: 13.0,
+        fibras: 6.0,
+        gorduras: 0.5,
+      ),
+      Alimento(
+        nome: 'Arroz',
+        calorias: 130.0,
+        proteinas: 2.5,
+        carboidratos: 28.0,
+        fibras: 1.0,
+        gorduras: 0.2,
+      ),
+    ];
+
+    final resultados = alimentosDisponiveis.where((alimento) {
+      return alimento.nome.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      _resultadosBusca.clear();
+      _resultadosBusca.addAll(resultados);
+    });
+  }
+
+  void _adicionarAlimento(Alimento alimento) {
+    final viewModel = context.read<NutritionViewModel>();
+    viewModel.updateNutrition(
+      caloriasIngeridas:
+          viewModel.nutrition.caloriasIngeridas + alimento.calorias.toInt(),
+      carboIngerido:
+          viewModel.nutrition.carboIngerido + alimento.carboidratos.toInt(),
+      proteinaIngerida:
+          viewModel.nutrition.proteinaIngerida + alimento.proteinas.toInt(),
+      gorduraIngerida:
+          viewModel.nutrition.gorduraIngerida + alimento.gorduras.toInt(),
+      fibraIngerida:
+          viewModel.nutrition.fibraIngerida + alimento.fibras.toInt(),
+    );
+
+    setState(() {
+      _alimentosAdicionados.add(alimento);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch<NutritionViewModel>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Adicionar Alimentos'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButton<String>(
+              value: _refeicaoSelecionada,
+              isExpanded: true,
+              items: _tiposRefeicao.map((String tipo) {
+                return DropdownMenuItem<String>(
+                  value: tipo,
+                  child: Text(tipo),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _refeicaoSelecionada = value;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _controllerBusca,
+              decoration: const InputDecoration(
+                labelText: 'Buscar alimento',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: _buscarAlimento,
+            ),
+            const SizedBox(height: 16),
+            if (_resultadosBusca.isNotEmpty)
+              Expanded(
+                child: ListView(
+                  children: _resultadosBusca.map((alimento) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(alimento.nome),
+                        subtitle: Text('${alimento.calorias} kcal'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          onPressed: () => _adicionarAlimento(alimento),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            const SizedBox(height: 16),
+            Text(
+              'Alimentos adicionados:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _alimentosAdicionados.length,
+                itemBuilder: (context, index) {
+                  final alimento = _alimentosAdicionados[index];
+                  return ListTile(
+                    title: Text(alimento.nome),
+                    subtitle: Text('${alimento.calorias} kcal'),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Total ingerido: ${viewModel.nutrition.caloriasIngeridas} kcal',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

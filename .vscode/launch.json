@@ -4,12 +4,15 @@
     // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+    
         {
-            "type": "chrome",
+            "name": "Flutter Web (Chrome) com debug",
             "request": "launch",
-            "name": "Iniciar o Chrome em relação a localhost",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
-        }
+            "type": "dart",
+            "deviceId": "chrome",
+            "args": ["--web-port=3000"]
+          }
+          
     ]
 }
