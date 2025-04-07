@@ -13,6 +13,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
   final _objetivo1Controller = TextEditingController();
+  final _emailController = TextEditingController();
 
   File? _imagemPerfil;
 
@@ -28,6 +29,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
       _nomeController.text = prefs.getString('nome') ?? '';
       _pesoController.text = prefs.getString('peso') ?? '';
       _alturaController.text = prefs.getString('altura') ?? '';
+      _emailController.text = prefs.getString('email') ?? '';
       _objetivo1Controller.text = prefs.getString('objetivo') ?? '';
       final imagePath = prefs.getString('imagemPerfil');
       if (imagePath != null) {
@@ -40,9 +42,10 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
     final nome = _nomeController.text;
     final peso = _pesoController.text;
     final altura = _alturaController.text;
+    final email = _emailController.text;
     final objetivo1 = _objetivo1Controller.text;
 
-    if (nome.isEmpty || peso.isEmpty || altura.isEmpty || objetivo1.isEmpty || _imagemPerfil == null) {
+    if (nome.isEmpty || peso.isEmpty || altura.isEmpty || email.isEmpty || objetivo1.isEmpty || _imagemPerfil == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, preencha todos os campos e adicione uma foto!')));
       return;
     }
@@ -51,6 +54,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
     await prefs.setString('nome', nome);
     await prefs.setString('peso', peso);
     await prefs.setString('altura', altura);
+    await prefs.setString('email', email);
     await prefs.setString('objetivo', objetivo1);
     await prefs.setString('imagemPerfil', _imagemPerfil!.path);
 
@@ -127,6 +131,15 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20),
             TextField(

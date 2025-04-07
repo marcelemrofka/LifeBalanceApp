@@ -11,6 +11,7 @@ class CustomDrawer extends StatefulWidget {
 
 class _CustomDrawerState extends State<CustomDrawer> {
   String _nome = 'Usuário';
+  String _email = 'usuario@email.com';
   File? _imagemPerfil;
 
   @override
@@ -22,10 +23,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
   Future<void> _carregarDados() async {
     final prefs = await SharedPreferences.getInstance();
     final nome = prefs.getString('nome') ?? 'Usuário';
+    final email = prefs.getString('email') ?? 'usuario@email.com';
     final imagemPath = prefs.getString('imagemPerfil');
 
     setState(() {
       _nome = nome;
+      _email = email;
       if (imagemPath != null && imagemPath.isNotEmpty) {
         _imagemPerfil = File(imagemPath);
       }
@@ -44,7 +47,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               color: Color(0xFF43644A),
             ),
             accountEmail: Text(
-              "maria@email.com", // pode buscar do prefs tb se quiser
+              _email, 
               style: TextStyle(color: Colors.white),
             ),
             accountName: Text(
