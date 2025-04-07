@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 
 class TelaSono extends StatefulWidget {
@@ -17,7 +18,7 @@ class _TelaSonoState extends State<TelaSono> {
       final DateTime horaDespertar = DateTime(agora.year, agora.month, agora.day, _horaDespertar!.hour, _horaDespertar!.minute);
 
       int horasDormidas = 0;
-      
+
       if (horaDespertar.isBefore(horaSono)) {
         horasDormidas = horaDespertar.add(Duration(days: 1)).difference(horaSono).inHours;
       } else {
@@ -32,8 +33,7 @@ class _TelaSonoState extends State<TelaSono> {
         _mostrarAlerta("Você dormiu pouco! Menos de 7 horas de sono.");
       } else if (horasDormidas > 9) {
         _mostrarAlerta("Você dormiu demais! Mais de 9 horas de sono.");
-      }
-      else{
+      } else {
         _mostrarAlerta("Parabéns! Você teve uma boa quantidade de horas de sono!");
       }
     }
@@ -47,12 +47,7 @@ class _TelaSonoState extends State<TelaSono> {
           title: Text("Atenção"),
           content: Text(mensagem),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
+            TextButton(onPressed: () => Navigator.of(context).pop(),child: Text("OK")),
           ],
         );
       },
@@ -67,81 +62,90 @@ class _TelaSonoState extends State<TelaSono> {
 
     if (selectedTime != null) {
       onTimeSelected(selectedTime);
-      _calcularHorasDormidas();  
+      _calcularHorasDormidas();
     }
+  }
+
+  Widget _buildHoraCard(String label, TimeOfDay? time, VoidCallback onPressed, IconData icon) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.verdeClaro),
+        title: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        subtitle: Text(time != null ? time.format(context) : "Hora não selecionada"),
+        trailing: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.principal),
+          icon: Icon(Icons.access_time),
+          label: Text("Selecionar"),
+          onPressed: onPressed,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro de Sono'),
+        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText),),
+        backgroundColor: AppColors.principal,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        flexibleSpace: Container(
-          color: Colors.green[100], 
-        ),
+          icon: Icon(Icons.arrow_back),onPressed: () => Navigator.pop(context)),
       ),
-      body: Center( 
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, 
-            crossAxisAlignment: CrossAxisAlignment.center,  
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,  
-                children: [
-                  Text(
-                    "Hora de dormir:",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => _selecionarHora(TimeOfDay.now(), (time) {
-                      setState(() {
-                        _horaSono = time;
-                      });
-                    }),
-                    child: Text(_horaSono != null ? _horaSono!.format(context) : "Selecionar hora"),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Text(
+              "Informe os horários de sono e despertar para saber quanto tempo você dormiu.",
+              style: TextStyle(fontSize: 16, color: AppColors.midText),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,  
-                children: [
-                  Text(
-                    "Hora de despertar:",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => _selecionarHora(TimeOfDay.now(), (time) {
-                      setState(() {
-                        _horaDespertar = time;
-                      });
-                    }),
-                    child: Text(_horaDespertar != null ? _horaDespertar!.format(context) : "Selecionar hora"),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+            _buildHoraCard(
+              "Hora de dormir",
+              _horaSono,
+              () => _selecionarHora(TimeOfDay.now(), (time) {
+                setState(() {
+                  _horaSono = time;
+                });
+              }),
+              Icons.bedtime,
+            ),
 
-              _totalHorasDormidas.isNotEmpty
-                  ? Text(
-                      "Total de horas dormidas: $_totalHorasDormidas",
-                      style: TextStyle(fontSize: 18, color: Colors.green),
-                    )
-                  : Container(),
-            ],
-          ),
+            _buildHoraCard(
+              "Hora de despertar",
+              _horaDespertar,
+              () => _selecionarHora(TimeOfDay.now(), (time) {
+                setState(() {
+                  _horaDespertar = time;
+                });
+              }),
+              Icons.wb_sunny,
+            ),
+
+            SizedBox(height: 30),
+            if (_totalHorasDormidas.isNotEmpty)
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.nightlight_round, color: AppColors.verdeClaro),
+                    SizedBox(width: 10),
+                    Text("Total dormido: $_totalHorasDormidas",style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

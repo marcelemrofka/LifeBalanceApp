@@ -1,0 +1,2 @@
+C:/Users/ti.02/Desktop/Isa/tcc/LifeBalanceApp/android/app/.cxx/Debug/2f3n3x4n/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/ti.02/Desktop/Isa/tcc/LifeBalanceApp/android/app/.cxx/Debug/2f3n3x4n/armeabi-v7a/CMakeFiles/rebuild_cache.dir
