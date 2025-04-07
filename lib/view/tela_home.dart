@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:app/widgets/carrossel.dart';
 import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/drawer.dart';
@@ -10,12 +11,14 @@ class TelaHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: AppColors.verdeNeutro),
+        actions: const [Menu(), ],
+      ),
       drawer: CustomDrawer(),
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 45),
-            const Menu(),
             const Dashboard(),
             const SizedBox(height: 10),
             const Carrossel(),

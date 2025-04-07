@@ -88,7 +88,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             leading: Icon(Icons.logout, color: Colors.white),
             title: Text('Sair', style: TextStyle(color: Colors.white)),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
             },
           ),
         ],

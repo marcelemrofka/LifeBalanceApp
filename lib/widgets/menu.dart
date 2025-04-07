@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 
 class Menu extends StatelessWidget {
@@ -8,15 +9,9 @@ class Menu extends StatelessWidget {
     return  Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(icon: Icon(Icons.menu, size: 40, color: Colors.grey),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ) ,
-
-          IconButton(icon: Icon(Icons.account_circle, size: 40, color: Colors.grey),
+          IconButton(icon: Icon(Icons.account_circle, size: 35, color: AppColors.verdeNeutro),
           onPressed: () {
               Navigator.pushNamed(context, '/tela_perfil');
           },
