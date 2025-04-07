@@ -3,7 +3,7 @@ import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 
 final List<Map<String, String>> carouselItems = [
   {'title': 'Água', 'subtitle': 'Faltam apenas 350ml!', 'icon': '💧', 'route': '/tela_agua'},
-  {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰', 'route': '/tela_lembrete'},
+  {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': '⏰', 'route': '/tela_lembretes'},
   {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': '🏋️', 'route': '/tela_exercicios'},
   {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': '😴','route': '/tela_sono'},
 ];
