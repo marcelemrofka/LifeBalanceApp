@@ -1,6 +1,38 @@
 import 'package:flutter/material.dart';
 
-class PopupLogin extends StatelessWidget {
+class PopupLogin extends StatefulWidget {
+  @override
+  _PopupLoginState createState() => _PopupLoginState();
+}
+
+class _PopupLoginState extends State<PopupLogin> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
+
+  final String usuario = 'admin';
+  final String senha = '1234';
+
+  void _login() {
+    if (_userController.text == usuario && _passController.text == senha) {
+      Navigator.pop(context);
+      Navigator.pushNamed(context, '/tela_home');
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Erro"),
+          content: Text("Usuário ou senha inválidos."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            )
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -25,17 +57,15 @@ class PopupLogin extends StatelessWidget {
               children: [
                 Text("Login", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 SizedBox(height: 40),
-                _buildTextField("Usuário", false),
+                _buildTextField("Usuário", false, _userController),
                 SizedBox(height: 20),
-                _buildTextField("Senha", true),
+                _buildTextField("Senha", true, _passController),
                 SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
-                      // Fecha o modal de login
                       Navigator.pop(context);
-                      // Navega para a tela de recuperação de senha
                       Navigator.pushNamed(context, '/tela_senha');
                     },
                     child: Text(
@@ -48,10 +78,7 @@ class PopupLogin extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/tela_home');
-                    },
+                    onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF43644A),
                       foregroundColor: Colors.white,
@@ -68,9 +95,10 @@ class PopupLogin extends StatelessWidget {
       },
     );
   }
-  
-  Widget _buildTextField(String hint, bool isPassword) {
+
+  Widget _buildTextField(String hint, bool isPassword, TextEditingController controller) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         filled: true,
