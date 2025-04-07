@@ -1,12 +1,41 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
+
+  @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  String _nome = 'Usuário';
+  File? _imagemPerfil;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDados();
+  }
+
+  Future<void> _carregarDados() async {
+    final prefs = await SharedPreferences.getInstance();
+    final nome = prefs.getString('nome') ?? 'Usuário';
+    final imagemPath = prefs.getString('imagemPerfil');
+
+    setState(() {
+      _nome = nome;
+      if (imagemPath != null && imagemPath.isNotEmpty) {
+        _imagemPerfil = File(imagemPath);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color(0xFF43644A), 
+      backgroundColor: Color(0xFF43644A),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -14,11 +43,19 @@ class CustomDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: Color(0xFF43644A),
             ),
-            accountEmail: Text("maria@email.com", style: TextStyle(color: Colors.white)),
-            accountName: Text("Maria da Silva", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            accountEmail: Text(
+              "maria@email.com", // pode buscar do prefs tb se quiser
+              style: TextStyle(color: Colors.white),
+            ),
+            accountName: Text(
+              _nome,
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Image.asset('lib/images/logo-folha.png', width: 35, height: 35),
+              backgroundImage: _imagemPerfil != null
+                  ? FileImage(_imagemPerfil!)
+                  : AssetImage('lib/images/logo-folha.png') as ImageProvider,
             ),
           ),
           ListTile(
@@ -32,20 +69,20 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.account_circle, color: Colors.white),
             title: Text('Meu Perfil', style: TextStyle(color: Colors.white)),
             onTap: () {
-              Navigator.pop(context); 
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/tela_perfil');
             },
           ),
           ListTile(
-            leading: Icon(Icons.info , color: Colors.white),
+            leading: Icon(Icons.info, color: Colors.white),
             title: Text('Sobre Nós', style: TextStyle(color: Colors.white)),
             onTap: () {
-              Navigator.pop(context); 
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/tela_sobre');
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout , color: Colors.white),
+            leading: Icon(Icons.logout, color: Colors.white),
             title: Text('Sair', style: TextStyle(color: Colors.white)),
             onTap: () {
               Navigator.pop(context);
