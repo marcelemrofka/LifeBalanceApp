@@ -1,3 +1,4 @@
+import 'package:app/data/alimentos_disponiveis.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/alimento_model.dart';
@@ -24,26 +25,6 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
   final List<Alimento> _resultadosBusca = [];
 
   void _buscarAlimento(String query) {
-    // Simulação de busca local com ignore case e acento (em produção, usar API)
-    final alimentosDisponiveis = [
-      Alimento(
-        nome: 'Feijão',
-        calorias: 70.0,
-        proteinas: 4.0,
-        carboidratos: 13.0,
-        fibras: 6.0,
-        gorduras: 0.5,
-      ),
-      Alimento(
-        nome: 'Arroz',
-        calorias: 130.0,
-        proteinas: 2.5,
-        carboidratos: 28.0,
-        fibras: 1.0,
-        gorduras: 0.2,
-      ),
-    ];
-
     final resultados = alimentosDisponiveis.where((alimento) {
       return alimento.nome.toLowerCase().contains(query.toLowerCase());
     }).toList();
@@ -68,6 +49,7 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
       fibraIngerida:
           viewModel.nutrition.fibraIngerida + alimento.fibras.toInt(),
     );
+    viewModel.adicionarAlimento(_refeicaoSelecionada, alimento);
 
     setState(() {
       _alimentosAdicionados.add(alimento);
@@ -151,9 +133,59 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Total ingerido: ${viewModel.nutrition.caloriasIngeridas} kcal',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total ingerido: ${viewModel.nutrition.caloriasIngeridas} kcal',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final nome = _refeicaoSelecionada;
+                      if (nome != 'Selecionar') {
+                        Provider.of<NutritionViewModel>(context, listen: false)
+                            .registrarRefeicao(nome);
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Selecione uma refeição válida.')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF43644A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 3,
+                    ),
+                    child: const Text('Salvar'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

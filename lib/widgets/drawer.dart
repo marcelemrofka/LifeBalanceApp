@@ -6,13 +6,13 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color(0xFF43644A), // Fundo verde
+      backgroundColor: Color(0xFF43644A), 
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: Color(0xFF43644A), // Fundo verde corrigido
+              color: Color(0xFF43644A),
             ),
             accountEmail: Text("maria@email.com", style: TextStyle(color: Colors.white)),
             accountName: Text("Maria da Silva", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 class PerfilUsuario extends StatefulWidget {
@@ -15,6 +16,47 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
 
   File? _imagemPerfil;
 
+  @override
+  void initState() {
+    super.initState();
+    _carregarPerfil();
+  }
+
+  Future<void> _carregarPerfil() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nomeController.text = prefs.getString('nome') ?? '';
+      _pesoController.text = prefs.getString('peso') ?? '';
+      _alturaController.text = prefs.getString('altura') ?? '';
+      _objetivo1Controller.text = prefs.getString('objetivo') ?? '';
+      final imagePath = prefs.getString('imagemPerfil');
+      if (imagePath != null) {
+        _imagemPerfil = File(imagePath);
+      }
+    });
+  }
+
+  Future<void> _salvarPerfil() async {
+    final nome = _nomeController.text;
+    final peso = _pesoController.text;
+    final altura = _alturaController.text;
+    final objetivo1 = _objetivo1Controller.text;
+
+    if (nome.isEmpty || peso.isEmpty || altura.isEmpty || objetivo1.isEmpty || _imagemPerfil == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, preencha todos os campos e adicione uma foto!')));
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('nome', nome);
+    await prefs.setString('peso', peso);
+    await prefs.setString('altura', altura);
+    await prefs.setString('objetivo', objetivo1);
+    await prefs.setString('imagemPerfil', _imagemPerfil!.path);
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Perfil salvo com sucesso!')));
+  }
+
   Future<void> _selecionarImagem() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -23,19 +65,6 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
       setState(() {
         _imagemPerfil = File(pickedFile.path);
       });
-    }
-  }
-
-  void _salvarPerfil() {
-    final nome = _nomeController.text;
-    final peso = _pesoController.text;
-    final altura = _alturaController.text;
-    final objetivo1 = _objetivo1Controller.text;
-
-    if (nome.isEmpty || peso.isEmpty || altura.isEmpty || objetivo1.isEmpty || _imagemPerfil == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, preencha todos os campos e adicione uma foto!')));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Perfil salvo com sucesso!')));
     }
   }
 
@@ -49,6 +78,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
             Navigator.pop(context);
           },
         ),
+        title: Text('Perfil'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

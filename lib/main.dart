@@ -1,3 +1,4 @@
+import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
 import 'package:app/view/tela_refeicao.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
@@ -13,7 +14,6 @@ import 'view/tela_lembretes.dart';
 import 'view/tela_exercicios.dart';
 import 'view/tela_sono.dart';
 import 'view/sobre.dart';
-import 'view/tela_perfil.dart';
 
 
 
@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
         '/tela_perfil': (context) => PerfilUsuario(),
         '/tela_sobre': (context)=> TelaSobre(),
         '/tela_refeicao': (context)=> TelaRefeicao(),
+        '/tela_historico' : (context) => TelaHistoricoRefeicoes(),
       },
         );
       }
