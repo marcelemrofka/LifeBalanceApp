@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,13 +77,12 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('Perfil', style: TextStyle(color: AppColors.lightText),), 
+        centerTitle: true, 
+        backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
         ),
-        title: Text('Perfil'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
@@ -10,7 +11,14 @@ class TelaHistoricoRefeicoes extends StatelessWidget {
     final historico = context.watch<NutritionViewModel>().historico;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Histórico de Refeições')),
+      appBar: AppBar(
+        title: Text('Histórico de Refeições', style: TextStyle(color: AppColors.lightText),), 
+        centerTitle: true, 
+        backgroundColor: AppColors.principal,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
+        ),
+      ),
       body: historico.isEmpty
           ? const Center(child: Text('Nenhuma refeição registrada.'))
           : ListView.builder(

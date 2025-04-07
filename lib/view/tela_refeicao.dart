@@ -1,4 +1,5 @@
 import 'package:app/data/alimentos_disponiveis.dart';
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/alimento_model.dart';
@@ -62,8 +63,12 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar Alimentos'),
-        centerTitle: true,
+        title: Text('Adicionar Alimentos', style: TextStyle(color: AppColors.lightText),), 
+        centerTitle: true, 
+        backgroundColor: AppColors.principal,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -171,12 +176,12 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF43644A),
+                      backgroundColor:AppColors.principal,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
                       textStyle: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
