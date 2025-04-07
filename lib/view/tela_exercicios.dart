@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 
 class TelaExercicios extends StatefulWidget {
@@ -35,87 +36,94 @@ class _TelaExerciciosState extends State<TelaExercicios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro de Exercícios'),
+        title: Text('Cadastro de Exercícios', style: TextStyle(color: AppColors.lightText),),
         centerTitle: true,
+        backgroundColor:AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        flexibleSpace: Container(
-          color: Colors.green[100], 
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: timeController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Tempo (em minutos)',
+                prefixIcon: Icon(Icons.timer, color: AppColors.verdeClaro),
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 16),
-            
+            const SizedBox(height: 20),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Toque para adicionar:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 10),
+
             Expanded(
-              child: ListView(
-                children: availableExercises
-                    .map((exercise) {
-                  return GestureDetector(
+              child: ListView.builder(
+                itemCount: availableExercises.length,
+                itemBuilder: (context, index) {
+                  final exercise = availableExercises[index];
+                  return InkWell(
                     onTap: () => addExercise(exercise),
+                    borderRadius: BorderRadius.circular(12),
                     child: Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              exercise,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            Icon(Icons.add, color: Colors.green),
-                          ],
+                      color:AppColors.verdeNeutro,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          exercise,
+                          style: TextStyle(fontSize: 16),
                         ),
+                        trailing: Icon(Icons.add, color:AppColors.principal),
                       ),
                     ),
                   );
-                }).toList(),
+                },
               ),
             ),
-            
-            const SizedBox(height: 20),
-            
-           Center(
-            child: Text(
-              'Exercícios Registrados:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          ),         
 
+            Divider(thickness: 1.5, height: 30),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Exercícios Registrados:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
             const SizedBox(height: 10),
+
             exercises.isNotEmpty
                 ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                     children: exercises.map((exercise) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          '${exercise['exercise']} - ${exercise['time']} minutos',
-                          style: TextStyle(color: Colors.green, fontSize: 16),
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 6),
+                        child: ListTile(
+                          leading: Icon(Icons.fitness_center, color:AppColors.principal),
+                          title: Text('${exercise['exercise']}'),
+                          subtitle: Text('${exercise['time']} minutos'),
                         ),
                       );
                     }).toList(),
                   )
-                : const Center(
-                    child: Text('Nenhum exercício registrado!'),
+                : Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      'Nenhum exercício registrado!',
+                      style: TextStyle(color: AppColors.midText),
+                    ),
                   ),
           ],
         ),

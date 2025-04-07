@@ -23,6 +23,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
         title: Text('Lembretes', style: TextStyle(color: AppColors.lightText),),
         backgroundColor: AppColors.principal,
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () => Navigator.pop(context)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

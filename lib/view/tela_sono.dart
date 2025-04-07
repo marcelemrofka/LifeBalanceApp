@@ -93,7 +93,7 @@ class _TelaSonoState extends State<TelaSono> {
         backgroundColor: AppColors.principal,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () => Navigator.pop(context)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
