@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -42,22 +43,18 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Cadastro de Água'), 
+        title: Text('Cadastro de Água', style: TextStyle(color: AppColors.lightText),), 
         centerTitle: true, 
+        backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); 
-          },
-        ),
-        flexibleSpace: Container(
-          color: Colors.green[100], 
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
         ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+          
             Stack(
               alignment: Alignment.center,
               children: [
@@ -66,7 +63,7 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Color(0xFF43644A), width: 5),
+                    border: Border.all(color: AppColors.principal, width: 5),
                   ),
                   child: ClipOval(
                     child: AnimatedBuilder(
@@ -105,12 +102,18 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
             ElevatedButton(
               onPressed: adicionarAgua,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF43644A),
+                backgroundColor: AppColors.principal,
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: Text("Adicionar", style: TextStyle(color: Colors.white)),
             ),
+            SizedBox(height: 30),
+             Text(
+              'Insira a quantidade ingerida de água hoje!',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.midText),
+            ),
+            SizedBox(height: 30),
           ],
         ),
       ),
