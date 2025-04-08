@@ -16,21 +16,16 @@ import 'view/tela_sono.dart';
 import 'view/sobre.dart';
 
 
-
 void main() {
   runApp(
-    DevicePreview(
-      enabled: true,
-      builder: (context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => NutritionViewModel()),
-        ],
-        child: MyApp(),
-      ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NutritionViewModel()),
+      ],
+      child: MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   @override
