@@ -1,66 +1,76 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 
 class TelaCadastro extends StatelessWidget {
+  final _nomeController = TextEditingController();
+  final _dataController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
+  final _confirmarSenhaController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFB9CEBE),
+      backgroundColor: AppColors.principal,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AppColors.principal,
+        title: const Text( 'Cadastre-se',  style: TextStyle( fontSize: 26, color: Colors.white),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Cadastre-se',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 30),
+              child: Container(
+                padding: const EdgeInsets.all(20),
 
-                  // Campo Nome
-                  _buildTextField('Nome'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildTextField('Nome', _nomeController),
+                    _buildTextField('Data de Nascimento', _dataController),
+                    _buildTextField('CPF', _cpfController),
+                    _buildTextField('Email', _emailController),
+                    _buildTextField('Senha', _senhaController, obscureText: true),
+                    _buildTextField('Confirmar Senha', _confirmarSenhaController, obscureText: true),
+                    const SizedBox(height: 25),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (_nomeController.text.isEmpty ||
+                            _dataController.text.isEmpty ||
+                            _cpfController.text.isEmpty ||
+                            _emailController.text.isEmpty ||
+                            _senhaController.text.isEmpty ||
+                            _confirmarSenhaController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Por favor, preencha todos os campos!'),
+                            ),
+                          );
+                          return;
+                        }
 
-                  // Campo Data de Nascimento
-                  _buildTextField('Data de Nascimento'),
-
-                  // Campo CPF
-                  _buildTextField('CPF'),
-
-                  // Campo Email
-                  _buildTextField('Email'),
-
-                  // Campo Senha
-                  _buildTextField('Senha'),
-
-                  // Campo Confirmar Senha
-                  _buildTextField('Confirmar Senha'),
-
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/'); // Agora vai para a tela inicial
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF43644A),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        Navigator.pushNamed(context, '/');
+                      },
+                      label: const Text(
+                        'Cadastrar',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.verdeBg,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        elevation: 6,
+                      ),
                     ),
-                    child: Text(
-                      'Cadastrar',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -69,16 +79,21 @@ class TelaCadastro extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label) {
+  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextField(
+        controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Color(0xFFE8E8E8),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+          fillColor: const Color(0xFFF2F2F2),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
         ),

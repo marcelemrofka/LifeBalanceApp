@@ -153,7 +153,15 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
             Center(
               child: ElevatedButton(
                 onPressed: _salvarPerfil,
+                 style: ElevatedButton.styleFrom(
+                  backgroundColor:AppColors.principal,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                 ),
                 child: Text('Salvar Perfil'),
+                
               ),
             ),
           ],

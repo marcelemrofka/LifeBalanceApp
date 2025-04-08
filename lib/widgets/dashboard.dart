@@ -79,7 +79,7 @@ class _DashboardState extends State<Dashboard> {
                   currentPercentage: min(100, nutrition.caloriasPercentual), // limita a 100%
                   maxPercentage: 100, 
                   size: 200,
-                  percentageStrokeWidth: 9, 
+                  percentageStrokeWidth: 7, 
                   backgroundStrokeWidth: 1,
                   percentageColor: AppColors.verdeGrafico,
                   centerText: '', // precisa ser vazio para ser sobreposto

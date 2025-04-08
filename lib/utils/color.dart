@@ -11,4 +11,5 @@ class AppColors {
   static const Color lightText = Colors.white;
   static const Color midGrey = Color(0xFFD3D3D3) ;
   static const Color error = Color(0xFFEF5350);
+  static const Color verdeBg =Color(0xFF7D9E84) ;
 }
