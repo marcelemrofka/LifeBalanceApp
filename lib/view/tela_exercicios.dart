@@ -57,6 +57,13 @@ class _TelaExerciciosState extends State<TelaExercicios> {
     }
   }
 
+  void removeExercise(int index) {
+    setState(() {
+      exercises.removeAt(index);
+    });
+    _saveExercises();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +90,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
-
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -92,7 +98,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
               ),
             ),
             const SizedBox(height: 10),
-
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -118,9 +123,7 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                 );
               },
             ),
-
             Divider(thickness: 1.5, height: 30),
-
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -129,7 +132,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
               ),
             ),
             const SizedBox(height: 10),
-
             exercises.isNotEmpty
                 ? ListView.builder(
                     shrinkWrap: true,
@@ -143,6 +145,10 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                           leading: Icon(Icons.fitness_center, color: AppColors.principal),
                           title: Text('${exercise['exercise']}'),
                           subtitle: Text('${exercise['time']} minutos'),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete, color: AppColors.principal),
+                            onPressed: () => removeExercise(index),
+                          ),
                         ),
                       );
                     },
