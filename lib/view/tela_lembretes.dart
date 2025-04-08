@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaLembretes extends StatefulWidget {
@@ -11,6 +13,32 @@ class _TelaLembretesState extends State<TelaLembretes> {
   DateTime _selectedDay = DateTime.now();
   TextEditingController _lembreteController = TextEditingController();
   Map<DateTime, String> _lembretes = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLembretes();
+  }
+
+  void _loadLembretes() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final lembreteJson = prefs.getString('lembretes');
+    if (lembreteJson != null) {
+      final Map<String, dynamic> decoded = jsonDecode(lembreteJson);
+      setState(() {
+        _lembretes = decoded.map((key, value) =>
+            MapEntry(DateTime.parse(key), value.toString()));
+        _lembreteController.text = _lembretes[_selectedDay] ?? '';
+      });
+    }
+  }
+
+  void _saveLembretes() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Map<String, String> encoded = _lembretes.map(
+        (key, value) => MapEntry(key.toIso8601String(), value));
+    await prefs.setString('lembretes', jsonEncode(encoded));
+  }
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
@@ -46,8 +74,10 @@ class _TelaLembretesState extends State<TelaLembretes> {
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
-                leftChevronIcon: Icon(Icons.chevron_left, color: AppColors.principal),
-                rightChevronIcon: Icon(Icons.chevron_right, color: AppColors.principal),
+                leftChevronIcon:
+                    Icon(Icons.chevron_left, color: AppColors.principal),
+                rightChevronIcon:
+                    Icon(Icons.chevron_right, color: AppColors.principal),
               ),
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -97,12 +127,13 @@ class _TelaLembretesState extends State<TelaLembretes> {
                     setState(() {
                       _lembretes[_selectedDay] = _lembreteController.text;
                     });
+                    _saveLembretes();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Lembrete salvo!')),
                     );
                   }
                 },
-                icon: Icon(Icons.save, color: Colors.white), 
+                icon: Icon(Icons.save, color: Colors.white),
                 label: Text('Salvar Lembrete'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.principal,
@@ -124,9 +155,11 @@ class _TelaLembretesState extends State<TelaLembretes> {
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 6),
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       child: ListTile(
-                        leading: Icon(Icons.event_note, color: AppColors.principal),
+                        leading:
+                            Icon(Icons.event_note, color: AppColors.principal),
                         title: Text(
                           _formatDate(entry.key),
                           style: TextStyle(fontWeight: FontWeight.bold),

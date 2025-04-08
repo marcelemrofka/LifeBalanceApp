@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TelaExercicios extends StatefulWidget {
   @override
@@ -16,9 +18,31 @@ class _TelaExerciciosState extends State<TelaExercicios> {
     'Flexões',
     'Abdominais',
   ];
-  final List<Map<String, String>> exercises = [];
 
+  final List<Map<String, String>> exercises = [];
   final TextEditingController timeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExercises();
+  }
+
+  void _loadExercises() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedData = prefs.getString('exercises');
+    if (savedData != null) {
+      List<dynamic> decoded = jsonDecode(savedData);
+      setState(() {
+        exercises.addAll(decoded.map((e) => Map<String, String>.from(e)));
+      });
+    }
+  }
+
+  void _saveExercises() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('exercises', jsonEncode(exercises));
+  }
 
   void addExercise(String exercise) {
     if (timeController.text.isNotEmpty) {
@@ -28,6 +52,7 @@ class _TelaExerciciosState extends State<TelaExercicios> {
           'time': timeController.text,
         });
       });
+      _saveExercises();
       timeController.clear();
     }
   }
@@ -68,7 +93,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             ),
             const SizedBox(height: 10),
 
-            // Lista de exercícios disponíveis (sem usar Expanded)
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -106,7 +130,6 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             ),
             const SizedBox(height: 10),
 
-            // Lista de exercícios registrados
             exercises.isNotEmpty
                 ? ListView.builder(
                     shrinkWrap: true,
