@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 
 class BarraNavegacao extends StatelessWidget {
@@ -7,7 +8,7 @@ class BarraNavegacao extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF43644A),
+        color:AppColors.principal,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),

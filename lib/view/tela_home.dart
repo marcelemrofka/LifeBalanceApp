@@ -17,13 +17,13 @@ class TelaHome extends StatelessWidget {
         actions: const [Menu(), ],
       ),
       drawer: CustomDrawer(),
-      body: Center(
+      body: Expanded(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const Dashboard(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 35),
             const Carrossel(),
-            const SizedBox(height: 60),
           ],
         ),
         

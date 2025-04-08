@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:app/utils/color.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,10 +20,16 @@ class _DashboardState extends State<Dashboard> {
 
     return Column(
       children: [
-        Text(label),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: 150,
+            child: Text(label),
+          ),
+        ),
         const SizedBox(height: 4),
         SizedBox(
-          width: 100,
+          width: 150,
           child: LinearPercentage(
             currentPercentage: porcentagem,
             maxPercentage: 100,
@@ -36,13 +42,13 @@ class _DashboardState extends State<Dashboard> {
             ),
             percentageDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
-              color: Colors.green,
+              color: AppColors.verdeGrafico
             ),
           ),
         ),
         const SizedBox(height: 4),
         Text('${value.toStringAsFixed(0)}g',
-            style: const TextStyle(fontSize: 12, color: Colors.black)),
+            style: const TextStyle(fontSize: 12, color: AppColors.midText,)),
       ],
     );
   }
@@ -54,38 +60,28 @@ class _DashboardState extends State<Dashboard> {
      
     return SizedBox(
       width: double.infinity,
-      height: 250,
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
 
-          // Carb e Fibras
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-                progressBar("Carboidratos", nutrition.carboPercentual, 100),
-                progressBar("Fibras", nutrition.fibraPercentual, 100),
-            ],
-          ),
-            
           // Circulo
           Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                width: 160,
-                height: 160, 
-                decoration: const BoxDecoration(color: Color(0xFF43644A), shape: BoxShape.circle,),
+                width: 200,
+                height: 200, 
+                decoration: const BoxDecoration(color: AppColors.principal, shape: BoxShape.circle,),
               ),
 
               // porcentagem ao redor
               CircularPercentage(
                   currentPercentage: min(100, nutrition.caloriasPercentual), // limita a 100%
                   maxPercentage: 100, 
-                  size: 160,
-                  percentageStrokeWidth: 7, 
+                  size: 200,
+                  percentageStrokeWidth: 9, 
                   backgroundStrokeWidth: 1,
-                  percentageColor: Color(0xFF7EBF27),
+                  percentageColor: AppColors.verdeGrafico,
                   centerText: '', // precisa ser vazio para ser sobreposto
                 ),
 
@@ -96,35 +92,47 @@ class _DashboardState extends State<Dashboard> {
                     Text(
                       '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 23,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                     ),
-                    const Text("Consumidas", style: TextStyle(fontSize: 10, color: Colors.white)),
-                    SizedBox(height: 15),
+                    SizedBox(height: 4),
+                    const Text("Consumidas", style: TextStyle(fontSize: 12, color: Colors.white)),
+                    SizedBox(height: 12),
                     Text(
                       "Você consumiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
-                      style: TextStyle(fontSize: 10, color: Colors.white),
+                      style: TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
                 ),
             ],
-                
-    
-              // ],
-            // ),
           ),
-           
-          // Proteinas e Gorduras 
-          Column(
+          SizedBox(height: 20),
+          // NUTRIENTES 
+           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              progressBar("Proteínas", nutrition.proteinaPercentual, 100),
-              progressBar("Gorduras", nutrition.gorduraPercentual, 100)
+                // Carb e Fibras
+                Column(
+                  children: [
+                      progressBar("Carboidratos", nutrition.carboPercentual, 100),
+                      SizedBox(height: 15),
+                      progressBar("Fibras", nutrition.fibraPercentual, 100),
+                  ],
+                ),
+
+                // Proteinas e Gorduras 
+                Column(
+                  children: [
+                    progressBar("Proteínas", nutrition.proteinaPercentual, 100),
+                    SizedBox(height: 15),
+                    progressBar("Gorduras", nutrition.gorduraPercentual, 100)
+                  ],
+                ),
             ],
-          ),
-          
+           ),
+
         ],
       ),
     );
