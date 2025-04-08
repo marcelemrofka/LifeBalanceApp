@@ -36,15 +36,15 @@ class _TelaExerciciosState extends State<TelaExercicios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de Exercícios', style: TextStyle(color: AppColors.lightText),),
+        title: Text('Cadastro de Exercícios', style: TextStyle(color: AppColors.lightText)),
         centerTitle: true,
-        backgroundColor:AppColors.principal,
+        backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -68,30 +68,31 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             ),
             const SizedBox(height: 10),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: availableExercises.length,
-                itemBuilder: (context, index) {
-                  final exercise = availableExercises[index];
-                  return InkWell(
-                    onTap: () => addExercise(exercise),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Card(
-                      color:AppColors.verdeNeutro,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          exercise,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        trailing: Icon(Icons.add, color:AppColors.principal),
-                      ),
+            // Lista de exercícios disponíveis (sem usar Expanded)
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: availableExercises.length,
+              itemBuilder: (context, index) {
+                final exercise = availableExercises[index];
+                return InkWell(
+                  onTap: () => addExercise(exercise),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Card(
+                    color: AppColors.verdeNeutro,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
-                },
-              ),
+                    child: ListTile(
+                      title: Text(
+                        exercise,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      trailing: Icon(Icons.add, color: AppColors.principal),
+                    ),
+                  ),
+                );
+              },
             ),
 
             Divider(thickness: 1.5, height: 30),
@@ -105,18 +106,23 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             ),
             const SizedBox(height: 10),
 
+            // Lista de exercícios registrados
             exercises.isNotEmpty
-                ? Column(
-                    children: exercises.map((exercise) {
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: exercises.length,
+                    itemBuilder: (context, index) {
+                      final exercise = exercises[index];
                       return Card(
                         margin: EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
-                          leading: Icon(Icons.fitness_center, color:AppColors.principal),
+                          leading: Icon(Icons.fitness_center, color: AppColors.principal),
                           title: Text('${exercise['exercise']}'),
                           subtitle: Text('${exercise['time']} minutos'),
                         ),
                       );
-                    }).toList(),
+                    },
                   )
                 : Padding(
                     padding: const EdgeInsets.only(top: 10),
