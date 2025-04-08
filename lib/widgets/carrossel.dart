@@ -46,7 +46,7 @@ class _CarrosselState extends State<Carrossel> {
     return Column(
       children: [
         SizedBox(
-          height: 180,
+          height: 160,
           child: ListView.builder(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
@@ -60,10 +60,9 @@ class _CarrosselState extends State<Carrossel> {
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.4,
                   margin: EdgeInsets.only(
-                    left: index == 0 ? 16 : 8,
-                    right: index == carouselItems.length - 1 ? 16 : 8,
+                    left: index == 0 ? 10 : 8,
+                    right: index == carouselItems.length - 1 ? 10 : 4,
                   ),
-                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.verdeNeutro.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(16),
