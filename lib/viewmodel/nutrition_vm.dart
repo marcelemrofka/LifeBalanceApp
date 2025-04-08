@@ -57,17 +57,26 @@ class NutritionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Adiciona alimento a uma refeição e atualiza os totais
   void adicionarAlimento(String refeicao, Alimento alimento) {
     _alimentosPorRefeicao.putIfAbsent(refeicao, () => []);
     _alimentosPorRefeicao[refeicao]!.add(alimento);
 
+    int calorias = 0, carbo = 0, proteina = 0, gordura = 0, fibra = 0;
+
+    _alimentosPorRefeicao.values.expand((list) => list).forEach((alimento) {
+      calorias += alimento.calorias.toInt();
+      carbo += alimento.carboidratos.toInt();
+      proteina += alimento.proteinas.toInt();
+      gordura += alimento.gorduras.toInt();
+      fibra += alimento.fibras.toInt();
+    });
+
     _nutrition = NutritionModel(
-      caloriasIngeridas: _nutrition.caloriasIngeridas + alimento.calorias.toInt(),
-      carboIngerido: _nutrition.carboIngerido + alimento.carboidratos.toInt(),
-      proteinaIngerida: _nutrition.proteinaIngerida + alimento.proteinas.toInt(),
-      gorduraIngerida: _nutrition.gorduraIngerida + alimento.gorduras.toInt(),
-      fibraIngerida: _nutrition.fibraIngerida + alimento.fibras.toInt(),
+      caloriasIngeridas: calorias,
+      carboIngerido: carbo,
+      proteinaIngerida: proteina,
+      gorduraIngerida: gordura,
+      fibraIngerida: fibra,
       caloriasRecomendada: _nutrition.caloriasRecomendada,
       carboRecomendado: _nutrition.carboRecomendado,
       proteinaRecomendada: _nutrition.proteinaRecomendada,
@@ -77,6 +86,7 @@ class NutritionViewModel extends ChangeNotifier {
 
     notifyListeners();
   }
+
 
   // Salva a refeição no histórico
   void registrarRefeicao(String nomeRefeicao) {

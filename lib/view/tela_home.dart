@@ -12,7 +12,9 @@ class TelaHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: AppColors.background,
         iconTheme: IconThemeData(size: 45, color: AppColors.midGrey),
         actions: const [Menu()],
       ),

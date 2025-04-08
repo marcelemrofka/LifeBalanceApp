@@ -15,8 +15,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   
-  Widget progressBar(String label, double value, double maxValue) {
-    double porcentagem = min(100, (value / maxValue) * 100); // limita a 100%
+  Widget progressBar(String label, double gramas, double maxGramas) {
+    double porcentagem = min(100, (gramas / maxGramas) * 100);
 
     return Column(
       children: [
@@ -35,20 +35,22 @@ class _DashboardState extends State<Dashboard> {
             maxPercentage: 100,
             backgroundHeight: 10,
             percentageHeight: 10,
-            leftRightText: LeftRightText.none, // textos laterais
+            leftRightText: LeftRightText.none,
             backgroundDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               color: Colors.grey.shade300,
             ),
             percentageDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
-              color: AppColors.verdeGrafico
+              color: AppColors.verdeGrafico,
             ),
           ),
         ),
         const SizedBox(height: 4),
-        Text('${value.toStringAsFixed(0)}g',
-            style: const TextStyle(fontSize: 12, color: AppColors.midText,)),
+        Text(
+          '${gramas.toStringAsFixed(0)}g',
+          style: const TextStyle(fontSize: 12, color: AppColors.midText),
+        ),
       ],
     );
   }
@@ -69,8 +71,8 @@ class _DashboardState extends State<Dashboard> {
             alignment: Alignment.center,
             children: [
               Container(
-                width: 200,
-                height: 200, 
+                width: 180,
+                height: 180, 
                 decoration: const BoxDecoration(color: AppColors.principal, shape: BoxShape.circle,),
               ),
 
@@ -78,7 +80,7 @@ class _DashboardState extends State<Dashboard> {
               CircularPercentage(
                   currentPercentage: min(100, nutrition.caloriasPercentual), // limita a 100%
                   maxPercentage: 100, 
-                  size: 200,
+                  size: 180,
                   percentageStrokeWidth: 7, 
                   backgroundStrokeWidth: 1,
                   percentageColor: AppColors.verdeGrafico,
@@ -116,19 +118,19 @@ class _DashboardState extends State<Dashboard> {
                 // Carb e Fibras
                 Column(
                   children: [
-                      progressBar("Carboidratos", nutrition.carboPercentual, 100),
-                      SizedBox(height: 15),
-                      progressBar("Fibras", nutrition.fibraPercentual, 100),
+                      progressBar("Carboidratos", nutrition.carboIngerido.toDouble(), nutrition.carboRecomendado.toDouble()),
+                       SizedBox(height: 15),
+                      progressBar("Fibras", nutrition.fibraIngerida.toDouble(), nutrition.fibraRecomendada.toDouble()),
                   ],
                 ),
 
                 // Proteinas e Gorduras 
                 Column(
                   children: [
-                    progressBar("Proteínas", nutrition.proteinaPercentual, 100),
+                    progressBar("Proteínas", nutrition.proteinaIngerida.toDouble(), nutrition.proteinaRecomendada.toDouble()),
                     SizedBox(height: 15),
-                    progressBar("Gorduras", nutrition.gorduraPercentual, 100)
-                  ],
+                    progressBar("Gorduras", nutrition.gorduraIngerida.toDouble(), nutrition.gorduraRecomendada.toDouble()),
+                  ]
                 ),
             ],
            ),
