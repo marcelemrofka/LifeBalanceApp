@@ -47,7 +47,7 @@ class _TelaSonoState extends State<TelaSono> {
           title: Text("Atenção"),
           content: Text(mensagem),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(),child: Text("OK")),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text("OK")),
           ],
         );
       },
@@ -72,12 +72,12 @@ class _TelaSonoState extends State<TelaSono> {
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
-        leading: Icon(icon, color: AppColors.verdeClaro),
+        leading: Icon(icon, color: Color(0xFF43644A)), // Cor alterada aqui
         title: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         subtitle: Text(time != null ? time.format(context) : "Hora não selecionada"),
         trailing: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(backgroundColor: AppColors.principal),
-          icon: Icon(Icons.access_time),
+          icon: Icon(Icons.access_time, color: Color(0xFF43644A)), // Cor alterada aqui
           label: Text("Selecionar"),
           onPressed: onPressed,
         ),
@@ -89,11 +89,13 @@ class _TelaSonoState extends State<TelaSono> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText),),
+        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText)),
         backgroundColor: AppColors.principal,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -105,7 +107,6 @@ class _TelaSonoState extends State<TelaSono> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
-
             _buildHoraCard(
               "Hora de dormir",
               _horaSono,
@@ -116,7 +117,6 @@ class _TelaSonoState extends State<TelaSono> {
               }),
               Icons.bedtime,
             ),
-
             _buildHoraCard(
               "Hora de despertar",
               _horaDespertar,
@@ -127,7 +127,6 @@ class _TelaSonoState extends State<TelaSono> {
               }),
               Icons.wb_sunny,
             ),
-
             SizedBox(height: 30),
             if (_totalHorasDormidas.isNotEmpty)
               Container(
@@ -139,9 +138,12 @@ class _TelaSonoState extends State<TelaSono> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.nightlight_round, color: AppColors.verdeClaro),
+                    Icon(Icons.nightlight_round, color: Color(0xFF43644A)), // Cor alterada aqui
                     SizedBox(width: 10),
-                    Text("Total dormido: $_totalHorasDormidas",style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),),
+                    Text(
+                      "Total dormido: $_totalHorasDormidas",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),
+                    ),
                   ],
                 ),
               ),
