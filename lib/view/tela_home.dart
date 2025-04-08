@@ -13,7 +13,7 @@ class TelaHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: AppColors.verdeNeutro),
+        iconTheme: IconThemeData( size: 45, color: AppColors.midGrey),
         actions: const [Menu(), ],
       ),
       drawer: CustomDrawer(),

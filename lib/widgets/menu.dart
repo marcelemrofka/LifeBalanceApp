@@ -11,7 +11,7 @@ class Menu extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(icon: Icon(Icons.account_circle, size: 35, color: AppColors.verdeNeutro),
+          IconButton(icon: Icon(Icons.account_circle, size: 45, color: AppColors.midGrey),
           onPressed: () {
               Navigator.pushNamed(context, '/tela_perfil');
           },
