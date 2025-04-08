@@ -5,6 +5,7 @@ final List<Map<String, dynamic>> carouselItems = [
   {'title': 'Água', 'subtitle': 'Registre seu consumo de água!', 'icon': Icons.local_drink_rounded, 'route': '/tela_agua'},
   {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': Icons.alarm, 'route': '/tela_lembretes'},
   {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': Icons.fitness_center, 'route': '/tela_exercicios'},
+  {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': Icons.nightlight ,'route': '/tela_sono'},
 ];
 
 class Carrossel extends StatefulWidget {
@@ -43,7 +44,6 @@ class _CarrosselState extends State<Carrossel> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
           height: 180,
@@ -85,14 +85,14 @@ class _CarrosselState extends State<Carrossel> {
                           fontSize: 16,
                         ),
                       ),
-                      Icon(item['icon'], size: 40, color: AppColors.principal),
+                      Icon(item['icon'], size: 40, color: AppColors.midText),
                       
                       Text(
                         item['subtitle'],
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Colors.black54,
+                          color: AppColors.midText,
                         ),
                       ),
                     ],
@@ -114,7 +114,7 @@ class _CarrosselState extends State<Carrossel> {
               height: 6,
               decoration: BoxDecoration(
                 color: _currentIndex == index
-                    ? AppColors.principal
+                    ? AppColors.midText
                     : Colors.grey[300],
                 borderRadius: BorderRadius.circular(3),
               ),
