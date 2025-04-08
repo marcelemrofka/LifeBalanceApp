@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 
-class TelaCadastro extends StatelessWidget {
+class TelaCadastro extends StatefulWidget {
+  @override
+  _TelaCadastroState createState() => _TelaCadastroState();
+}
+
+class _TelaCadastroState extends State<TelaCadastro> {
+  bool _senhaVisivel = false;
+  bool _confirmarSenhaVisivel = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,28 +33,17 @@ class TelaCadastro extends StatelessWidget {
                   ),
                   SizedBox(height: 30),
 
-                  // Campo Nome
                   _buildTextField('Nome'),
-
-                  // Campo Data de Nascimento
                   _buildTextField('Data de Nascimento'),
-
-                  // Campo CPF
                   _buildTextField('CPF'),
-
-                  // Campo Email
                   _buildTextField('Email'),
-
-                  // Campo Senha
-                  _buildTextField('Senha'),
-
-                  // Campo Confirmar Senha
-                  _buildTextField('Confirmar Senha'),
+                  _buildTextField('Senha', isPassword: true, isConfirmPassword: false),
+                  _buildTextField('Confirmar Senha', isPassword: true, isConfirmPassword: true),
 
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/'); // Agora vai para a tela inicial
+                      Navigator.pushNamed(context, '/');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF43644A),
@@ -69,10 +66,13 @@ class TelaCadastro extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label) {
+  Widget _buildTextField(String label, {bool isPassword = false, bool isConfirmPassword = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: TextField(
+        obscureText: isPassword
+            ? (isConfirmPassword ? !_confirmarSenhaVisivel : !_senhaVisivel)
+            : false,
         decoration: InputDecoration(
           labelText: label,
           filled: true,
@@ -81,6 +81,24 @@ class TelaCadastro extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    (isConfirmPassword ? _confirmarSenhaVisivel : _senhaVisivel)
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (isConfirmPassword) {
+                        _confirmarSenhaVisivel = !_confirmarSenhaVisivel;
+                      } else {
+                        _senhaVisivel = !_senhaVisivel;
+                      }
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );
