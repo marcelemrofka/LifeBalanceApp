@@ -40,6 +40,16 @@ class _TelaLembretesState extends State<TelaLembretes> {
     await prefs.setString('lembretes', jsonEncode(encoded));
   }
 
+  void _deleteLembrete(DateTime date) {
+    setState(() {
+      _lembretes.remove(date);
+      if (isSameDay(date, _selectedDay)) {
+        _lembreteController.clear();
+      }
+    });
+    _saveLembretes();
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -156,15 +166,19 @@ class _TelaLembretesState extends State<TelaLembretes> {
                       margin: EdgeInsets.symmetric(vertical: 6),
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: ListTile(
-                        leading:
-                            Icon(Icons.event_note, color: AppColors.principal),
+                        leading: Icon(Icons.event_note, color: AppColors.principal),
                         title: Text(
                           _formatDate(entry.key),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(entry.value),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: AppColors.principal),
+                          onPressed: () => _deleteLembrete(entry.key),
+                        ),
                       ),
                     );
                   }).toList(),
