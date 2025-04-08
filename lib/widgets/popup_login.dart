@@ -8,6 +8,7 @@ class PopupLogin extends StatefulWidget {
 class _PopupLoginState extends State<PopupLogin> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
+  bool _senhaVisivel = false;
 
   final String usuario = 'admin';
   final String senha = '1234';
@@ -99,7 +100,7 @@ class _PopupLoginState extends State<PopupLogin> {
   Widget _buildTextField(String hint, bool isPassword, TextEditingController controller) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword ? !_senhaVisivel : false,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
@@ -108,6 +109,18 @@ class _PopupLoginState extends State<PopupLogin> {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _senhaVisivel ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _senhaVisivel = !_senhaVisivel;
+                  });
+                },
+              )
+            : null,
       ),
     );
   }

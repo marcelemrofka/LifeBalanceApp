@@ -1,5 +1,6 @@
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
 class TelaAgua extends StatefulWidget {
@@ -9,8 +10,8 @@ class TelaAgua extends StatefulWidget {
 
 class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin {
   double totalIngerido = 0;
-  double capacidadeTotal = 2000; 
-  int quantidadeSelecionada = 100; 
+  double capacidadeTotal = 2000;
+  int quantidadeSelecionada = 100;
   late AnimationController _controller;
   late Animation<double> _animation;
   late Animation<double> _waveAnimation;
@@ -23,10 +24,25 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
       duration: Duration(seconds: 1),
     );
     _animation = Tween<double>(begin: 0, end: 0).animate(_controller);
-
     _waveAnimation = Tween<double>(begin: 0, end: pi / 8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+    _carregarTotalIngerido();
+  }
+
+  Future<void> _carregarTotalIngerido() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      totalIngerido = prefs.getDouble('totalAgua') ?? 0.0;
+      double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
+      _animation = Tween<double>(begin: 0, end: progresso).animate(_controller);
+      _controller.forward(from: 0);
+    });
+  }
+
+  Future<void> _salvarTotalIngerido() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('totalAgua', totalIngerido);
   }
 
   void adicionarAgua() {
@@ -35,6 +51,16 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
       double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
       _animation = Tween<double>(begin: _animation.value, end: progresso).animate(_controller);
       _controller.forward(from: 0);
+      _salvarTotalIngerido();
+    });
+  }
+
+  void resetarAgua() {
+    setState(() {
+      totalIngerido = 0;
+      _animation = Tween<double>(begin: _animation.value, end: 0).animate(_controller);
+      _controller.forward(from: 0);
+      _salvarTotalIngerido();
     });
   }
 
@@ -43,18 +69,27 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Cadastro de Água', style: TextStyle(color: AppColors.lightText),), 
-        centerTitle: true, 
+        title: Text('Cadastro de Água', style: TextStyle(color: AppColors.lightText)),
+        centerTitle: true,
         backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: AppColors.lightText),
+            onPressed: resetarAgua,
+            tooltip: 'Resetar ingestão',
+          )
+        ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          
             Stack(
               alignment: Alignment.center,
               children: [
@@ -109,7 +144,7 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
               child: Text("Adicionar", style: TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 30),
-             Text(
+            Text(
               'Insira a quantidade ingerida de água hoje!',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.midText),
             ),

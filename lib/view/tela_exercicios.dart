@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TelaExercicios extends StatefulWidget {
   @override
@@ -16,9 +18,31 @@ class _TelaExerciciosState extends State<TelaExercicios> {
     'Flexões',
     'Abdominais',
   ];
-  final List<Map<String, String>> exercises = [];
 
+  final List<Map<String, String>> exercises = [];
   final TextEditingController timeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExercises();
+  }
+
+  void _loadExercises() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedData = prefs.getString('exercises');
+    if (savedData != null) {
+      List<dynamic> decoded = jsonDecode(savedData);
+      setState(() {
+        exercises.addAll(decoded.map((e) => Map<String, String>.from(e)));
+      });
+    }
+  }
+
+  void _saveExercises() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('exercises', jsonEncode(exercises));
+  }
 
   void addExercise(String exercise) {
     if (timeController.text.isNotEmpty) {
@@ -28,6 +52,7 @@ class _TelaExerciciosState extends State<TelaExercicios> {
           'time': timeController.text,
         });
       });
+      _saveExercises();
       timeController.clear();
     }
   }
@@ -36,15 +61,15 @@ class _TelaExerciciosState extends State<TelaExercicios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de Exercícios', style: TextStyle(color: AppColors.lightText),),
+        title: Text('Cadastro de Exercícios', style: TextStyle(color: AppColors.lightText)),
         centerTitle: true,
-        backgroundColor:AppColors.principal,
+        backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -68,30 +93,30 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             ),
             const SizedBox(height: 10),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: availableExercises.length,
-                itemBuilder: (context, index) {
-                  final exercise = availableExercises[index];
-                  return InkWell(
-                    onTap: () => addExercise(exercise),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Card(
-                      color:AppColors.verdeNeutro,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          exercise,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        trailing: Icon(Icons.add, color:AppColors.principal),
-                      ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: availableExercises.length,
+              itemBuilder: (context, index) {
+                final exercise = availableExercises[index];
+                return InkWell(
+                  onTap: () => addExercise(exercise),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Card(
+                    color: AppColors.verdeNeutro,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
-                },
-              ),
+                    child: ListTile(
+                      title: Text(
+                        exercise,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      trailing: Icon(Icons.add, color: AppColors.principal),
+                    ),
+                  ),
+                );
+              },
             ),
 
             Divider(thickness: 1.5, height: 30),
@@ -106,17 +131,21 @@ class _TelaExerciciosState extends State<TelaExercicios> {
             const SizedBox(height: 10),
 
             exercises.isNotEmpty
-                ? Column(
-                    children: exercises.map((exercise) {
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: exercises.length,
+                    itemBuilder: (context, index) {
+                      final exercise = exercises[index];
                       return Card(
                         margin: EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
-                          leading: Icon(Icons.fitness_center, color:AppColors.principal),
+                          leading: Icon(Icons.fitness_center, color: AppColors.principal),
                           title: Text('${exercise['exercise']}'),
                           subtitle: Text('${exercise['time']} minutos'),
                         ),
                       );
-                    }).toList(),
+                    },
                   )
                 : Padding(
                     padding: const EdgeInsets.only(top: 10),

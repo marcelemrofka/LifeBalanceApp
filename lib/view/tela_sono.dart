@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TelaSono extends StatefulWidget {
   @override
@@ -11,13 +13,46 @@ class _TelaSonoState extends State<TelaSono> {
   TimeOfDay? _horaDespertar;
   String _totalHorasDormidas = "";
 
+  @override
+  void initState() {
+    super.initState();
+    _carregarDadosSono();
+  }
+
+  void _salvarDadosSono() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> dadosSono = {
+      'horaSono': _horaSono != null ? {'hour': _horaSono!.hour, 'minute': _horaSono!.minute} : null,
+      'horaDespertar': _horaDespertar != null ? {'hour': _horaDespertar!.hour, 'minute': _horaDespertar!.minute} : null,
+      'totalHorasDormidas': _totalHorasDormidas,
+    };
+    prefs.setString('dadosSono', jsonEncode(dadosSono));
+  }
+
+  void _carregarDadosSono() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? dadosString = prefs.getString('dadosSono');
+    if (dadosString != null) {
+      Map<String, dynamic> dados = jsonDecode(dadosString);
+      setState(() {
+        if (dados['horaSono'] != null) {
+          _horaSono = TimeOfDay(hour: dados['horaSono']['hour'], minute: dados['horaSono']['minute']);
+        }
+        if (dados['horaDespertar'] != null) {
+          _horaDespertar = TimeOfDay(hour: dados['horaDespertar']['hour'], minute: dados['horaDespertar']['minute']);
+        }
+        _totalHorasDormidas = dados['totalHorasDormidas'] ?? "";
+      });
+    }
+  }
+
   void _calcularHorasDormidas() {
     if (_horaSono != null && _horaDespertar != null) {
       final DateTime agora = DateTime.now();
       final DateTime horaSono = DateTime(agora.year, agora.month, agora.day, _horaSono!.hour, _horaSono!.minute);
       final DateTime horaDespertar = DateTime(agora.year, agora.month, agora.day, _horaDespertar!.hour, _horaDespertar!.minute);
 
-      int horasDormidas = 0;
+      int horasDormidas;
 
       if (horaDespertar.isBefore(horaSono)) {
         horasDormidas = horaDespertar.add(Duration(days: 1)).difference(horaSono).inHours;
@@ -28,6 +63,8 @@ class _TelaSonoState extends State<TelaSono> {
       setState(() {
         _totalHorasDormidas = "$horasDormidas horas";
       });
+
+      _salvarDadosSono();
 
       if (horasDormidas < 7) {
         _mostrarAlerta("Você dormiu pouco! Menos de 7 horas de sono.");
@@ -47,7 +84,7 @@ class _TelaSonoState extends State<TelaSono> {
           title: Text("Atenção"),
           content: Text(mensagem),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(),child: Text("OK")),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text("OK")),
           ],
         );
       },
@@ -72,12 +109,12 @@ class _TelaSonoState extends State<TelaSono> {
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
-        leading: Icon(icon, color: AppColors.verdeClaro),
+        leading: Icon(icon, color: Color(0xFF43644A)),
         title: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         subtitle: Text(time != null ? time.format(context) : "Hora não selecionada"),
         trailing: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(backgroundColor: AppColors.principal),
-          icon: Icon(Icons.access_time),
+          icon: Icon(Icons.access_time, color: Color(0xFF43644A)),
           label: Text("Selecionar"),
           onPressed: onPressed,
         ),
@@ -89,11 +126,13 @@ class _TelaSonoState extends State<TelaSono> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText),),
+        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText)),
         backgroundColor: AppColors.principal,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -105,7 +144,6 @@ class _TelaSonoState extends State<TelaSono> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
-
             _buildHoraCard(
               "Hora de dormir",
               _horaSono,
@@ -116,7 +154,6 @@ class _TelaSonoState extends State<TelaSono> {
               }),
               Icons.bedtime,
             ),
-
             _buildHoraCard(
               "Hora de despertar",
               _horaDespertar,
@@ -127,7 +164,6 @@ class _TelaSonoState extends State<TelaSono> {
               }),
               Icons.wb_sunny,
             ),
-
             SizedBox(height: 30),
             if (_totalHorasDormidas.isNotEmpty)
               Container(
@@ -139,9 +175,12 @@ class _TelaSonoState extends State<TelaSono> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.nightlight_round, color: AppColors.verdeClaro),
+                    Icon(Icons.nightlight_round, color: Color(0xFF43644A)),
                     SizedBox(width: 10),
-                    Text("Total dormido: $_totalHorasDormidas",style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),),
+                    Text(
+                      "Total dormido: $_totalHorasDormidas",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),
+                    ),
                   ],
                 ),
               ),

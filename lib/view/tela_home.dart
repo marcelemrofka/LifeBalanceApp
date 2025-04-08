@@ -13,23 +13,22 @@ class TelaHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData( size: 45, color: AppColors.midGrey),
-        actions: const [Menu(), ],
+        iconTheme: IconThemeData(size: 45, color: AppColors.midGrey),
+        actions: const [Menu()],
       ),
       drawer: CustomDrawer(),
-      body: Expanded(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Dashboard(),
-            const SizedBox(height: 35),
-            const Carrossel(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Dashboard(),
+            SizedBox(height: 35),
+            Carrossel(),
           ],
         ),
-        
       ),
       bottomNavigationBar: const BarraNavegacao(),
     );
-    
   }
 }
