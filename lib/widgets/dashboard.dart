@@ -65,7 +65,6 @@ class _DashboardState extends State<Dashboard> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-
           // Circulo
           Stack(
             alignment: Alignment.center,
@@ -110,7 +109,29 @@ class _DashboardState extends State<Dashboard> {
                 ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 15),
+
+
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 12,
+                color:AppColors.midText,
+                fontWeight: FontWeight.w100,
+              ),
+              children: const [
+                TextSpan(text: 'Sua meta de calorias diárias é: ',),
+                TextSpan(
+                  text: '1800 kcal',
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 15),
           // NUTRIENTES 
            Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -12,7 +12,7 @@ class NutritionViewModel extends ChangeNotifier {
     gorduraIngerida: 0,
     fibraIngerida: 0,
 
-    caloriasRecomendada: 1600,
+    caloriasRecomendada: 1800,
     carboRecomendado: 185,
     proteinaRecomendada: 100,
     gorduraRecomendada: 53,

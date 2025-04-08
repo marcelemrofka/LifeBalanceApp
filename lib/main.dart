@@ -2,7 +2,6 @@ import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
 import 'package:app/view/tela_refeicao.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'view/tela_inicial.dart';
