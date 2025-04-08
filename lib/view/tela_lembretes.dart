@@ -20,11 +20,13 @@ class _TelaLembretesState extends State<TelaLembretes> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lembretes', style: TextStyle(color: AppColors.lightText),),
+        title: Text('Lembretes', style: TextStyle(color: AppColors.lightText)),
         backgroundColor: AppColors.principal,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -80,14 +82,27 @@ class _TelaLembretesState extends State<TelaLembretes> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  setState(() {
-                    _lembretes[_selectedDay] = _lembreteController.text;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Lembrete salvo!')),
-                  );
+                  final hoje = DateTime.now();
+                  final dataSelecionada = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+                  final dataAtual = DateTime(hoje.year, hoje.month, hoje.day);
+
+                  if (dataSelecionada.isBefore(dataAtual)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Atenção! Você está tentando cadastrar em uma data antiga.'),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  } else {
+                    setState(() {
+                      _lembretes[_selectedDay] = _lembreteController.text;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lembrete salvo!')),
+                    );
+                  }
                 },
-                icon: Icon(Icons.save),
+                icon: Icon(Icons.save, color: Colors.white), 
                 label: Text('Salvar Lembrete'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.principal,
