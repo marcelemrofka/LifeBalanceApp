@@ -1,77 +1,106 @@
 import 'package:app/utils/color.dart';
+import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TelaCadastro extends StatelessWidget {
-  final _nomeController = TextEditingController();
-  final _dataController = TextEditingController();
-  final _cpfController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final _confirmarSenhaController = TextEditingController();
+  const TelaCadastro({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => CadastroViewModel(),
+      child: const TelaCadastroForm(),
+    );
+  }
+}
+
+class TelaCadastroForm extends StatelessWidget {
+  const TelaCadastroForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = Provider.of<CadastroViewModel>(context);
+
+    final nomeController = TextEditingController();
+    final dataController = TextEditingController();
+    final cpfController = TextEditingController();
+    final emailController = TextEditingController();
+    final senhaController = TextEditingController();
+    final confirmarSenhaController = TextEditingController();
+
     return Scaffold(
       backgroundColor: AppColors.principal,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.principal,
-        title: const Text( 'Cadastre-se',  style: TextStyle( fontSize: 26, color: Colors.white),
+        title: const Text(
+          'Cadastre-se',
+          style: TextStyle(fontSize: 26, color: Colors.white),
         ),
         centerTitle: true,
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Container(
-                padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                _buildTextField('Nome', nomeController),
+                _buildTextField('Data de Nascimento', dataController),
+                _buildTextField('CPF', cpfController),
+                _buildTextField('Email', emailController),
+                _buildTextField('Senha', senhaController, obscureText: true),
+                _buildTextField('Confirmar Senha', confirmarSenhaController, obscureText: true),
+                const SizedBox(height: 25),
+                if (viewModel.erro != null)
+                  Text(
+                    viewModel.erro!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                viewModel.carregando
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : ElevatedButton.icon(
+                        onPressed: () async {
+                          if (nomeController.text.isEmpty ||
+                              dataController.text.isEmpty ||
+                              cpfController.text.isEmpty ||
+                              emailController.text.isEmpty ||
+                              senhaController.text.isEmpty ||
+                              confirmarSenhaController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Por favor, preencha todos os campos!'),
+                              ),
+                            );
+                            return;
+                          }
 
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildTextField('Nome', _nomeController),
-                    _buildTextField('Data de Nascimento', _dataController),
-                    _buildTextField('CPF', _cpfController),
-                    _buildTextField('Email', _emailController),
-                    _buildTextField('Senha', _senhaController, obscureText: true),
-                    _buildTextField('Confirmar Senha', _confirmarSenhaController, obscureText: true),
-                    const SizedBox(height: 25),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        if (_nomeController.text.isEmpty ||
-                            _dataController.text.isEmpty ||
-                            _cpfController.text.isEmpty ||
-                            _emailController.text.isEmpty ||
-                            _senhaController.text.isEmpty ||
-                            _confirmarSenhaController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Por favor, preencha todos os campos!'),
-                            ),
+                          final sucesso = await viewModel.cadastrarUsuario(
+                            email: emailController.text.trim(),
+                            senha: senhaController.text.trim(),
+                            confirmarSenha: confirmarSenhaController.text.trim(),
                           );
-                          return;
-                        }
 
-                        Navigator.pushNamed(context, '/');
-                      },
-                      label: const Text(
-                        'Cadastrar',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.verdeBg,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          if (sucesso) {
+                            Navigator.pushReplacementNamed(context, '/');
+                          }
+                        },
+                        icon: const Icon(Icons.person_add),
+                        label: const Text(
+                          'Cadastrar',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        elevation: 6,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.verdeBg,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          elevation: 6,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
         ),

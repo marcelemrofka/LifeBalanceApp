@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodel/auth_viewmodel.dart';
 
 class PopupLogin extends StatefulWidget {
   @override
@@ -6,32 +8,43 @@ class PopupLogin extends StatefulWidget {
 }
 
 class _PopupLoginState extends State<PopupLogin> {
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _passController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
   bool _senhaVisivel = false;
 
-  final String usuario = 'admin';
-  final String senha = '1234';
+  void _login() async {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text;
 
-  void _login() {
-    if (_userController.text == usuario && _passController.text == senha) {
-      Navigator.pop(context);
+    if (email.isEmpty || senha.isEmpty) {
+      _showDialog('Erro', 'Preencha todos os campos.');
+      return;
+    }
+
+    String? resultado = await authVM.login(email, senha);
+    if (resultado == null) {
+      Navigator.pop(context); // Fecha o popup
       Navigator.pushNamed(context, '/tela_home');
     } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Erro"),
-          content: Text("Usuário ou senha inválidos."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("OK"),
-            )
-          ],
-        ),
-      );
+      _showDialog('Erro ao entrar', resultado);
     }
+  }
+
+  void _showDialog(String titulo, String mensagem) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(titulo),
+        content: Text(mensagem),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -56,11 +69,14 @@ class _PopupLoginState extends State<PopupLogin> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Login", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                Text(
+                  "Login",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 40),
-                _buildTextField("Usuário", false, _userController),
+                _buildTextField("Email", false, _emailController),
                 SizedBox(height: 20),
-                _buildTextField("Senha", true, _passController),
+                _buildTextField("Senha", true, _senhaController),
                 SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerRight,
@@ -84,7 +100,8 @@ class _PopupLoginState extends State<PopupLogin> {
                       backgroundColor: Color(0xFF43644A),
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     child: Text("Entrar"),
                   ),
@@ -97,10 +114,13 @@ class _PopupLoginState extends State<PopupLogin> {
     );
   }
 
-  Widget _buildTextField(String hint, bool isPassword, TextEditingController controller) {
+  Widget _buildTextField(
+      String hint, bool isPassword, TextEditingController controller) {
     return TextField(
       controller: controller,
       obscureText: isPassword ? !_senhaVisivel : false,
+      keyboardType:
+          isPassword ? TextInputType.text : TextInputType.emailAddress,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
@@ -112,8 +132,7 @@ class _PopupLoginState extends State<PopupLogin> {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  _senhaVisivel ? Icons.visibility : Icons.visibility_off,
-                ),
+                    _senhaVisivel ? Icons.visibility : Icons.visibility_off),
                 onPressed: () {
                   setState(() {
                     _senhaVisivel = !_senhaVisivel;
