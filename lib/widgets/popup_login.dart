@@ -24,7 +24,7 @@ class _PopupLoginState extends State<PopupLogin> {
 
     String? resultado = await authVM.login(email, senha);
     if (resultado == null) {
-      Navigator.pop(context); // Fecha o popup
+      Navigator.pop(context); 
       Navigator.pushNamed(context, '/tela_home');
     } else {
       _showDialog('Erro ao entrar', resultado);

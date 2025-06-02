@@ -17,12 +17,12 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
-  // Método login que retorna String? para indicar erro ou null para sucesso
+
   Future<String?> login(String email, String password) async {
     _setLoading(true);
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return null; // sucesso
+      return null; 
     } on FirebaseAuthException catch (e) {
       return _getMessageFromErrorCode(e.code);
     } finally {
