@@ -77,9 +77,11 @@ class TelaCadastroForm extends StatelessWidget {
                           }
 
                           final sucesso = await viewModel.cadastrarUsuario(
+                            nome: nomeController.text,
                             email: emailController.text.trim(),
                             senha: senhaController.text.trim(),
-                            confirmarSenha: confirmarSenhaController.text.trim(),
+                            cpf: cpfController.text.trim(),
+                            data: dataController.text.trim(),
                           );
 
                           if (sucesso) {

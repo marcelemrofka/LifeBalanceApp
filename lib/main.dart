@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-
-import 'firebase_options.dart'; // ESSENCIAL
+import 'firebase_options.dart'; 
 import 'package:app/viewmodel/nutrition_vm.dart';
-import 'package:app/viewmodel/auth_viewmodel.dart';  // IMPORTANDO A AUTH VIEWMODEL
-
+import 'package:app/viewmodel/auth_viewmodel.dart';  
 import 'package:app/view/tela_inicial.dart';
 import 'package:app/view/tela_agua.dart';
 import 'package:app/view/tela_cadastro.dart';
