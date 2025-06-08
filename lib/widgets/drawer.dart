@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:app/utils/color.dart';
+import 'package:app/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -20,25 +24,40 @@ class _CustomDrawerState extends State<CustomDrawer> {
     _carregarDados();
   }
 
-  Future<void> _carregarDados() async {
-    final prefs = await SharedPreferences.getInstance();
-    final nome = prefs.getString('nome') ?? 'Usuário';
-    final email = prefs.getString('email') ?? 'usuario@email.com';
-    final imagemPath = prefs.getString('imagemPerfil');
+Future<void> _carregarDados() async {
+  final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+  final uid = authViewModel.user?.uid;
 
-    setState(() {
-      _nome = nome;
-      _email = email;
-      if (imagemPath != null && imagemPath.isNotEmpty) {
-        _imagemPerfil = File(imagemPath);
+  if (uid != null) {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        setState(() {
+          _nome = data['nome'] ?? authViewModel.nome;
+          _email = data['email'] ?? authViewModel.email;
+          final imagemPath = data['imagemPath'] as String?;
+          if (imagemPath != null && imagemPath.isNotEmpty) {
+            _imagemPerfil = File(imagemPath);
+          }
+        });
       }
-    });
+    } catch (e) {
+      print('Erro ao carregar perfil: $e');
+    }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color(0xFF43644A),
+      backgroundColor: AppColors.principal,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [

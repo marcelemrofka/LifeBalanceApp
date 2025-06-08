@@ -1,22 +1,23 @@
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../viewmodel/auth_viewmodel.dart';
 
-class PerfilUsuario extends StatefulWidget {
+class TelaPerfil extends StatefulWidget {
+  const TelaPerfil({Key? key}) : super(key: key);
+
   @override
-  _PerfilUsuarioState createState() => _PerfilUsuarioState();
+  State<TelaPerfil> createState() => _TelaPerfilState();
 }
 
-class _PerfilUsuarioState extends State<PerfilUsuario> {
+class _TelaPerfilState extends State<TelaPerfil> {
   final _nomeController = TextEditingController();
+  final _emailController = TextEditingController();
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
   final _objetivo1Controller = TextEditingController();
-  final _emailController = TextEditingController();
-
-  File? _imagemPerfil;
+  String? _imagemUrl;
 
   @override
   void initState() {
@@ -25,146 +26,89 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
   }
 
   Future<void> _carregarPerfil() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nomeController.text = prefs.getString('nome') ?? '';
-      _pesoController.text = prefs.getString('peso') ?? '';
-      _alturaController.text = prefs.getString('altura') ?? '';
-      _emailController.text = prefs.getString('email') ?? '';
-      _objetivo1Controller.text = prefs.getString('objetivo') ?? '';
-      final imagePath = prefs.getString('imagemPerfil');
-      if (imagePath != null) {
-        _imagemPerfil = File(imagePath);
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final uid = authViewModel.user?.uid;
+
+    if (uid != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(uid)
+            .get();
+
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+
+          setState(() {
+            _nomeController.text = data['nome'] ?? '';
+            _pesoController.text = data['peso']?.toString() ?? '';
+            _alturaController.text = data['altura']?.toString() ?? '';
+            _objetivo1Controller.text = data['objetivo'] ?? '';
+            _emailController.text = authViewModel.email;
+            _imagemUrl = data['imagemPerfil'];
+          });
+        }
+      } catch (e) {
+        print('Erro ao carregar perfil: $e');
       }
-    });
-  }
-
-  Future<void> _salvarPerfil() async {
-    final nome = _nomeController.text;
-    final peso = _pesoController.text;
-    final altura = _alturaController.text;
-    final email = _emailController.text;
-    final objetivo1 = _objetivo1Controller.text;
-
-    if (nome.isEmpty || peso.isEmpty || altura.isEmpty || email.isEmpty || objetivo1.isEmpty || _imagemPerfil == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, preencha todos os campos e adicione uma foto!')));
-      return;
-    }
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('nome', nome);
-    await prefs.setString('peso', peso);
-    await prefs.setString('altura', altura);
-    await prefs.setString('email', email);
-    await prefs.setString('objetivo', objetivo1);
-    await prefs.setString('imagemPerfil', _imagemPerfil!.path);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Perfil salvo com sucesso!')));
-  }
-
-  Future<void> _selecionarImagem() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imagemPerfil = File(pickedFile.path);
-      });
     }
   }
 
   @override
+  void dispose() {
+    _nomeController.dispose();
+    _emailController.dispose();
+    _pesoController.dispose();
+    _alturaController.dispose();
+    _objetivo1Controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Perfil', style: TextStyle(color: AppColors.lightText),), 
-        centerTitle: true, 
+        title: const Text('Perfil'),
         backgroundColor: AppColors.principal,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
-        ),
+        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             Center(
-              child: GestureDetector(
-                onTap: _selecionarImagem,
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: _imagemPerfil != null ? FileImage(_imagemPerfil!) : null,
-                  child: _imagemPerfil == null
-                      ? Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 60,
-                        )
-                      : null,
-                ),
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
+                    ? NetworkImage(_imagemUrl!)
+                    : const AssetImage('lib/images/logo-folha.png')
+                        as ImageProvider,
               ),
             ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _nomeController,
-              decoration: InputDecoration(
-                labelText: 'Nome',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _pesoController,
-              decoration: InputDecoration(
-                labelText: 'Peso (kg)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _alturaController,
-              decoration: InputDecoration(
-                labelText: 'Altura (cm)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _objetivo1Controller,
-              decoration: InputDecoration(
-                labelText: 'Objetivo',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: _salvarPerfil,
-                 style: ElevatedButton.styleFrom(
-                  backgroundColor:AppColors.principal,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                 ),
-                child: Text('Salvar Perfil'),
-                
-              ),
-            ),
+            const SizedBox(height: 20),
+            _buildTextField('Nome', _nomeController),
+            _buildTextField('Email', _emailController, enabled: false),
+            _buildTextField('Peso (kg)', _pesoController),
+            _buildTextField('Altura (cm)', _alturaController),
+            _buildTextField('Objetivo', _objetivo1Controller),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool enabled = true}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        enabled: enabled,
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
         ),
       ),
     );

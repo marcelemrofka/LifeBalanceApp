@@ -18,16 +18,16 @@ import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Necessário para inicialização assíncrona
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Configuração do Firebase
+    options: DefaultFirebaseOptions.currentPlatform, 
   );
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NutritionViewModel()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()), // Injetando AuthViewModel
+        ChangeNotifierProvider(create: (_) => AuthViewModel()), 
       ],
       child: MyApp(),
     ),
@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
         '/tela_lembretes': (context) => TelaLembretes(),
         '/tela_exercicios': (context) => TelaExercicios(),
         '/tela_sono': (context) => TelaSono(),
-        '/tela_perfil': (context) => PerfilUsuario(),
+        '/tela_perfil': (context) => TelaPerfil(),
         '/tela_sobre': (context) => TelaSobre(),
         '/tela_refeicao': (context) => TelaRefeicao(),
         '/tela_historico': (context) => TelaHistoricoRefeicoes(),

@@ -60,7 +60,7 @@ class TelaSobre extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Nosso objetivo é fornecer todas as ferramentas necessárias para que você alcance seus objetivos, seja para perda de peso, ganho de massa muscular ou manutenção de um estilo de vida equilibrado.',
+                  'Nosso objetivo é fornecer todas as ferramentas necessárias para que você alcance seus objetivos, seja para perda de peso, ganho de massa muscular ou manutenção de um estilo de vida equilibrado. O App foi desenvolvido pelas alunas Isa Marostegan Bertocco e Marcele Eduarda Mrofka Rufino.',
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                   textAlign: TextAlign.justify,
                 ),

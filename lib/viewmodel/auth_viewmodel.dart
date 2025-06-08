@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+  import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class AuthViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String get nome => _user?.displayName ?? 'Usuário';
+  String get email => _user?.email ?? 'usuario@email.com';
 
   User? _user;
   User? get user => _user;
@@ -40,6 +44,15 @@ class AuthViewModel extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  Future<Map<String, dynamic>?> buscarDadosUsuario() async {
+    final uid = _user?.uid;
+    if (uid == null) return null;
+
+    final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+    return doc.exists ? doc.data() : null;
+  }
+
 
   Future<void> signOut() async {
     await _auth.signOut();
