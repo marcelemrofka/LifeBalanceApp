@@ -1,4 +1,5 @@
 import 'package:app/data/alimentos_disponiveis.dart';
+import 'package:app/models/refeicao_model.dart';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -170,18 +171,33 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               final nome = _refeicaoSelecionada;
                               if (nome != 'Selecionar') {
-                                Provider.of<NutritionViewModel>(context, listen: false)
-                                    .registrarRefeicao(nome);
-                                Navigator.pop(context);
+                                final viewModel = Provider.of<NutritionViewModel>(context, listen: false);
+                                final alimentos = viewModel.alimentosPorRefeicao[nome] ?? [];
+
+                                if (alimentos.isNotEmpty) {
+                                  final refeicao = RefeicaoModel(nome: nome, alimentos: alimentos);
+                                  await viewModel.salvarRefeicao(refeicao); // Salva no Firestore
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Refeição salva com sucesso!')),
+                                  );
+
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Adicione ao menos um alimento.')),
+                                  );
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Selecione uma refeição válida.')),
                                 );
                               }
                             },
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.principal,
                               foregroundColor: Colors.white,

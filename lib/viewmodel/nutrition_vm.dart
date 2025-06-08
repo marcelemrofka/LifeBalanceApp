@@ -2,6 +2,8 @@ import 'package:app/models/alimento_model.dart';
 import 'package:app/models/refeicao_model.dart';
 import 'package:flutter/material.dart';
 import 'package:app/models/nutrition_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class NutritionViewModel extends ChangeNotifier {
   // Dados nutricionais
@@ -88,19 +90,15 @@ class NutritionViewModel extends ChangeNotifier {
   }
 
 
-  // Salva a refeição no histórico
-  void registrarRefeicao(String nomeRefeicao) {
-    if (!_alimentosPorRefeicao.containsKey(nomeRefeicao)) return;
+Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
+  final firestore = FirebaseFirestore.instance;
 
-    final alimentos = List<Alimento>.from(_alimentosPorRefeicao[nomeRefeicao]!);
-
-    _historico.add(
-      RefeicaoModel(
-        nome: nomeRefeicao,
-        alimentos: alimentos,
-      ),
-    );
-    notifyListeners();
+  try {
+    await firestore.collection('refeicoes').add(refeicao.toMap());
+    print('Refeição salva com sucesso!');
+  } catch (e) {
+    print('Erro ao salvar refeição: $e');
   }
+}
 
 }

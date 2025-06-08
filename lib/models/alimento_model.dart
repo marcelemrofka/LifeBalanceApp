@@ -14,4 +14,16 @@ class Alimento {
     required this.gorduras,
     required this.fibras,
   });
+
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nome': nome,
+      'calorias': calorias,
+      'proteinas': proteinas,
+      'carboidratos': carboidratos,
+      'gorduras': gorduras,
+      'fibras': fibras,
+    };
+  }
 }

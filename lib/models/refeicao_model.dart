@@ -8,4 +8,11 @@ class RefeicaoModel {
     required this.nome,
     required this.alimentos,
   });
+
+    Map<String, dynamic> toMap() {
+    return {
+      'nome': nome,
+      'alimentos': alimentos.map((a) => a.toMap()).toList(),
+    };
+  }
 }
