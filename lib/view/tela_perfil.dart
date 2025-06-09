@@ -54,6 +54,31 @@ class _TelaPerfilState extends State<TelaPerfil> {
     }
   }
 
+  Future<void> _salvarAlteracoes() async {
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final uid = authViewModel.user?.uid;
+
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance.collection('usuarios').doc(uid).update({
+          'nome': _nomeController.text.trim(),
+          'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
+          'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
+          'objetivo': _objetivo1Controller.text.trim(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Informações atualizadas com sucesso!')),
+        );
+      } catch (e) {
+        print('Erro ao atualizar perfil: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao atualizar perfil.')),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _nomeController.dispose();
@@ -83,8 +108,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 radius: 50,
                 backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
                     ? NetworkImage(_imagemUrl!)
-                    : const AssetImage('lib/images/logo-folha.png')
-                        as ImageProvider,
+                    : const AssetImage('lib/images/logo-folha.png') as ImageProvider,
               ),
             ),
             const SizedBox(height: 20),
@@ -93,6 +117,19 @@ class _TelaPerfilState extends State<TelaPerfil> {
             _buildTextField('Peso (kg)', _pesoController),
             _buildTextField('Altura (cm)', _alturaController),
             _buildTextField('Objetivo', _objetivo1Controller),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _salvarAlteracoes,
+              icon: const Icon(Icons.save),
+              label: const Text('Salvar alterações'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.verdeBg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+            ),
           ],
         ),
       ),
