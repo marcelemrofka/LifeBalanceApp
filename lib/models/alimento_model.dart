@@ -16,14 +16,15 @@ class Alimento {
   });
 
 
-  Map<String, dynamic> toMap() {
-    return {
-      'nome': nome,
-      'calorias': calorias,
-      'proteinas': proteinas,
-      'carboidratos': carboidratos,
-      'gorduras': gorduras,
-      'fibras': fibras,
-    };
-  }
+factory Alimento.fromMap(Map<String, dynamic> map) {
+  return Alimento(
+    nome: map['nome'],
+    calorias: (map['calorias'] ?? 0).toDouble(),
+    carboidratos: (map['carboidratos'] ?? 0).toDouble(),
+    proteinas: (map['proteinas'] ?? 0).toDouble(),
+    gorduras: (map['gorduras'] ?? 0).toDouble(),
+    fibras: (map['fibras'] ?? 0).toDouble(),
+  );
+}
+
 }

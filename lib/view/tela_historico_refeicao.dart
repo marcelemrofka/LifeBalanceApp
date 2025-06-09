@@ -12,11 +12,20 @@ class TelaHistoricoRefeicoes extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Histórico de Refeições', style: TextStyle(color: AppColors.lightText),), 
-        centerTitle: true, 
+        title: Text(
+          'Histórico de Refeições',
+          style: TextStyle(color: AppColors.lightText),
+        ),
+        centerTitle: true,
         backgroundColor: AppColors.principal,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText,),onPressed: () { Navigator.pop(context); },
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.lightText,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: historico.isEmpty
@@ -39,7 +48,18 @@ class TelaHistoricoRefeicoes extends StatelessWidget {
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        ...refeicao.alimentos.map((a) => Text("- ${a.nome}")).toList(),
+                        ...refeicao.alimentos
+                            .map(
+                              (a) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                  "- ${a.nome} | Cal: ${a.calorias.toStringAsFixed(0)} kcal | Prot: ${a.proteinas}g | Carb: ${a.carboidratos}g | Gord: ${a.gorduras}g",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            )
+                            .toList(),
                       ],
                     ),
                   ),

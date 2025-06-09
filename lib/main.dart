@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
-import 'package:app/viewmodel/auth_viewmodel.dart';  
+import 'package:app/viewmodel/auth_viewmodel.dart';
 import 'package:app/view/tela_inicial.dart';
 import 'package:app/view/tela_agua.dart';
 import 'package:app/view/tela_cadastro.dart';
@@ -20,14 +20,14 @@ import 'package:app/view/tela_perfil.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, 
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NutritionViewModel()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()), 
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
       ],
       child: MyApp(),
     ),

@@ -3,6 +3,7 @@ import 'package:app/models/refeicao_model.dart';
 import 'package:flutter/material.dart';
 import 'package:app/models/nutrition_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/alimentos_disponiveis.dart';
 
 
 class NutritionViewModel extends ChangeNotifier {
@@ -13,7 +14,6 @@ class NutritionViewModel extends ChangeNotifier {
     proteinaIngerida: 0,
     gorduraIngerida: 0,
     fibraIngerida: 0,
-
     caloriasRecomendada: 1800,
     carboRecomendado: 185,
     proteinaRecomendada: 100,
@@ -89,16 +89,14 @@ class NutritionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
+    final firestore = FirebaseFirestore.instance;
 
-Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
-  final firestore = FirebaseFirestore.instance;
-
-  try {
-    await firestore.collection('refeicoes').add(refeicao.toMap());
-    print('Refeição salva com sucesso!');
-  } catch (e) {
-    print('Erro ao salvar refeição: $e');
+    try {
+      await firestore.collection('refeicoes').add(refeicao.toMap());
+      print('Refeição salva com sucesso!');
+    } catch (e) {
+      print('Erro ao salvar refeição: $e');
+    }
   }
-}
-
 }
