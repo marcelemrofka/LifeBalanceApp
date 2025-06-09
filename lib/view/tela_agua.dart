@@ -1,7 +1,8 @@
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TelaAgua extends StatefulWidget {
   @override
@@ -19,10 +20,7 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 1),
-    );
+    _controller = AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animation = Tween<double>(begin: 0, end: 0).animate(_controller);
     _waveAnimation = Tween<double>(begin: 0, end: pi / 8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
@@ -31,18 +29,28 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
   }
 
   Future<void> _carregarTotalIngerido() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      totalIngerido = prefs.getDouble('totalAgua') ?? 0.0;
-      double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
-      _animation = Tween<double>(begin: 0, end: progresso).animate(_controller);
-      _controller.forward(from: 0);
-    });
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final doc = await FirebaseFirestore.instance.collection('agua').doc(uid).get();
+
+      if (doc.exists) {
+        setState(() {
+          totalIngerido = (doc.data()?['quantidade'] ?? 0).toDouble();
+          double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
+          _animation = Tween<double>(begin: 0, end: progresso).animate(_controller);
+          _controller.forward(from: 0);
+        });
+      }
+    }
   }
 
   Future<void> _salvarTotalIngerido() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('totalAgua', totalIngerido);
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      await FirebaseFirestore.instance.collection('agua').doc(uid).set({
+        'quantidade': totalIngerido,
+      }, SetOptions(merge: true));
+    }
   }
 
   void adicionarAgua() {
@@ -51,8 +59,8 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
       double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
       _animation = Tween<double>(begin: _animation.value, end: progresso).animate(_controller);
       _controller.forward(from: 0);
-      _salvarTotalIngerido();
     });
+    _salvarTotalIngerido();
   }
 
   void resetarAgua() {
@@ -60,8 +68,8 @@ class _TelaAguaState extends State<TelaAgua> with SingleTickerProviderStateMixin
       totalIngerido = 0;
       _animation = Tween<double>(begin: _animation.value, end: 0).animate(_controller);
       _controller.forward(from: 0);
-      _salvarTotalIngerido();
     });
+    _salvarTotalIngerido();
   }
 
   @override

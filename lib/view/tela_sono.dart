@@ -1,7 +1,7 @@
-import 'dart:convert';
-import 'package:app/utils/color.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app/utils/color.dart';
 
 class TelaSono extends StatefulWidget {
   @override
@@ -13,47 +13,59 @@ class _TelaSonoState extends State<TelaSono> {
   TimeOfDay? _horaDespertar;
   String _totalHorasDormidas = "";
 
+  final user = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     super.initState();
-    _carregarDadosSono();
+    if (user != null) {
+      _carregarDadosSono();
+    }
   }
 
   void _salvarDadosSono() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> dadosSono = {
+    if (user == null) return;
+
+    await FirebaseFirestore.instance.collection('sono').doc(user!.uid).set({
       'horaSono': _horaSono != null ? {'hour': _horaSono!.hour, 'minute': _horaSono!.minute} : null,
       'horaDespertar': _horaDespertar != null ? {'hour': _horaDespertar!.hour, 'minute': _horaDespertar!.minute} : null,
       'totalHorasDormidas': _totalHorasDormidas,
-    };
-    prefs.setString('dadosSono', jsonEncode(dadosSono));
+    });
   }
 
   void _carregarDadosSono() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? dadosString = prefs.getString('dadosSono');
-    if (dadosString != null) {
-      Map<String, dynamic> dados = jsonDecode(dadosString);
-      setState(() {
-        if (dados['horaSono'] != null) {
-          _horaSono = TimeOfDay(hour: dados['horaSono']['hour'], minute: dados['horaSono']['minute']);
-        }
-        if (dados['horaDespertar'] != null) {
-          _horaDespertar = TimeOfDay(hour: dados['horaDespertar']['hour'], minute: dados['horaDespertar']['minute']);
-        }
-        _totalHorasDormidas = dados['totalHorasDormidas'] ?? "";
-      });
+    if (user == null) return;
+
+    final doc = await FirebaseFirestore.instance.collection('sono').doc(user!.uid).get();
+    if (doc.exists) {
+      final dados = doc.data();
+      if (dados != null) {
+        setState(() {
+          if (dados['horaSono'] != null) {
+            _horaSono = TimeOfDay(
+              hour: dados['horaSono']['hour'],
+              minute: dados['horaSono']['minute'],
+            );
+          }
+          if (dados['horaDespertar'] != null) {
+            _horaDespertar = TimeOfDay(
+              hour: dados['horaDespertar']['hour'],
+              minute: dados['horaDespertar']['minute'],
+            );
+          }
+          _totalHorasDormidas = dados['totalHorasDormidas'] ?? "";
+        });
+      }
     }
   }
 
   void _calcularHorasDormidas() {
     if (_horaSono != null && _horaDespertar != null) {
-      final DateTime agora = DateTime.now();
-      final DateTime horaSono = DateTime(agora.year, agora.month, agora.day, _horaSono!.hour, _horaSono!.minute);
-      final DateTime horaDespertar = DateTime(agora.year, agora.month, agora.day, _horaDespertar!.hour, _horaDespertar!.minute);
+      final agora = DateTime.now();
+      final horaSono = DateTime(agora.year, agora.month, agora.day, _horaSono!.hour, _horaSono!.minute);
+      final horaDespertar = DateTime(agora.year, agora.month, agora.day, _horaDespertar!.hour, _horaDespertar!.minute);
 
       int horasDormidas;
-
       if (horaDespertar.isBefore(horaSono)) {
         horasDormidas = horaDespertar.add(Duration(days: 1)).difference(horaSono).inHours;
       } else {
@@ -79,15 +91,13 @@ class _TelaSonoState extends State<TelaSono> {
   void _mostrarAlerta(String mensagem) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Atenção"),
-          content: Text(mensagem),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text("OK")),
-          ],
-        );
-      },
+      builder: (_) => AlertDialog(
+        title: Text("Atenção"),
+        content: Text(mensagem),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("OK")),
+        ],
+      ),
     );
   }
 
