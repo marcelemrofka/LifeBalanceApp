@@ -1,10 +1,10 @@
-import 'package:app/data/alimentos_disponiveis.dart';
+import 'package:app/models/alimento_model.dart';
 import 'package:app/models/refeicao_model.dart';
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/alimento_model.dart';
 import '../viewmodel/nutrition_vm.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TelaRefeicao extends StatefulWidget {
   const TelaRefeicao({super.key});
@@ -26,15 +26,45 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
   final List<Alimento> _alimentosAdicionados = [];
   final List<Alimento> _resultadosBusca = [];
 
-  void _buscarAlimento(String query) {
-    final resultados = alimentosDisponiveis.where((alimento) {
-      return alimento.nome.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    setState(() {
-      _resultadosBusca.clear();
-      _resultadosBusca.addAll(resultados);
-    });
+  Future<void> _buscarAlimento(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _resultadosBusca.clear();
+      });
+      return;
+    }
+
+    try {
+      // Busca alimentos cujo nome começa com o texto digitado (case insensitive)
+      final snapshot = await _firestore
+          .collection('alimentos')
+          .orderBy('nome')
+          .startAt([query.toLowerCase()])
+          .endAt([query.toLowerCase() + '\uf8ff'])
+          .get();
+
+      final alimentos = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Alimento(
+          nome: data['nome'] ?? '',
+          calorias: (data['calorias'] ?? 0).toDouble(),
+          carboidratos: (data['carboidratos'] ?? 0).toDouble(),
+          proteinas: (data['proteinas'] ?? 0).toDouble(),
+          gorduras: (data['gorduras'] ?? 0).toDouble(),
+          fibras: (data['fibras'] ?? 0).toDouble(),
+        );
+      }).toList();
+
+      setState(() {
+        _resultadosBusca.clear();
+        _resultadosBusca.addAll(alimentos);
+      });
+    } catch (e) {
+      print('Erro ao buscar alimentos: $e');
+      // Opcional: mostrar mensagem de erro ao usuário
+    }
   }
 
   void _adicionarAlimento(Alimento alimento) {
@@ -174,12 +204,11 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
                             onPressed: () async {
                               final nome = _refeicaoSelecionada;
                               if (nome != 'Selecionar') {
-                                final viewModel = Provider.of<NutritionViewModel>(context, listen: false);
                                 final alimentos = viewModel.alimentosPorRefeicao[nome] ?? [];
 
                                 if (alimentos.isNotEmpty) {
                                   final refeicao = RefeicaoModel(nome: nome, alimentos: alimentos);
-                                  await viewModel.salvarRefeicao(refeicao); // Salva no Firestore
+                                  await viewModel.salvarRefeicao(refeicao);
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text('Refeição salva com sucesso!')),
@@ -197,7 +226,6 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
                                 );
                               }
                             },
-
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.principal,
                               foregroundColor: Colors.white,
