@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"applifebalance","appId":"1:151879993363:android:6bd57009331a2415d0d7e6","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"applifebalance","configurations":{"android":"1:151879993363:android:6bd57009331a2415d0d7e6","ios":"1:151879993363:ios:f336bf8899086f13d0d7e6","macos":"1:151879993363:ios:f336bf8899086f13d0d7e6","web":"1:151879993363:web:80b97fb7b046346bd0d7e6","windows":"1:151879993363:web:5ae658955b21625bd0d7e6"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "applifebalance",
+          "appId": "1:151879993363:android:6bd57009331a2415d0d7e6",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "applifebalance",
+          "configurations": {
+            "android": "1:151879993363:android:6bd57009331a2415d0d7e6",
+            "ios": "1:151879993363:ios:f336bf8899086f13d0d7e6",
+            "macos": "1:151879993363:ios:f336bf8899086f13d0d7e6",
+            "web": "1:151879993363:web:80b97fb7b046346bd0d7e6",
+            "windows": "1:151879993363:web:5ae658955b21625bd0d7e6"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
