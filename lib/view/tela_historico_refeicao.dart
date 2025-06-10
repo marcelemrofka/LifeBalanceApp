@@ -38,7 +38,6 @@ class _TelaHistoricoRefeicoesState extends State<TelaHistoricoRefeicoes> {
       final snapshot = await _firestore
           .collection('refeicoes')
           .where('usuario', isEqualTo: usuarioRef)
-          //.orderBy('data', descending: true) // Se tiver campo data, descomente
           .get();
 
       final lista = snapshot.docs.map((doc) {
