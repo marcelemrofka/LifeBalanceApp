@@ -37,33 +37,31 @@ class _TelaRefeicaoState extends State<TelaRefeicao> {
     }
 
     try {
-      // Busca alimentos cujo nome começa com o texto digitado (case insensitive)
-      final snapshot = await _firestore
-          .collection('alimentos')
-          .orderBy('nome')
-          .startAt([query.toLowerCase()])
-          .endAt([query.toLowerCase() + '\uf8ff'])
-          .get();
+      final snapshot = await _firestore.collection('alimentos').get();
 
       final alimentos = snapshot.docs.map((doc) {
         final data = doc.data();
+        final id = doc.id;
         return Alimento(
-          nome: data['nome'] ?? '',
-          calorias: (data['calorias'] ?? 0).toDouble(),
-          carboidratos: (data['carboidratos'] ?? 0).toDouble(),
-          proteinas: (data['proteinas'] ?? 0).toDouble(),
-          gorduras: (data['gorduras'] ?? 0).toDouble(),
-          fibras: (data['fibras'] ?? 0).toDouble(),
+          nome: id,
+          calorias: double.tryParse(data['calorias']?.toString() ?? '0') ?? 0,
+          carboidratos:
+              double.tryParse(data['carboidrato']?.toString() ?? '0') ?? 0,
+          proteinas:
+              double.tryParse(data['proteina']?.toString() ?? '0') ?? 0,
+          gorduras: double.tryParse(data['gordura']?.toString() ?? '0') ?? 0,
+          fibras: double.tryParse(data['fibra']?.toString() ?? '0') ?? 0,
         );
-      }).toList();
+      }).where((alimento) =>
+          alimento.nome.toLowerCase().contains(query.toLowerCase())).toList();
 
       setState(() {
-        _resultadosBusca.clear();
-        _resultadosBusca.addAll(alimentos);
+        _resultadosBusca
+          ..clear()
+          ..addAll(alimentos);
       });
     } catch (e) {
       print('Erro ao buscar alimentos: $e');
-      // Opcional: mostrar mensagem de erro ao usuário
     }
   }
 
