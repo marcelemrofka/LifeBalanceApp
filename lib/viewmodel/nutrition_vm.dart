@@ -1,5 +1,6 @@
 import 'package:app/models/alimento_model.dart';
 import 'package:app/models/refeicao_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:app/models/nutrition_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -92,9 +93,13 @@ class NutritionViewModel extends ChangeNotifier {
 
 Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
   final firestore = FirebaseFirestore.instance;
+  final uid = FirebaseAuth.instance.currentUser?.uid;
 
-  try {
-    await firestore.collection('refeicoes').add(refeicao.toMap());
+ try {
+    await firestore.collection('refeicoes').add({
+      ...refeicao.toMap(),
+      'usuario': uid, 
+    });
     print('Refeição salva com sucesso!');
   } catch (e) {
     print('Erro ao salvar refeição: $e');
