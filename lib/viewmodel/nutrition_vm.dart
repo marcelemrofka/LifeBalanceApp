@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:app/models/nutrition_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class NutritionViewModel extends ChangeNotifier {
   // Dados nutricionais
   NutritionModel _nutrition = NutritionModel(
@@ -14,7 +13,6 @@ class NutritionViewModel extends ChangeNotifier {
     proteinaIngerida: 0,
     gorduraIngerida: 0,
     fibraIngerida: 0,
-
     caloriasRecomendada: 1800,
     carboRecomendado: 185,
     proteinaRecomendada: 100,
@@ -47,11 +45,13 @@ class NutritionViewModel extends ChangeNotifier {
   }) {
     _nutrition = NutritionModel(
       caloriasIngeridas: caloriasIngeridas ?? _nutrition.caloriasIngeridas,
-      caloriasRecomendada: caloriasRecomendada ?? _nutrition.caloriasRecomendada,
+      caloriasRecomendada:
+          caloriasRecomendada ?? _nutrition.caloriasRecomendada,
       carboIngerido: carboIngerido ?? _nutrition.carboIngerido,
       carboRecomendado: carboRecomendado ?? _nutrition.carboRecomendado,
       proteinaIngerida: proteinaIngerida ?? _nutrition.proteinaIngerida,
-      proteinaRecomendada: proteinaRecomendada ?? _nutrition.proteinaRecomendada,
+      proteinaRecomendada:
+          proteinaRecomendada ?? _nutrition.proteinaRecomendada,
       gorduraIngerida: gorduraIngerida ?? _nutrition.gorduraIngerida,
       gorduraRecomendada: gorduraRecomendada ?? _nutrition.gorduraRecomendada,
       fibraIngerida: fibraIngerida ?? _nutrition.fibraIngerida,
@@ -90,20 +90,18 @@ class NutritionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
+    final firestore = FirebaseFirestore.instance;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
 
-Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
-  final firestore = FirebaseFirestore.instance;
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-
- try {
-    await firestore.collection('refeicoes').add({
-      ...refeicao.toMap(),
-      'usuario': uid, 
-    });
-    print('Refeição salva com sucesso!');
-  } catch (e) {
-    print('Erro ao salvar refeição: $e');
+    try {
+      await firestore.collection('refeicoes').add({
+        ...refeicao.toMap(),
+        'usuario': firestore.collection('usuarios').doc(uid),
+      });
+      print('Refeição salva com sucesso!');
+    } catch (e) {
+      print('Erro ao salvar refeição: $e');
+    }
   }
-}
-
 }
