@@ -26,4 +26,15 @@ class Alimento {
       'fibras': fibras,
     };
   }
+
+    factory Alimento.fromMap(Map<String, dynamic> map) {
+    return Alimento(
+      nome: map['nome'] ?? '',
+      calorias: (map['calorias'] as num).toDouble(),
+      proteinas: (map['proteinas'] as num).toDouble(),
+      carboidratos: (map['carboidratos'] as num).toDouble(),
+      gorduras: (map['gorduras'] as num).toDouble(),
+      fibras: (map['fibras'] as num).toDouble(),
+    );
+  }
 }
