@@ -16,6 +16,7 @@ import 'package:app/view/sobre.dart';
 import 'package:app/view/tela_refeicao.dart';
 import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
+import 'package:app/view/tela_analise_calorias.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         '/tela_sobre': (context) => TelaSobre(),
         '/tela_refeicao': (context) => TelaRefeicao(),
         '/tela_historico': (context) => TelaHistoricoRefeicoes(),
+        '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
       },
     );
   }
