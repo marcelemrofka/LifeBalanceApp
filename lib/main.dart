@@ -1,3 +1,4 @@
+import 'package:app/view/tela_home_nutri.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => TelaInicial(),
         '/tela_home': (context) => TelaHome(),
+        '/tela_home_nutri': (context) => TelaHomeNutri(),
         '/tela_agua': (context) => TelaAgua(),
         '/tela_cadastro': (context) => TelaCadastro(),
         '/tela_senha': (context) => TelaSenha(),

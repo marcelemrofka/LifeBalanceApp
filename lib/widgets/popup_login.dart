@@ -23,9 +23,16 @@ class _PopupLoginState extends State<PopupLogin> {
     }
 
     String? resultado = await authVM.login(email, senha);
+
     if (resultado == null) {
-      Navigator.pop(context); 
-      Navigator.pushNamed(context, '/tela_home');
+      final dadosUsuario = await authVM.buscarDadosUsuario();
+      final isNutri = dadosUsuario?['tp_user'] as bool? ?? false;
+
+      if (isNutri) {
+        Navigator.pushReplacementNamed(context, '/tela_home_nutri');
+      } else {
+        Navigator.pushReplacementNamed(context, '/tela_home');
+      }
     } else {
       _showDialog('Erro ao entrar', resultado);
     }
