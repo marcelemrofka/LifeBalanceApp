@@ -256,6 +256,70 @@ import 'package:app/utils/color.dart';
 class TelaRefeicao extends StatelessWidget {
   const TelaRefeicao({super.key});
 
+  void abrirSubMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: const Text("Café da Manhã"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Café da Manhã");
+            },
+          ),
+          ListTile(
+            title: const Text("Lanche da Manhã"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Lanche da Manhã");
+            },
+          ),
+          ListTile(
+            title: const Text("Almoço"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Almoço");
+            },
+          ),
+          ListTile(
+            title: const Text("Café da Tarde"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Café da Tarde");
+            },
+          ),
+          ListTile(
+            title: const Text("Jantar"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Jantar");
+            },
+          ),
+          ListTile(
+            title: const Text("Ceia"),
+            onTap: () {
+              Navigator.pop(context);
+              abrirAnalise(context, "Ceia");
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void abrirAnalise(BuildContext context, String tipoRefeicao) {
+    Navigator.pushNamed(
+      context,
+      '/tela_analise_calorias',
+      arguments: {'tipoRefeicao': tipoRefeicao},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -268,7 +332,7 @@ class TelaRefeicao extends StatelessWidget {
           child: AppBar(
             backgroundColor: AppColors.verdeBg,
             elevation: 0,
-            automaticallyImplyLeading: false, 
+            automaticallyImplyLeading: false,
             flexibleSpace: SafeArea(
               child: Row(
                 children: [
@@ -304,15 +368,14 @@ class TelaRefeicao extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/tela_analise_calorias'); 
-        },
+        onPressed: () => abrirSubMenu(context),
         backgroundColor: Colors.orange,
         child: const Icon(
           Icons.add,
-          color: Colors.white, 
+          color: Colors.white,
         ),
       ),
     );
   }
 }
+
