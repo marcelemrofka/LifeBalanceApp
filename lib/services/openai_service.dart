@@ -1,10 +1,10 @@
-// lib/services/openai_service.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-// SUA CHAVE OPENAI AQUI
+// CHAVE OPENAI
 
+// === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
   final bytes = await imagem.readAsBytes();
@@ -55,37 +55,62 @@ Use uma linguagem clara, com letras, pontos e quebras de linha. Sempre termine c
 
       return conteudo.trim();
     } else {
-      print('Erro: ${response.body}');
       return 'Erro ao analisar a imagem: ${response.statusCode}';
     }
   } catch (e) {
-    print('Erro na requisição: $e');
-    return 'Erro ao analisar a imagem';
+    return 'Erro na requisição: $e';
   }
 }
 
-// Função para parsear texto da IA em lista de mapas
-List<Map<String, dynamic>> parseIAResponse(String texto) {
-  final linhas = texto.split('\n');
-  final pratos = <Map<String, dynamic>>[];
+// === Função para análise dos ALIMENTOS MANUAIS ===
+Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) async {
+  final url = Uri.parse('https://api.openai.com/v1/chat/completions');
 
-  for (var linha in linhas) {
-    linha = linha.trim();
-    if (linha.isEmpty || linha.startsWith('CALORIAS TOTAIS')) continue;
+  // Monta o texto para enviar ao GPT
+  String listaAlimentos = alimentos.map((item) {
+    return "- ${item['alimento']}: ${item['quantidade']}g";
+  }).join("\n");
 
-    // Exemplo: "- Arroz: 150g, 200 kcal"
-    final match = RegExp(r"-\s*(.+):\s*(\d+)g,\s*(\d+)\s*kcal").firstMatch(linha);
-    if (match != null) {
-      pratos.add({
-        "nomePrato": match.group(1),
-        "quantidade": int.parse(match.group(2)!),
-        "calorias": int.parse(match.group(3)!),
-        "proteinas": 0,
-        "carboidratos": 0,
-        "grasas": 0,
-      });
+  final headers = {
+    'Content-Type': 'application/json',
+    //'Authorization': 'Bearer $openAiApiKey',
+  };
+
+  final body = jsonEncode({
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": """
+Considere a seguinte lista de alimentos e calcule calorias estimadas:
+
+$listaAlimentos
+
+1. Liste cada alimento com estimativa de calorias,
+2. Some ao final,
+3. Sempre termine com: CALORIAS TOTAIS: XXXX
+"""
+      }
+    ],
+    "max_tokens": 800
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+      String conteudo = jsonResponse['choices'][0]['message']['content'];
+
+      if (!conteudo.contains("CALORIAS TOTAIS")) {
+        conteudo += "\n\nCALORIAS TOTAIS: estimativa não disponível";
+      }
+
+      return conteudo.trim();
+    } else {
+      return 'Erro ao analisar alimentos: ${response.statusCode}';
     }
+  } catch (e) {
+    return 'Erro na requisição: $e';
   }
-
-  return pratos;
 }
