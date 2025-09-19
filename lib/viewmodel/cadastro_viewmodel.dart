@@ -18,6 +18,8 @@ class CadastroViewModel extends ChangeNotifier {
     required String senha,
     required String cpf,
     required String data,
+    // required bool tp_user,
+    // required String plano,
   }) async {
     try {
       // Cria o usuário no FirebaseAuth

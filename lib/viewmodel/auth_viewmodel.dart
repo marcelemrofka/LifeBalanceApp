@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-  import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class AuthViewModel extends ChangeNotifier {
@@ -20,7 +20,6 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     });
   }
-
 
   Future<String?> login(String email, String password) async {
     _setLoading(true);

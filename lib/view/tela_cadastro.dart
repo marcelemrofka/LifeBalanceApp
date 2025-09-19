@@ -15,19 +15,39 @@ class TelaCadastro extends StatelessWidget {
   }
 }
 
-class TelaCadastroForm extends StatelessWidget {
+class TelaCadastroForm extends StatefulWidget {
   const TelaCadastroForm({super.key});
+
+  @override
+  State<TelaCadastroForm> createState() => _TelaCadastroFormState();
+}
+
+class _TelaCadastroFormState extends State<TelaCadastroForm>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  final nomeController = TextEditingController();
+  final dataController = TextEditingController();
+  final cpfController = TextEditingController();
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+  final confirmarSenhaController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<CadastroViewModel>(context);
-
-    final nomeController = TextEditingController();
-    final dataController = TextEditingController();
-    final cpfController = TextEditingController();
-    final emailController = TextEditingController();
-    final senhaController = TextEditingController();
-    final confirmarSenhaController = TextEditingController();
 
     return Scaffold(
       backgroundColor: AppColors.principal,
@@ -39,78 +59,100 @@ class TelaCadastroForm extends StatelessWidget {
           style: TextStyle(fontSize: 26, color: Colors.white),
         ),
         centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          tabs: const [
+            Tab(text: "Nutricionista"),
+            Tab(text: "Usuário Comum"),
+          ],
+        ),
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                _buildTextField('Nome', nomeController),
-                _buildTextField('Data de Nascimento', dataController),
-                _buildTextField('CPF', cpfController),
-                _buildTextField('Email', emailController),
-                _buildTextField('Senha', senhaController, obscureText: true),
-                _buildTextField('Confirmar Senha', confirmarSenhaController, obscureText: true),
-                const SizedBox(height: 25),
-                if (viewModel.erro != null)
-                  Text(
-                    viewModel.erro!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                viewModel.carregando
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : ElevatedButton.icon(
-                        onPressed: () async {
-                          if (nomeController.text.isEmpty ||
-                              dataController.text.isEmpty ||
-                              cpfController.text.isEmpty ||
-                              emailController.text.isEmpty ||
-                              senhaController.text.isEmpty ||
-                              confirmarSenhaController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Por favor, preencha todos os campos!'),
-                              ),
-                            );
-                            return;
-                          }
-
-                          final sucesso = await viewModel.cadastrarUsuario(
-                            nome: nomeController.text,
-                            email: emailController.text.trim(),
-                            senha: senhaController.text.trim(),
-                            cpf: cpfController.text.trim(),
-                            data: dataController.text.trim(),
-                          );
-
-                          if (sucesso) {
-                            Navigator.pushReplacementNamed(context, '/');
-                          }
-                        },
-                        icon: const Icon(Icons.person_add),
-                        label: const Text(
-                          'Cadastrar',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.verdeBg,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          elevation: 6,
-                        ),
-                      ),
-              ],
-            ),
-          ),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildForm(context, viewModel, isNutri: false),
+            _buildForm(context, viewModel, isNutri: true),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+  Widget _buildForm(BuildContext context, CadastroViewModel viewModel,
+      {required bool isNutri}) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildTextField('Nome', nomeController),
+          _buildTextField('Data de Nascimento', dataController),
+          _buildTextField('CPF', cpfController),
+          _buildTextField('Email', emailController),
+          _buildTextField('Senha', senhaController, obscureText: true),
+          _buildTextField('Confirmar Senha', confirmarSenhaController,
+              obscureText: true),
+          const SizedBox(height: 25),
+          if (viewModel.erro != null)
+            Text(
+              viewModel.erro!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          viewModel.carregando
+              ? const CircularProgressIndicator(color: Colors.white)
+              : ElevatedButton(
+                  onPressed: () async {
+                    if (nomeController.text.isEmpty ||
+                        dataController.text.isEmpty ||
+                        cpfController.text.isEmpty ||
+                        emailController.text.isEmpty ||
+                        senhaController.text.isEmpty ||
+                        confirmarSenhaController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor, preencha todos os campos!'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final sucesso = await viewModel.cadastrarUsuario(
+                      nome: nomeController.text,
+                      email: emailController.text.trim(),
+                      senha: senhaController.text.trim(),
+                      cpf: cpfController.text.trim(),
+                      data: dataController.text.trim(),
+                      // tp_user: isNutri ? 1 : 0, //
+                    );
+
+                    if (sucesso) {
+                      Navigator.pushReplacementNamed(context, '/');
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.verdeBg,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
+                    elevation: 6,
+                  ),
+                  child: const Text(
+                    'Cadastrar',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextField(
