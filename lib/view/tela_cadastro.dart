@@ -74,8 +74,8 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
         child: TabBarView(
           controller: _tabController,
           children: [
-            _buildForm(context, viewModel, isNutri: false),
-            _buildForm(context, viewModel, isNutri: true),
+            _buildForm(context, viewModel, isNutri: true),  // Nutricionista
+            _buildForm(context, viewModel, isNutri: false), // Usuário comum
           ],
         ),
       ),
@@ -125,7 +125,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                       senha: senhaController.text.trim(),
                       cpf: cpfController.text.trim(),
                       data: dataController.text.trim(),
-                      // tp_user: isNutri ? 1 : 0, //
+                      isNutri: isNutri, // passa info da aba
                     );
 
                     if (sucesso) {
