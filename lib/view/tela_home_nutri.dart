@@ -1,5 +1,5 @@
 import 'package:app/utils/color.dart';
-import 'package:app/widgets/barra_navegacao.dart';
+import 'package:app/widgets/barra_navegacao_nutri.dart';
 import 'package:app/widgets/drawer.dart';
 import 'package:app/widgets/menu.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ class TelaHomeNutri extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Text('NUTRICIONISTA'),
       ),
-      bottomNavigationBar: const BarraNavegacao(),
+      bottomNavigationBar: const BarraNavegacaoNutri(),
     );
   }
 }
