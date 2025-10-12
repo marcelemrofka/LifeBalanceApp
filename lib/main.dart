@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart'; 
 import 'package:app/viewmodel/nutrition_vm.dart';
 import 'package:app/viewmodel/auth_viewmodel.dart';  
+import 'package:app/viewmodel/refeicao_vm.dart'; // <-- import do ViewModel do histórico
 import 'package:app/view/tela_inicial.dart';
 import 'package:app/view/tela_agua.dart';
 import 'package:app/view/tela_cadastro.dart';
@@ -30,6 +31,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => NutritionViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()), 
+        ChangeNotifierProvider(create: (_) => RefeicaoViewModel()), // <-- adicionando o histórico
       ],
       child: MyApp(),
     ),
@@ -43,10 +45,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Meu App',
       theme: ThemeData(
-        primaryColor: Color(0xFF43644A),
+        primaryColor: const Color(0xFF43644A),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF43644A),
+            backgroundColor: const Color(0xFF43644A),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

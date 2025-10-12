@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 // CHAVE OPENAI
 
+
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
