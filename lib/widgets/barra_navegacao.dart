@@ -8,7 +8,7 @@ class BarraNavegacao extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color:AppColors.principal,
+        color: AppColors.verdeClaro,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
@@ -18,11 +18,25 @@ class BarraNavegacao extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _navItem(context,icon: Icons.restaurant, label: 'Refeição',route: '/tela_refeicao',),
+          _navItem(
+            context,
+            icon: Icons.restaurant,
+            label: 'Refeição',
+            route: '/tela_refeicao',
+          ),
           _verticalDivider(),
-          _navItem(context,icon: Icons.history,label: 'Histórico',route: '/tela_historico',),
+          _navItem(
+            context,
+            icon: Icons.history,
+            label: 'Histórico',
+            route: '/tela_historico',
+          ),
           _verticalDivider(),
-          _navItem( context, icon: Icons.info_outline, label: 'Sobre', route: '/tela_sobre',
+          _navItem(
+            context,
+            icon: Icons.info_outline,
+            label: 'Sobre',
+            route: '/tela_sobre',
           ),
         ],
       ),
