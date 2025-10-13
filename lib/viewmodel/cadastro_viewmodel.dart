@@ -18,7 +18,7 @@ class CadastroViewModel extends ChangeNotifier {
     required String senha,
     required String cpf,
     required String data,
-    required bool isNutri, // parâmetro para definir nutricionista ou comum
+    required bool isNutri, 
   }) async {
     try {
       _carregando = true;
@@ -39,7 +39,7 @@ class CadastroViewModel extends ChangeNotifier {
         'cpf': cpf,
         'createdAt': FieldValue.serverTimestamp(),
         'tp_user': isNutri, // true = nutricionista, false = comum
-        'plano': isNutri ? null : 'individual', // null se nutri, individual se comum
+        'plano': isNutri ? null : 'individual', 
       });
 
       _carregando = false;
