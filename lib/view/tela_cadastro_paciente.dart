@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 
 class TelaCadastroPaciente extends StatefulWidget {
@@ -20,7 +19,8 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
   File? _imageFile;
 
   final TextEditingController nomeController = TextEditingController();
-  final TextEditingController dataNascimentoController = TextEditingController();
+  final TextEditingController dataNascimentoController =
+      TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController pesoController = TextEditingController();
@@ -62,13 +62,7 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
     String? fotoUrl;
 
     if (_imageFile != null) {
-      // Upload da imagem no Storage (caso tenha)
-
-      // final storageRef = FirebaseStorage.instance
-      //     .ref()
-      //     .child('fotos_perfil/${user.uid}.jpg');
-      // await storageRef.putFile(_imageFile!);
-      // fotoUrl = await storageRef.getDownloadURL();
+      // Upload da imagem
     }
 
     await FirebaseFirestore.instance.collection('usuarios').doc(user.uid).set({
@@ -80,9 +74,9 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
       'peso': double.tryParse(pesoController.text.trim()) ?? 0,
       'altura': double.tryParse(alturaController.text.trim()) ?? 0,
       'objetivo': objetivoController.text.trim(),
-      'tp_user': false, // paciente
+      'tp_user': false,
       'foto_url': fotoUrl,
-      'nutricionista': user.uid, // vincula ao nutricionista logado
+      'nutricionista': user.uid,
       'criado_em': FieldValue.serverTimestamp(),
     });
 
@@ -181,7 +175,19 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
           labelText: label,
           filled: true,
           fillColor: Colors.grey[200],
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          labelStyle: const TextStyle(color: Colors.grey),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.transparent),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.verdeBg, width: 2),
+          ),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) return 'Preencha este campo';
