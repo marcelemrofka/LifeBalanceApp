@@ -1,13 +1,15 @@
+import 'package:app/view/tela_ativacao.dart';
 import 'package:app/view/tela_cadastro_paciente.dart';
 import 'package:app/view/tela_home_nutri.dart';
 import 'package:app/view/tela_pacientes.dart';
+import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
-import 'package:app/viewmodel/auth_viewmodel.dart';  
-import 'package:app/viewmodel/refeicao_vm.dart'; 
+import 'package:app/viewmodel/auth_viewmodel.dart';
+import 'package:app/viewmodel/refeicao_vm.dart';
 import 'package:app/view/tela_inicial.dart';
 import 'package:app/view/tela_agua.dart';
 import 'package:app/view/tela_cadastro.dart';
@@ -25,15 +27,19 @@ import 'package:app/view/tela_analise_calorias.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, 
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NutritionViewModel()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()), 
-        ChangeNotifierProvider(create: (_) => RefeicaoViewModel()), // <-- adicionando o histórico
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => RefeicaoViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => CadastroViewModel(),
+          child: TelaCadastroPaciente(),
+        )
       ],
       child: MyApp(),
     ),
@@ -74,8 +80,9 @@ class MyApp extends StatelessWidget {
         '/tela_refeicao': (context) => TelaRefeicao(),
         '/tela_historico': (context) => TelaHistoricoRefeicoes(),
         '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
-        '/tela_pacientes': (context) => TelaPacientes(), 
+        '/tela_pacientes': (context) => TelaPacientes(),
         '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
+        '/tela_ativacao': (context) => AtivarContaView(),
       },
     );
   }

@@ -119,7 +119,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                       return;
                     }
 
-                    final sucesso = await viewModel.cadastrarUsuario(
+                    final sucesso = await viewModel.cadastrarUsuarioGeral(
                       nome: nomeController.text,
                       email: emailController.text.trim(),
                       senha: senhaController.text.trim(),

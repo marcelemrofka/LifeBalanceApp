@@ -98,6 +98,19 @@ class _PopupLoginState extends State<PopupLogin> {
                     ),
                   ),
                 ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/tela_ativacao');
+                    },
+                    child: Text(
+                      "Ativar Conta",
+                      style: TextStyle(color: Colors.green[900]),
+                    ),
+                  ),
+                ),
                 SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
