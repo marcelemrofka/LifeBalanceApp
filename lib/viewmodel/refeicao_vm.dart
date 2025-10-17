@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart'; // garante que ChangeNotifier esteja disponível
+import 'package:flutter/material.dart';
 
-class RefeicaoViewModel extends ChangeNotifier {  // <- precisa estender ChangeNotifier
+class RefeicaoViewModel extends ChangeNotifier {
   // Histórico de refeições
   final List<Map<String, dynamic>> _historico = [];
 
@@ -16,7 +16,7 @@ class RefeicaoViewModel extends ChangeNotifier {  // <- precisa estender ChangeN
       'resultado': resultado,
       'alimentos': alimentos,
     });
-    notifyListeners(); // <- agora funciona
+    notifyListeners();
   }
 
   void limparHistorico() {
