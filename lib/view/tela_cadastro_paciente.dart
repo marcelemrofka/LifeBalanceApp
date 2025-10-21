@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 class TelaCadastroPaciente extends StatefulWidget {
   const TelaCadastroPaciente({super.key});
+
   @override
   State<TelaCadastroPaciente> createState() => _TelaCadastroPacienteState();
 }
@@ -52,71 +53,132 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
     final cadastroVM = Provider.of<CadastroViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Cadastrar Paciente")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black54),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextField(
-                controller: nomeController,
-                decoration: const InputDecoration(labelText: "Nome completo")),
-            TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email")),
-            TextField(
-                controller: cpfController,
-                decoration: const InputDecoration(labelText: "CPF")),
-            TextField(
-              controller: dataNascimentoController,
-              decoration: const InputDecoration(
-                  labelText: "Data de nascimento (AAAA-MM-DD)"),
-              onChanged: calcularIdade,
+            // Foto de perfil
+            const SizedBox(height: 10),
+            Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Center(
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 80, color: Colors.grey),
+                ),
+              ),
             ),
-            if (idade != null)
-              Text("Idade: $idade anos",
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-            TextField(
-                controller: pesoController,
-                decoration: const InputDecoration(labelText: "Peso (kg)")),
-            TextField(
-                controller: alturaController,
-                decoration: const InputDecoration(labelText: "Altura (cm)")),
-            TextField(
-                controller: objetivoController,
-                decoration: const InputDecoration(labelText: "Objetivo")),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: cadastroVM.carregando
-                  ? null
-                  : () async {
-                      final sucesso = await cadastroVM.cadastrarPaciente(
-                        nome: nomeController.text.trim(),
-                        email: emailController.text.trim(),
-                        cpf: cpfController.text.trim(),
-                        dataNascimento: dataNascimentoController.text.trim(),
-                        peso: double.parse(pesoController.text.trim()),
-                        altura: double.parse(alturaController.text.trim()),
-                        objetivo: objetivoController.text.trim(),
-                      );
+            const SizedBox(height: 30),
 
-                      if (sucesso) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Paciente cadastrado!")),
+            // Campos de texto
+            _buildCampo(nomeController, "Nome completo"),
+            _buildCampo(emailController, "Email"),
+            _buildCampo(cpfController, "CPF"),
+            _buildCampo(
+                dataNascimentoController, "Data de nascimento (AAAA-MM-DD)",
+                onChanged: calcularIdade),
+            if (idade != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text("Idade: $idade anos",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.grey)),
+              ),
+            _buildCampo(pesoController, "Peso (kg)"),
+            _buildCampo(alturaController, "Altura (cm)"),
+            _buildCampo(objetivoController, "Objetivo"),
+            const SizedBox(height: 40),
+
+            // Botão Salvar
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: cadastroVM.carregando
+                    ? null
+                    : () async {
+                        final sucesso = await cadastroVM.cadastrarPaciente(
+                          nome: nomeController.text.trim(),
+                          email: emailController.text.trim(),
+                          cpf: cpfController.text.trim(),
+                          dataNascimento: dataNascimentoController.text.trim(),
+                          peso: double.parse(pesoController.text.trim()),
+                          altura: double.parse(alturaController.text.trim()),
+                          objetivo: objetivoController.text.trim(),
                         );
-                        Navigator.pop(context);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  cadastroVM.erro ?? "Erro ao cadastrar.")),
-                        );
-                      }
-                    },
-              child: cadastroVM.carregando
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Salvar Paciente"),
+
+                        if (sucesso) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Paciente cadastrado!")),
+                          );
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    cadastroVM.erro ?? "Erro ao cadastrar.")),
+                          );
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                child: cadastroVM.carregando
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Salvar Perfil",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+              ),
             ),
+            const SizedBox(height: 30),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCampo(TextEditingController controller, String label,
+      {Function(String)? onChanged}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: label,
+          hintStyle: const TextStyle(color: Colors.black45),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
     );

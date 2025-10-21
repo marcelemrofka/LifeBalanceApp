@@ -1,4 +1,3 @@
-import 'package:app/view/tela_ativacao.dart';
 import 'package:app/view/tela_cadastro_paciente.dart';
 import 'package:app/view/tela_home_nutri.dart';
 import 'package:app/view/tela_pacientes.dart';
@@ -82,7 +81,6 @@ class MyApp extends StatelessWidget {
         '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
         '/tela_pacientes': (context) => TelaPacientes(),
         '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
-        '/tela_ativacao': (context) => AtivarContaView(),
       },
     );
   }
