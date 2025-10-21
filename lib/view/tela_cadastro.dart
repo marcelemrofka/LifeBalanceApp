@@ -50,10 +50,10 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
     final viewModel = Provider.of<CadastroViewModel>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.principal,
+      backgroundColor: AppColors.verdeBg,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.principal,
+        backgroundColor: AppColors.verdeBg,
         title: const Text(
           'Cadastre-se',
           style: TextStyle(fontSize: 26, color: Colors.white),
@@ -74,7 +74,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
         child: TabBarView(
           controller: _tabController,
           children: [
-            _buildForm(context, viewModel, isNutri: true),  // Nutricionista
+            _buildForm(context, viewModel, isNutri: true), // Nutricionista
             _buildForm(context, viewModel, isNutri: false), // Usuário comum
           ],
         ),
@@ -133,7 +133,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.verdeBg,
+                    backgroundColor: AppColors.laranja,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),

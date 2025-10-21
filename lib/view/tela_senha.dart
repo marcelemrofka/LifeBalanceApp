@@ -63,12 +63,13 @@ class _TelaSenhaState extends State<TelaSenha> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recuperar Senha', style: TextStyle(fontSize: 26, color: Colors.white)),
-        backgroundColor: AppColors.principal,
+        title: Text('Recuperar Senha',
+            style: TextStyle(fontSize: 26, color: Colors.white)),
+        backgroundColor: AppColors.verdeBg,
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      backgroundColor: AppColors.principal,
+      backgroundColor: AppColors.verdeBg,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -94,7 +95,7 @@ class _TelaSenhaState extends State<TelaSenha> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _enviarEmailRecuperacao,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.verdeBg,
+                    backgroundColor: AppColors.laranja,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -104,7 +105,8 @@ class _TelaSenhaState extends State<TelaSenha> {
                       ? SizedBox(
                           width: 24,
                           height: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 3),
                         )
                       : Text(
                           "Recuperar",
