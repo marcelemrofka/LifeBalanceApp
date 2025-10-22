@@ -77,6 +77,7 @@ class CadastroViewModel extends ChangeNotifier {
           'contato': contato ?? '',
           'plano': 'profissional',
           'email': email,
+          'isNutri': true,
           'createdAt': FieldValue.serverTimestamp(),
         });
       } else {
@@ -86,6 +87,7 @@ class CadastroViewModel extends ChangeNotifier {
           'email': email,
           'cpf': cpf,
           'plano': 'individual',
+          'isNutri': false,
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
@@ -175,7 +177,7 @@ class CadastroViewModel extends ChangeNotifier {
         'peso': peso,
         'altura': altura,
         'objetivo': objetivo,
-        'tp_user': false,
+        'isNutri': false,
         'status': 'ativo',
         'nutricionista_id': currentUser.uid,
         'criado_em': FieldValue.serverTimestamp(),

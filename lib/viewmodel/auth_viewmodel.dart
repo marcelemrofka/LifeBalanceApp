@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class AuthViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String get nome => _user?.displayName ?? 'Usuário';
@@ -25,7 +24,7 @@ class AuthViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return null; 
+      return null;
     } on FirebaseAuthException catch (e) {
       return _getMessageFromErrorCode(e.code);
     } finally {
@@ -36,7 +35,8 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> signUp(String email, String password) async {
     _setLoading(true);
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } on FirebaseAuthException catch (e) {
       throw Exception(_getMessageFromErrorCode(e.code));
     } finally {
@@ -48,10 +48,25 @@ class AuthViewModel extends ChangeNotifier {
     final uid = _user?.uid;
     if (uid == null) return null;
 
-    final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
-    return doc.exists ? doc.data() : null;
-  }
+    final firestore = FirebaseFirestore.instance;
 
+    // Coleção correta: singular
+    final docNutri = await firestore.collection('nutricionista').doc(uid).get();
+    if (docNutri.exists) {
+      final dados = docNutri.data()!;
+      dados['tipo'] = 'nutricionista';
+      return dados;
+    }
+
+    final docPaciente = await firestore.collection('paciente').doc(uid).get();
+    if (docPaciente.exists) {
+      final dados = docPaciente.data()!;
+      dados['tipo'] = 'paciente';
+      return dados;
+    }
+
+    return null;
+  }
 
   Future<void> signOut() async {
     await _auth.signOut();

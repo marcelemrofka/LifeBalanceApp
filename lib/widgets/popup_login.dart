@@ -27,12 +27,20 @@ class _PopupLoginState extends State<PopupLogin> {
 
     if (resultado == null) {
       final dadosUsuario = await authVM.buscarDadosUsuario();
-      final isNutri = dadosUsuario?['tp_user'] as bool? ?? false;
 
-      if (isNutri) {
+      if (dadosUsuario == null) {
+        _showDialog('Erro', 'Usuário não encontrado!');
+        return;
+      }
+
+      final tipo = dadosUsuario['tipo'];
+
+      if (tipo == 'nutricionista') {
         Navigator.pushReplacementNamed(context, '/tela_home_nutri');
-      } else {
+      } else if (tipo == 'paciente') {
         Navigator.pushReplacementNamed(context, '/tela_home');
+      } else {
+        _showDialog('Erro', 'Tipo de usuário desconhecido!');
       }
     } else {
       _showDialog('Erro ao entrar', resultado);
@@ -139,9 +147,11 @@ class _PopupLoginState extends State<PopupLogin> {
         ),
         suffixIcon: isPassword
             ? IconButton(
-                icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
-                onPressed: () {setState(() { 
-                  _senhaVisivel = !_senhaVisivel;
+                icon: Icon(
+                    _senhaVisivel ? Icons.visibility : Icons.visibility_off),
+                onPressed: () {
+                  setState(() {
+                    _senhaVisivel = !_senhaVisivel;
                   });
                 },
               )
