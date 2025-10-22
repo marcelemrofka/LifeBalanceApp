@@ -26,30 +26,19 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
 Future<void> _carregarDados() async {
   final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-  final uid = authViewModel.user?.uid;
-
-  if (uid != null) {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(uid)
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-
-        setState(() {
-          _nome = data['nome'] ?? authViewModel.nome;
-          _email = data['email'] ?? authViewModel.email;
-          final imagemPath = data['imagemPath'] as String?;
-          if (imagemPath != null && imagemPath.isNotEmpty) {
-            _imagemPerfil = File(imagemPath);
-          }
-        });
+  
+  // Busca os dados do usuário através do AuthViewModel
+  final dadosUsuario = await authViewModel.buscarDadosUsuario();
+  
+  if (dadosUsuario != null) {
+    setState(() {
+      _nome = dadosUsuario['nome'] ?? authViewModel.nome;
+      _email = dadosUsuario['email'] ?? authViewModel.email;
+      final imagemPath = dadosUsuario['imagemPath'] as String?;
+      if (imagemPath != null && imagemPath.isNotEmpty) {
+        _imagemPerfil = File(imagemPath);
       }
-    } catch (e) {
-      print('Erro ao carregar perfil: $e');
-    }
+    });
   }
 }
 

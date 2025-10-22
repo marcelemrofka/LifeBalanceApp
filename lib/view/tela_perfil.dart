@@ -27,30 +27,19 @@ class _TelaPerfilState extends State<TelaPerfil> {
 
   Future<void> _carregarPerfil() async {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final uid = authViewModel.user?.uid;
-
-    if (uid != null) {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(uid)
-            .get();
-
-        if (doc.exists) {
-          final data = doc.data() as Map<String, dynamic>;
-
-          setState(() {
-            _nomeController.text = data['nome'] ?? '';
-            _pesoController.text = data['peso']?.toString() ?? '';
-            _alturaController.text = data['altura']?.toString() ?? '';
-            _objetivo1Controller.text = data['objetivo'] ?? '';
-            _emailController.text = authViewModel.email;
-            _imagemUrl = data['imagemPerfil'];
-          });
-        }
-      } catch (e) {
-        print('Erro ao carregar perfil: $e');
-      }
+    
+    // Busca os dados do usuário através do AuthViewModel
+    final dadosUsuario = await authViewModel.buscarDadosUsuario();
+    
+    if (dadosUsuario != null) {
+      setState(() {
+        _nomeController.text = dadosUsuario['nome'] ?? '';
+        _pesoController.text = dadosUsuario['peso']?.toString() ?? '';
+        _alturaController.text = dadosUsuario['altura']?.toString() ?? '';
+        _objetivo1Controller.text = dadosUsuario['objetivo'] ?? '';
+        _emailController.text = authViewModel.email;
+        _imagemUrl = dadosUsuario['imagemPerfil'];
+      });
     }
   }
 

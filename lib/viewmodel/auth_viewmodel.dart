@@ -24,6 +24,8 @@ class AuthViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      // Carrega os dados do usuário logo após o login
+      await buscarDadosUsuario();
       return null;
     } on FirebaseAuthException catch (e) {
       return _getMessageFromErrorCode(e.code);
@@ -44,31 +46,46 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  Map<String, dynamic>? _dadosUsuario;
+  Map<String, dynamic>? get dadosUsuario => _dadosUsuario;
+  String get tipoUsuario => _dadosUsuario?['tipo'] ?? '';
+
   Future<Map<String, dynamic>?> buscarDadosUsuario() async {
     final uid = _user?.uid;
     if (uid == null) return null;
 
     final firestore = FirebaseFirestore.instance;
 
-    // Coleção correta: singular
+    // Busca nas coleções de nutricionista e paciente
     final docNutri = await firestore.collection('nutricionista').doc(uid).get();
     if (docNutri.exists) {
-      final dados = docNutri.data()!;
-      dados['tipo'] = 'nutricionista';
-      return dados;
+      _dadosUsuario = docNutri.data()!;
+      _dadosUsuario!['tipo'] = 'nutricionista';
+      notifyListeners();
+      return _dadosUsuario;
     }
 
     final docPaciente = await firestore.collection('paciente').doc(uid).get();
     if (docPaciente.exists) {
-      final dados = docPaciente.data()!;
-      dados['tipo'] = 'paciente';
-      return dados;
+      _dadosUsuario = docPaciente.data()!;
+      _dadosUsuario!['tipo'] = 'paciente';
+      notifyListeners();
+      return _dadosUsuario;
+    }
+
+    // Busca na coleção geral de usuários
+    final docUsuario = await firestore.collection('usuarios').doc(uid).get();
+    if (docUsuario.exists) {
+      _dadosUsuario = docUsuario.data()!;
+      notifyListeners();
+      return _dadosUsuario;
     }
 
     return null;
   }
 
   Future<void> signOut() async {
+    _dadosUsuario = null;
     await _auth.signOut();
   }
 
