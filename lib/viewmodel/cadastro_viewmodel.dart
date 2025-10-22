@@ -181,7 +181,24 @@ class CadastroViewModel extends ChangeNotifier {
         'tp_user': false,
         'status': 'ativo',
         'nutricionista_uid': currentUser.uid,
-        'criado_em': FieldValue.serverTimestamp(),
+      });
+      // Adiciona relação na coleção relacao_nutri_paciente
+      final pacienteRef =
+          _firestore.collection('paciente').doc(newUser.user!.uid);
+      final nutricionistaRef =
+          _firestore.collection('nutricionista').doc(currentUser.uid);
+      final relacaoRef =
+          await _firestore.collection('relacao_nutri_paciente').add({
+        'uid_paciente': pacienteRef,
+        'uid_nutricionista': nutricionistaRef,
+        'data_inicio': FieldValue.serverTimestamp(),
+        'data_fim': null,
+        'esta_ativo': true,
+      });
+
+      // Salva referência da relação no documento do paciente
+      await pacienteRef.update({
+        'relacao_nutri_paciente_ref': relacaoRef,
       });
 
       await _auth.signOut();
