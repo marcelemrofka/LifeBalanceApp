@@ -1,3 +1,4 @@
+import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
 import '../widgets/popup_login.dart'; 
 
@@ -5,7 +6,7 @@ class TelaInicial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF43644A),
+      backgroundColor: AppColors.principal,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

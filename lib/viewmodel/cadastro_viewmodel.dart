@@ -1,8 +1,6 @@
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class CadastroViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -20,6 +18,7 @@ class CadastroViewModel extends ChangeNotifier {
         senhaOuObjetivo, // pode ser senha (cadastro comum) ou objetivo (paciente)
     required String cpf,
     required String data,
+    required String plano,
     bool? isNutri,
     double? peso,
     double? altura,
@@ -44,6 +43,7 @@ class CadastroViewModel extends ChangeNotifier {
         senha: senhaOuObjetivo,
         cpf: cpf,
         data: data,
+        plano: plano,
         isNutri: isNutri ?? false,
       );
     }
@@ -56,26 +56,43 @@ class CadastroViewModel extends ChangeNotifier {
     required String cpf,
     required String data,
     required bool isNutri,
+    required String plano,
+    String? crn,
+    String? contato,
   }) async {
     try {
       _carregando = true;
       notifyListeners();
 
+      // 🔹 Cria o login no Firebase Authentication
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      await _firestore.collection('usuarios').doc(cred.user!.uid).set({
-        'uid': cred.user!.uid,
-        'nome': nome,
-        'email': email,
-        'data_nascimento': data,
-        'cpf': cpf,
-        'createdAt': FieldValue.serverTimestamp(),
-        'tp_user': isNutri, // true = nutricionista, false = comum
-        'plano': isNutri ? null : 'individual',
-      });
+      // 🔹 Se for nutricionista → adiciona na coleção "nutricionista"
+      if (isNutri) {
+        await _firestore.collection('nutricionista').doc(cred.user!.uid).set({
+          'uid': cred.user!.uid,
+          'nome': nome,
+          'crn': crn ?? '',
+          'contato': contato ?? '',
+          'plano': 'profissional',
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+      // 🔹 Caso contrário → adiciona na coleção "paciente"
+      else {
+        await _firestore.collection('paciente').doc(cred.user!.uid).set({
+          'uid': cred.user!.uid,
+          'nome': nome,
+          'email': email,
+          'cpf': cpf,
+          'plano': 'individual',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
 
       _carregando = false;
       notifyListeners();
@@ -111,20 +128,32 @@ class CadastroViewModel extends ChangeNotifier {
         throw Exception("Nutricionista não autenticado");
       }
 
-      // Verifica se já existe usuário com esse email
-      final existing = await _firestore
-          .collection('usuarios')
+      // verifica se já existe
+      final existingFirestore = await _firestore
+          .collection('pacientes')
           .where('email', isEqualTo: email)
           .get();
 
-      if (existing.docs.isNotEmpty) {
-        _erro = "Email já cadastrado em outro usuário.";
+      if (existingFirestore.docs.isNotEmpty) {
+        _erro = "Email já cadastrado em outro paciente.";
         _carregando = false;
         notifyListeners();
         return false;
       }
 
-      // Calcula idade
+      // 🔹 Verifica se já existe no Firebase Authentication
+      try {
+        final methods = await _auth.fetchSignInMethodsForEmail(email);
+        if (methods.isNotEmpty) {
+          _erro = "Email já cadastrado na autenticação.";
+          _carregando = false;
+          notifyListeners();
+          return false;
+        }
+      } catch (e) {
+        // ignora se der erro, significa que o email não existe
+      }
+
       final nascimento = DateTime.parse(dataNascimento);
       final idade = DateTime.now().year -
           nascimento.year -
@@ -134,8 +163,14 @@ class CadastroViewModel extends ChangeNotifier {
               ? 1
               : 0);
 
-      // Salva dados no Firestore
-      await _firestore.collection('usuarios').add({
+      final senhaGerada = "${DateTime.now().millisecondsSinceEpoch}";
+
+      final newUser = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: senhaGerada,
+      );
+
+      await _firestore.collection('pacientes').doc(newUser.user!.uid).set({
         'nome': nome,
         'email': email,
         'cpf': cpf,
@@ -145,69 +180,23 @@ class CadastroViewModel extends ChangeNotifier {
         'altura': altura,
         'objetivo': objetivo,
         'tp_user': false,
-        'status': 'pendente',
+        'status': 'ativo',
         'nutricionista_id': currentUser.uid,
         'criado_em': FieldValue.serverTimestamp(),
       });
+
+      await _auth.signOut();
+      await _auth.signInWithEmailAndPassword(
+        email: currentUser.email!,
+        password:
+            'SENHA_DO_NUTRICIONISTA_AQUI', // ⚠️ Substitua por forma segura de manter a sessão
+      );
 
       _carregando = false;
       notifyListeners();
       return true;
     } catch (e) {
       _erro = "Erro ao cadastrar paciente: $e";
-      _carregando = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> ativarContaPaciente({
-    required String email,
-    required String senha,
-  }) async {
-    try {
-      _carregando = true;
-      _erro = null;
-      notifyListeners();
-
-      if (senha.length < 6) {
-        throw Exception("A senha deve ter pelo menos 6 caracteres.");
-      }
-
-      // Verifica se há um cadastro pendente com o email
-      final result = await _firestore
-          .collection('usuarios')
-          .where('email', isEqualTo: email)
-          .where('status', isEqualTo: 'pendente')
-          .get();
-
-      if (result.docs.isEmpty) {
-        throw Exception("Nenhum cadastro pendente encontrado para este email.");
-      }
-
-      // Cria o login no Firebase Authentication
-      final cred = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: senha,
-      );
-
-      // Atualiza o status no Firestore
-      await _firestore.collection('usuarios').doc(result.docs.first.id).update({
-        'uid': cred.user!.uid,
-        'status': 'ativo',
-        'ativado_em': FieldValue.serverTimestamp(),
-      });
-
-      _carregando = false;
-      notifyListeners();
-      return true;
-    } on FirebaseAuthException catch (e) {
-      _erro = e.message ?? "Erro ao criar conta.";
-      _carregando = false;
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _erro = e.toString();
       _carregando = false;
       notifyListeners();
       return false;

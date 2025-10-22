@@ -139,11 +139,9 @@ class _PopupLoginState extends State<PopupLogin> {
         ),
         suffixIcon: isPassword
             ? IconButton(
-                icon: Icon(
-                    _senhaVisivel ? Icons.visibility : Icons.visibility_off),
-                onPressed: () {
-                  setState(() {
-                    _senhaVisivel = !_senhaVisivel;
+                icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
+                onPressed: () {setState(() { 
+                  _senhaVisivel = !_senhaVisivel;
                   });
                 },
               )

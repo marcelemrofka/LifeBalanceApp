@@ -3,6 +3,10 @@ import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// Se quiser máscara de CPF, adicione no pubspec:
+// mask_text_input_formatter: ^2.3.0
+// import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
 class TelaCadastro extends StatelessWidget {
   const TelaCadastro({super.key});
 
@@ -26,12 +30,23 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final nomeController = TextEditingController();
-  final dataController = TextEditingController();
+  // controllers comuns
+  final nomeControllerNutri = TextEditingController();
+  final emailControllerNutri = TextEditingController();
+  final senhaControllerNutri = TextEditingController();
+  final confirmarSenhaControllerNutri = TextEditingController();
+  final crnController = TextEditingController();
+  final contatoController = TextEditingController();
+
+  final nomeControllerUser = TextEditingController();
+  final emailControllerUser = TextEditingController();
+  final senhaControllerUser = TextEditingController();
+  final confirmarSenhaControllerUser = TextEditingController();
   final cpfController = TextEditingController();
-  final emailController = TextEditingController();
-  final senhaController = TextEditingController();
-  final confirmarSenhaController = TextEditingController();
+  final dataController = TextEditingController();
+
+  // Exemplo de mascara (comente se não for usar)
+  // final cpfMask = MaskTextInputFormatter(mask: '###.###.###-##', filter: {"#": RegExp(r'[0-9]')});
 
   @override
   void initState() {
@@ -42,6 +57,21 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
   @override
   void dispose() {
     _tabController.dispose();
+
+    nomeControllerNutri.dispose();
+    emailControllerNutri.dispose();
+    senhaControllerNutri.dispose();
+    confirmarSenhaControllerNutri.dispose();
+    crnController.dispose();
+    contatoController.dispose();
+
+    nomeControllerUser.dispose();
+    emailControllerUser.dispose();
+    senhaControllerUser.dispose();
+    confirmarSenhaControllerUser.dispose();
+    cpfController.dispose();
+    dataController.dispose();
+
     super.dispose();
   }
 
@@ -74,62 +104,76 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
         child: TabBarView(
           controller: _tabController,
           children: [
-            _buildForm(context, viewModel, isNutri: true), // Nutricionista
-            _buildForm(context, viewModel, isNutri: false), // Usuário comum
+            _buildNutriForm(context, viewModel),
+            _buildUserForm(context, viewModel),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildForm(BuildContext context, CadastroViewModel viewModel,
-      {required bool isNutri}) {
+  Widget _buildNutriForm(BuildContext context, CadastroViewModel viewModel) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          _buildTextField('Nome', nomeController),
-          _buildTextField('Data de Nascimento', dataController),
-          _buildTextField('CPF', cpfController),
-          _buildTextField('Email', emailController),
-          _buildTextField('Senha', senhaController, obscureText: true),
-          _buildTextField('Confirmar Senha', confirmarSenhaController,
+          _buildTextField('Nome', nomeControllerNutri),
+          _buildTextField('CRN', crnController),
+          _buildTextField('Contato', contatoController),
+          _buildTextField('Email', emailControllerNutri),
+          _buildTextField('Senha', senhaControllerNutri, obscureText: true),
+          _buildTextField('Confirmar Senha', confirmarSenhaControllerNutri,
               obscureText: true),
           const SizedBox(height: 25),
           if (viewModel.erro != null)
-            Text(
-              viewModel.erro!,
-              style: const TextStyle(color: Colors.red),
-            ),
+            Text(viewModel.erro!, style: const TextStyle(color: Colors.red)),
           viewModel.carregando
               ? const CircularProgressIndicator(color: Colors.white)
               : ElevatedButton(
                   onPressed: () async {
-                    if (nomeController.text.isEmpty ||
-                        dataController.text.isEmpty ||
-                        cpfController.text.isEmpty ||
-                        emailController.text.isEmpty ||
-                        senhaController.text.isEmpty ||
-                        confirmarSenhaController.text.isEmpty) {
+                    // validações específicas nutri
+                    if (nomeControllerNutri.text.isEmpty ||
+                        crnController.text.isEmpty ||
+                        contatoController.text.isEmpty ||
+                        emailControllerNutri.text.isEmpty ||
+                        senhaControllerNutri.text.isEmpty ||
+                        confirmarSenhaControllerNutri.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Por favor, preencha todos os campos!'),
-                        ),
+                            content:
+                                Text('Preencha todos os campos obrigatórios')),
                       );
                       return;
                     }
 
-                    final sucesso = await viewModel.cadastrarUsuarioGeral(
-                      nome: nomeController.text,
-                      email: emailController.text.trim(),
-                      senha: senhaController.text.trim(),
-                      cpf: cpfController.text.trim(),
-                      data: dataController.text.trim(),
-                      isNutri: isNutri, // passa info da aba
-                    );
+                    if (senhaControllerNutri.text !=
+                        confirmarSenhaControllerNutri.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Senhas não conferem')),
+                      );
+                      return;
+                    }
 
-                    if (sucesso) {
-                      Navigator.pushReplacementNamed(context, '/');
+                    final plano = 'profissional';
+
+                    try {
+                      final sucesso = await viewModel.cadastrarUsuarioGeral(
+                        nome: nomeControllerNutri.text.trim(),
+                        email: emailControllerNutri.text.trim(),
+                        senha: senhaControllerNutri.text.trim(),
+                        cpf: '', // não usado para nutri
+                        data: '', // não usado no cadastro de nutri aqui
+                        isNutri: true,
+                        crn: crnController.text.trim(),
+                        contato: contatoController.text.trim(),
+                        plano: plano,
+                      );
+
+                      if (sucesso) {
+                        Navigator.pushReplacementNamed(context, '/');
+                      }
+                    } catch (e) {
+                      debugPrint('Erro ao cadastrar nutri: $e');
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -137,14 +181,92 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50, vertical: 15),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     elevation: 6,
                   ),
-                  child: const Text(
-                    'Cadastrar',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  child: const Text('Cadastrar',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserForm(BuildContext context, CadastroViewModel viewModel) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildTextField('Nome', nomeControllerUser),
+          _buildTextField('Data de Nascimento', dataController,
+              hint: 'dd/mm/aaaa'),
+          // Se usar máscara: inputFormatters: [cpfMask]
+          _buildTextField('CPF', cpfController, hint: '000.000.000-00'),
+          _buildTextField('Email', emailControllerUser),
+          _buildTextField('Senha', senhaControllerUser, obscureText: true),
+          _buildTextField('Confirmar Senha', confirmarSenhaControllerUser,
+              obscureText: true),
+          const SizedBox(height: 25),
+          if (viewModel.erro != null)
+            Text(viewModel.erro!, style: const TextStyle(color: Colors.red)),
+          viewModel.carregando
+              ? const CircularProgressIndicator(color: Colors.white)
+              : ElevatedButton(
+                  onPressed: () async {
+                    // validações específicas usuário comum
+                    if (nomeControllerUser.text.isEmpty ||
+                        cpfController.text.isEmpty ||
+                        emailControllerUser.text.isEmpty ||
+                        senhaControllerUser.text.isEmpty ||
+                        confirmarSenhaControllerUser.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Preencha todos os campos obrigatórios')),
+                      );
+                      return;
+                    }
+
+                    if (senhaControllerUser.text !=
+                        confirmarSenhaControllerUser.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Senhas não conferem')),
+                      );
+                      return;
+                    }
+
+                    final plano = 'individual';
+
+                    try {
+                      final sucesso = await viewModel.cadastrarUsuarioGeral(
+                        nome: nomeControllerUser.text.trim(),
+                        email: emailControllerUser.text.trim(),
+                        senha: senhaControllerUser.text.trim(),
+                        cpf: cpfController.text.trim(),
+                        data: dataController.text.trim(),
+                        isNutri: false,
+                        plano: plano,
+                      );
+
+                      if (sucesso) {
+                        Navigator.pushReplacementNamed(context, '/');
+                      }
+                    } catch (e) {
+                      debugPrint('Erro ao cadastrar usuário: $e');
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.laranja,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    elevation: 6,
                   ),
+                  child: const Text('Cadastrar',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
         ],
       ),
@@ -152,14 +274,16 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
-      {bool obscureText = false}) {
+      {bool obscureText = false, bool enabled = true, String? hint}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        enabled: enabled,
         decoration: InputDecoration(
           labelText: label,
+          hintText: hint,
           filled: true,
           fillColor: const Color(0xFFF2F2F2),
           focusedBorder: OutlineInputBorder(

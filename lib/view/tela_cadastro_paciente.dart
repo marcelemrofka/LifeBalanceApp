@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/cadastro_viewmodel.dart';
-import 'package:intl/intl.dart';
 
 class TelaCadastroPaciente extends StatefulWidget {
   const TelaCadastroPaciente({super.key});
@@ -26,10 +25,7 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
       final hoje = DateTime.now();
       final anos = hoje.year -
           nascimento.year -
-          ((hoje.month < nascimento.month ||
-                  (hoje.month == nascimento.month && hoje.day < nascimento.day))
-              ? 1
-              : 0);
+          ((hoje.month < nascimento.month || (hoje.month == nascimento.month && hoje.day < nascimento.day)) ? 1 : 0);
       setState(() => idade = anos);
     } catch (_) {
       setState(() => idade = null);
