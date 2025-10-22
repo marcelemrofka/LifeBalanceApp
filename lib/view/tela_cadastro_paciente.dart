@@ -87,15 +87,13 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
             _buildCampo(emailController, "Email"),
             _buildCampo(cpfController, "CPF"),
             _buildCampo(
-                dataNascimentoController, "Data de nascimento (AAAA-MM-DD)",
+                dataNascimentoController, "Data de nascimento (DD-MM-AAAA)",
                 onChanged: calcularIdade),
             if (idade != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text("Idade: $idade anos",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.grey)),
-              ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)) ),
             _buildCampo(pesoController, "Peso (kg)"),
             _buildCampo(alturaController, "Altura (cm)"),
             _buildCampo(objetivoController, "Objetivo"),

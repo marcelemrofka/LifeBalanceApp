@@ -64,6 +64,7 @@ class CadastroViewModel extends ChangeNotifier {
       _carregando = true;
       notifyListeners();
 
+      // 🔹 Cria o login no Firebase Authentication
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
@@ -77,17 +78,17 @@ class CadastroViewModel extends ChangeNotifier {
           'contato': contato ?? '',
           'plano': 'profissional',
           'email': email,
-          'isNutri': true,
           'createdAt': FieldValue.serverTimestamp(),
         });
-      } else {
+      }
+      // se for usuario
+      else {
         await _firestore.collection('paciente').doc(cred.user!.uid).set({
           'uid': cred.user!.uid,
           'nome': nome,
           'email': email,
           'cpf': cpf,
           'plano': 'individual',
-          'isNutri': false,
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
@@ -168,7 +169,7 @@ class CadastroViewModel extends ChangeNotifier {
         password: senhaGerada,
       );
 
-      await _firestore.collection('pacientes').doc(newUser.user!.uid).set({
+      await _firestore.collection('paciente').doc(newUser.user!.uid).set({
         'nome': nome,
         'email': email,
         'cpf': cpf,
@@ -177,9 +178,9 @@ class CadastroViewModel extends ChangeNotifier {
         'peso': peso,
         'altura': altura,
         'objetivo': objetivo,
-        'isNutri': false,
+        'tp_user': false,
         'status': 'ativo',
-        'nutricionista_id': currentUser.uid,
+        'nutricionista_uid': currentUser.uid,
         'criado_em': FieldValue.serverTimestamp(),
       });
 

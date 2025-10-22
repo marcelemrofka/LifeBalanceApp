@@ -20,8 +20,8 @@ class TelaPacientes extends StatelessWidget {
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
-              .collection('usuarios')
-              .where('nutricionista', isEqualTo: nutriUid)
+              .collection('paciente')
+              .where('nutricionista_uid', isEqualTo: nutriUid)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -47,6 +47,7 @@ class TelaPacientes extends StatelessWidget {
 
                 return Card(
                   elevation: 2,
+                  color: Colors.white,
                   margin: const EdgeInsets.symmetric(vertical: 6),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -54,7 +55,7 @@ class TelaPacientes extends StatelessWidget {
                     leading: const Icon(Icons.person, color: AppColors.laranja),
                     title: Text(nome),
                     onTap: () {
-                      // 
+                      //
                     },
                   ),
                 );
