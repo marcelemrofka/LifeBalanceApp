@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app/utils/color.dart';
+import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -26,8 +27,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
     if (lembreteJson != null) {
       final Map<String, dynamic> decoded = jsonDecode(lembreteJson);
       setState(() {
-        _lembretes = decoded.map((key, value) =>
-            MapEntry(DateTime.parse(key), value.toString()));
+        _lembretes = decoded.map(
+            (key, value) => MapEntry(DateTime.parse(key), value.toString()));
         _lembreteController.text = _lembretes[_selectedDay] ?? '';
       });
     }
@@ -35,8 +36,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
 
   void _saveLembretes() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Map<String, String> encoded = _lembretes.map(
-        (key, value) => MapEntry(key.toIso8601String(), value));
+    final Map<String, String> encoded =
+        _lembretes.map((key, value) => MapEntry(key.toIso8601String(), value));
     await prefs.setString('lembretes', jsonEncode(encoded));
   }
 
@@ -57,15 +58,7 @@ class _TelaLembretesState extends State<TelaLembretes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Lembretes', style: TextStyle(color: AppColors.lightText)),
-        backgroundColor: AppColors.principal,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: const CustomAppBar(titulo: 'Lembretes'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -123,13 +116,15 @@ class _TelaLembretesState extends State<TelaLembretes> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   final hoje = DateTime.now();
-                  final dataSelecionada = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+                  final dataSelecionada = DateTime(
+                      _selectedDay.year, _selectedDay.month, _selectedDay.day);
                   final dataAtual = DateTime(hoje.year, hoje.month, hoje.day);
 
                   if (dataSelecionada.isBefore(dataAtual)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Atenção! Você está tentando cadastrar em uma data antiga.'),
+                        content: Text(
+                            'Atenção! Você está tentando cadastrar em uma data antiga.'),
                         backgroundColor: Colors.redAccent,
                       ),
                     );
@@ -146,8 +141,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
                 icon: Icon(Icons.save, color: Colors.white),
                 label: Text('Salvar Lembrete'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.principal,
-                  padding: EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppColors.laranja,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12)
                 ),
               ),
             ),
@@ -169,7 +164,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        leading: Icon(Icons.event_note, color: AppColors.principal),
+                        leading:
+                            Icon(Icons.event_note, color: AppColors.principal),
                         title: Text(
                           _formatDate(entry.key),
                           style: TextStyle(fontWeight: FontWeight.bold),
