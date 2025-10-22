@@ -3,7 +3,6 @@ import 'package:app/utils/color.dart';
 import 'package:app/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class CustomDrawer extends StatefulWidget {
@@ -52,7 +51,7 @@ Future<void> _carregarDados() async {
         children: [
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: Color(0xFF43644A),
+              color: AppColors.principal,
             ),
             accountEmail: Text(
               _email, 
