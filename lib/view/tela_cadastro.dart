@@ -3,10 +3,6 @@ import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// Se quiser máscara de CPF, adicione no pubspec:
-// mask_text_input_formatter: ^2.3.0
-// import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-
 class TelaCadastro extends StatelessWidget {
   const TelaCadastro({super.key});
 
@@ -44,9 +40,6 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
   final confirmarSenhaControllerUser = TextEditingController();
   final cpfController = TextEditingController();
   final dataController = TextEditingController();
-
-  // Exemplo de mascara (comente se não for usar)
-  // final cpfMask = MaskTextInputFormatter(mask: '###.###.###-##', filter: {"#": RegExp(r'[0-9]')});
 
   @override
   void initState() {
@@ -161,8 +154,8 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                         nome: nomeControllerNutri.text.trim(),
                         email: emailControllerNutri.text.trim(),
                         senha: senhaControllerNutri.text.trim(),
-                        cpf: '', // não usado para nutri
-                        data: '', // não usado no cadastro de nutri aqui
+                        cpf: '', 
+                        data: '', 
                         isNutri: true,
                         crn: crnController.text.trim(),
                         contato: contatoController.text.trim(),
@@ -201,7 +194,6 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
           _buildTextField('Nome', nomeControllerUser),
           _buildTextField('Data de Nascimento', dataController,
               hint: 'dd/mm/aaaa'),
-          // Se usar máscara: inputFormatters: [cpfMask]
           _buildTextField('CPF', cpfController, hint: '000.000.000-00'),
           _buildTextField('Email', emailControllerUser),
           _buildTextField('Senha', senhaControllerUser, obscureText: true),

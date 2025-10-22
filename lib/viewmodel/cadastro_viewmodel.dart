@@ -64,13 +64,11 @@ class CadastroViewModel extends ChangeNotifier {
       _carregando = true;
       notifyListeners();
 
-      // 🔹 Cria o login no Firebase Authentication
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      // 🔹 Se for nutricionista → adiciona na coleção "nutricionista"
       if (isNutri) {
         await _firestore.collection('nutricionista').doc(cred.user!.uid).set({
           'uid': cred.user!.uid,
@@ -81,9 +79,7 @@ class CadastroViewModel extends ChangeNotifier {
           'email': email,
           'createdAt': FieldValue.serverTimestamp(),
         });
-      }
-      // 🔹 Caso contrário → adiciona na coleção "paciente"
-      else {
+      } else {
         await _firestore.collection('paciente').doc(cred.user!.uid).set({
           'uid': cred.user!.uid,
           'nome': nome,
