@@ -23,13 +23,13 @@ class ImagePickerButtons extends StatelessWidget {
       children: [
         ElevatedButton.icon(
           onPressed: () => _pickImage(ImageSource.camera, context),
-          icon: const Icon(Icons.camera_alt),
+          icon: const Icon(Icons.camera_alt, color: Colors.orange),
           label: const Text('Tirar Foto'),
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
           onPressed: () => _pickImage(ImageSource.gallery, context),
-          icon: const Icon(Icons.photo),
+          icon: const Icon(Icons.photo, color: Colors.orange),
           label: const Text('Galeria'),
         ),
       ],

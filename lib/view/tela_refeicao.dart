@@ -46,9 +46,39 @@ class TelaRefeicao extends StatelessWidget {
     final historico = refeicaoVM.historico;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Histórico de Refeições"),
-        backgroundColor: AppColors.verdeBg,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(30)),
+          child: AppBar(
+            backgroundColor: AppColors.verdeBg,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            flexibleSpace: SafeArea(
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Histórico de Refeições',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -72,7 +102,7 @@ class TelaRefeicao extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 16),
                     child: ExpansionTile(
                       title: Text(
-                        tipo, // Mostra só o tipo de refeição
+                        tipo,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),

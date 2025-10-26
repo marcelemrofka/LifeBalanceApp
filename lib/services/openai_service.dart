@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-// CHAVE OPENAI
-
+//CHAVE OPENAI
 
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {
@@ -20,17 +19,28 @@ Future<String> analisarImagem(File imagem) async {
     "model": "gpt-4o",
     "messages": [
       {
+        "role": "system",
+        "content": "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
+      },
+      {
         "role": "user",
         "content": [
           {
             "type": "text",
             "text": """
-Considere a imagem de um prato de comida e faça o seguinte:
+Analise a imagem da refeição e devolva **apenas o resultado estruturado** neste formato exato:
 
-1. Liste os alimentos presentes, em tópicos e, juntamente, estime quantidade em gramas e calorias de cada item,
-2. Ao final, dê uma linha padrão: CALORIAS TOTAIS: XXXX
+- Alimento: [nome]
+- Quantidade: [valor em gramas]
+- Calorias: [valor em kcal]
+- Carboidratos: [valor em gramas]
+- Proteínas: [valor em gramas]
+- Fibras: [valor em gramas]
+- Gorduras: [valor em gramas]
 
-Use uma linguagem clara, com letras, pontos e quebras de linha. Sempre termine com 'CALORIAS TOTAIS'.
+CALORIAS TOTAIS: [valor total em kcal]
+
+⚠️ Responda **somente** neste formato, nada mais.
 """
           },
           {
@@ -67,7 +77,6 @@ Use uma linguagem clara, com letras, pontos e quebras de linha. Sempre termine c
 Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
 
-  // Monta o texto para enviar ao GPT
   String listaAlimentos = alimentos.map((item) {
     return "- ${item['alimento']}: ${item['quantidade']}g";
   }).join("\n");
@@ -81,15 +90,29 @@ Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) as
     "model": "gpt-4o",
     "messages": [
       {
+        "role": "system",
+        "content": "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
+      },
+      {
         "role": "user",
         "content": """
-Considere a seguinte lista de alimentos e calcule calorias estimadas:
+Considere os seguintes alimentos com suas quantidades e devolva **apenas o resultado estruturado** neste formato exato:
 
 $listaAlimentos
 
-1. Liste cada alimento com estimativa de calorias,
-2. Some ao final,
-3. Sempre termine com: CALORIAS TOTAIS: XXXX
+Formato de resposta:
+
+- Alimento: [nome]
+- Quantidade: [valor em gramas]
+- Calorias: [valor em kcal]
+- Carboidratos: [valor em gramas]
+- Proteínas: [valor em gramas]
+- Fibras: [valor em gramas]
+- Gorduras: [valor em gramas]
+
+CALORIAS TOTAIS: [valor total em kcal]
+
+⚠️ Responda **somente** neste formato, nada mais.
 """
       }
     ],

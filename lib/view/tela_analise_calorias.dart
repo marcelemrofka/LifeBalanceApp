@@ -1,4 +1,3 @@
-// lib/pages/tela_analise_calorias.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,9 +19,10 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
   bool _carregando = false;
   bool _naoConcorda = false;
   bool _resultadoManualGerado = false;
-  bool _fluxoManualFinalizado = false; // NOVO
+  bool _fluxoManualFinalizado = false;
 
   List<Map<String, dynamic>> alimentos = [];
+  List<Map<String, dynamic>> alimentosParaSalvar = [];
 
   final TextEditingController alimentoController = TextEditingController();
   final TextEditingController quantidadeController = TextEditingController();
@@ -36,6 +36,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
       _resultadoManualGerado = false;
       _fluxoManualFinalizado = false;
       alimentos.clear();
+      alimentosParaSalvar.clear();
     });
 
     final resposta = await analisarImagem(imagem);
@@ -43,7 +44,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     setState(() {
       _resultado = resposta;
       _carregando = false;
-      alimentos = _extrairAlimentosDoResultado(_resultado);
+      // Não extrair ainda; só extrair ao salvar
     });
   }
 
@@ -52,7 +53,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
         quantidadeController.text.isNotEmpty) {
       setState(() {
         alimentos.add({
-          "alimento": alimentoController.text,
+          "alimento": alimentoController.text.trim(),
           "quantidade": int.tryParse(quantidadeController.text) ?? 0,
         });
         alimentoController.clear();
@@ -75,29 +76,54 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
       _resultado = resposta;
       _carregando = false;
       _resultadoManualGerado = true;
-      _fluxoManualFinalizado = true; // marca que o fluxo manual terminou
+      _fluxoManualFinalizado = true;
+      alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
     });
   }
 
   List<Map<String, dynamic>> _extrairAlimentosDoResultado(String resultado) {
-    List<Map<String, dynamic>> lista = [];
+    final lista = <Map<String, dynamic>>[];
     final linhas = resultado.split('\n');
     for (var linha in linhas) {
       if (!linha.contains(':')) continue;
       final partes = linha.split(':');
+      if (partes.length < 2) continue;
       final nome = partes[0].trim();
       final qtdStr = partes[1].replaceAll(RegExp(r'[^0-9]'), '');
       final quantidade = int.tryParse(qtdStr) ?? 0;
-      lista.add({'alimento': nome, 'quantidade': quantidade});
+      if (nome.isNotEmpty && quantidade > 0) {
+        lista.add({'alimento': nome, 'quantidade': quantidade});
+      }
     }
     return lista;
+  }
+
+  void _salvarRefeicao(String tipoRefeicao) {
+    // Evita duplicação: só extrai uma vez
+    if (alimentosParaSalvar.isEmpty) {
+      alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
+    }
+
+    if (alimentosParaSalvar.isEmpty) return;
+
+    Provider.of<RefeicaoViewModel>(context, listen: false).adicionarRefeicao(
+      tipoRefeicao: tipoRefeicao,
+      resultado: _resultado,
+      alimentos: alimentosParaSalvar,
+    );
+
+    // Limpa listas para próximo uso
+    alimentos.clear();
+    alimentosParaSalvar.clear();
+    _fluxoManualFinalizado = false;
+
+    Navigator.pushReplacementNamed(context, '/tela_refeicao');
   }
 
   @override
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
     final tipoRefeicao = args != null && args['tipoRefeicao'] != null
         ? args['tipoRefeicao'] as String
         : 'Refeição';
@@ -116,7 +142,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 255, 255, 255)),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
@@ -148,7 +174,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Fluxo padrão: tirar foto ou galeria
+                    // Fluxo padrão: imagem + IA
                     if (!_naoConcorda) ...[
                       if (!_carregando && _resultado.isEmpty)
                         ImagePickerButtons(onImageSelected: _processarImagem),
@@ -172,21 +198,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () {
-                            if (alimentos.isEmpty) {
-                              alimentos =
-                                  _extrairAlimentosDoResultado(_resultado);
-                            }
-                            Provider.of<RefeicaoViewModel>(context,
-                                    listen: false)
-                                .adicionarRefeicao(
-                              tipoRefeicao: tipoRefeicao,
-                              resultado: _resultado,
-                              alimentos: alimentos,
-                            );
-                            Navigator.pushReplacementNamed(
-                                context, '/tela_refeicao');
-                          },
+                          onPressed: () => _salvarRefeicao(tipoRefeicao),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.verdeBg,
                           ),
@@ -200,6 +212,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                               _resultado = '';
                               _imagem = null;
                               alimentos.clear();
+                              alimentosParaSalvar.clear();
                               _fluxoManualFinalizado = false;
                             });
                           },
@@ -211,25 +224,41 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                       ],
                     ],
 
-                    // Fluxo "Não Concordo" antes de clicar OK
+                    // Fluxo "Não Concordo"
                     if (_naoConcorda && !_fluxoManualFinalizado) ...[
                       const SizedBox(height: 16),
                       TextField(
                         controller: alimentoController,
-                        decoration: const InputDecoration(
+                        cursorColor: AppColors.verdeBg,
+                        decoration: InputDecoration(
                           labelText: "Alimento",
+                          labelStyle: TextStyle(color: AppColors.verdeBg),
                           border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.verdeBg), 
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.verdeBg, width: 2), 
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
                       TextField(
-                        controller: quantidadeController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: "Quantidade (g)",
-                          border: OutlineInputBorder(),
+                      controller: quantidadeController,
+                      keyboardType: TextInputType.number,
+                      cursorColor: AppColors.verdeBg, 
+                      decoration: InputDecoration(
+                        labelText: "Quantidade (g)",
+                        labelStyle: TextStyle(color: AppColors.verdeBg),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.verdeBg),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.verdeBg, width: 2),
                         ),
                       ),
+                    ),
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: _adicionarAlimento,
@@ -245,7 +274,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                               .map(
                                 (item) => ListTile(
                                   title: Text(item['alimento']),
-                                  subtitle: Text("${item['quantidade']} g"),
+                                  subtitle: Text("${item['quantidade']}"),
                                 ),
                               )
                               .toList(),
@@ -259,20 +288,11 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                       ),
                     ],
 
-                    // Fluxo final após análise manual (apenas botão Adicionar Refeição)
+                    // Fluxo final após análise manual
                     if (_resultadoManualGerado && _fluxoManualFinalizado) ...[
                       const SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: () {
-                          Provider.of<RefeicaoViewModel>(context, listen: false)
-                              .adicionarRefeicao(
-                            tipoRefeicao: tipoRefeicao,
-                            resultado: _resultado,
-                            alimentos: alimentos,
-                          );
-                          Navigator.pushReplacementNamed(
-                              context, '/tela_refeicao');
-                        },
+                        onPressed: () => _salvarRefeicao(tipoRefeicao),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.verdeBg,
                         ),

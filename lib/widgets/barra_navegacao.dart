@@ -29,7 +29,7 @@ class BarraNavegacao extends StatelessWidget {
             context,
             icon: Icons.restaurant,
             label: 'Refeições',
-            route: '/tela_historico',
+            route: '/tela_refeicao',
           ),
           _verticalDivider(),
           _navItem(
