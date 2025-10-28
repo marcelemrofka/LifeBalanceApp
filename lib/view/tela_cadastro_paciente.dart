@@ -17,20 +17,6 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
   final pesoController = TextEditingController();
   final alturaController = TextEditingController();
   final objetivoController = TextEditingController();
-  int? idade;
-
-  void calcularIdade(String data) {
-    try {
-      final nascimento = DateTime.parse(data);
-      final hoje = DateTime.now();
-      final anos = hoje.year -
-          nascimento.year -
-          ((hoje.month < nascimento.month || (hoje.month == nascimento.month && hoje.day < nascimento.day)) ? 1 : 0);
-      setState(() => idade = anos);
-    } catch (_) {
-      setState(() => idade = null);
-    }
-  }
 
   @override
   void dispose() {
@@ -86,14 +72,7 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
             _buildCampo(nomeController, "Nome completo"),
             _buildCampo(emailController, "Email"),
             _buildCampo(cpfController, "CPF"),
-            _buildCampo(
-                dataNascimentoController, "Data de nascimento (DD-MM-AAAA)",
-                onChanged: calcularIdade),
-            if (idade != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text("Idade: $idade anos",
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)) ),
+            _buildCampo(dataNascimentoController, "Data de nascimento (DD-MM-AAAA)"),
             _buildCampo(pesoController, "Peso (kg)"),
             _buildCampo(alturaController, "Altura (cm)"),
             _buildCampo(objetivoController, "Objetivo"),

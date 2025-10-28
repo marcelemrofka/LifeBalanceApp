@@ -44,7 +44,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     setState(() {
       _resultado = resposta;
       _carregando = false;
-      // Não extrair ainda; só extrair ao salvar
+      // Não extrair ainda só extrair ao salvar
     });
   }
 
@@ -142,7 +142,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 255, 255, 255)),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
@@ -235,30 +235,32 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                           labelStyle: TextStyle(color: AppColors.verdeBg),
                           border: OutlineInputBorder(),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.verdeBg), 
+                            borderSide: BorderSide(color: AppColors.verdeBg),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.verdeBg, width: 2), 
+                            borderSide:
+                                BorderSide(color: AppColors.verdeBg, width: 2),
                           ),
                         ),
                       ),
                       const SizedBox(height: 10),
                       TextField(
-                      controller: quantidadeController,
-                      keyboardType: TextInputType.number,
-                      cursorColor: AppColors.verdeBg, 
-                      decoration: InputDecoration(
-                        labelText: "Quantidade (g)",
-                        labelStyle: TextStyle(color: AppColors.verdeBg),
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.verdeBg),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.verdeBg, width: 2),
+                        controller: quantidadeController,
+                        keyboardType: TextInputType.number,
+                        cursorColor: AppColors.verdeBg,
+                        decoration: InputDecoration(
+                          labelText: "Quantidade (g)",
+                          labelStyle: TextStyle(color: AppColors.verdeBg),
+                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.verdeBg),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: AppColors.verdeBg, width: 2),
+                          ),
                         ),
                       ),
-                    ),
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: _adicionarAlimento,

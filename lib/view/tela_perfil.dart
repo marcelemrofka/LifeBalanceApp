@@ -17,6 +17,9 @@ class _TelaPerfilState extends State<TelaPerfil> {
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
   final _objetivo1Controller = TextEditingController();
+  final _caloriasController = TextEditingController();
+  final _sonoController = TextEditingController();
+  final _aguaController = TextEditingController();
   String? _imagemUrl;
 
   @override
@@ -27,16 +30,19 @@ class _TelaPerfilState extends State<TelaPerfil> {
 
   Future<void> _carregarPerfil() async {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    
+
     // Busca os dados do usuário através do AuthViewModel
     final dadosUsuario = await authViewModel.buscarDadosUsuario();
-    
+
     if (dadosUsuario != null) {
       setState(() {
         _nomeController.text = dadosUsuario['nome'] ?? '';
         _pesoController.text = dadosUsuario['peso']?.toString() ?? '';
         _alturaController.text = dadosUsuario['altura']?.toString() ?? '';
         _objetivo1Controller.text = dadosUsuario['objetivo'] ?? '';
+        _caloriasController.text = dadosUsuario['meta_cal'] ?? '';
+        _sonoController.text = dadosUsuario['meta_sono'] ?? '';
+        _aguaController.text = dadosUsuario['meta_agua'] ?? '';
         _emailController.text = authViewModel.email;
         _imagemUrl = dadosUsuario['imagemPerfil'];
       });
@@ -49,11 +55,14 @@ class _TelaPerfilState extends State<TelaPerfil> {
 
     if (uid != null) {
       try {
-        await FirebaseFirestore.instance.collection('usuarios').doc(uid).update({
+        await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
           'nome': _nomeController.text.trim(),
           'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
           'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
           'objetivo': _objetivo1Controller.text.trim(),
+          'meta_cal': double.tryParse(_caloriasController.text.trim()) ?? 0,
+          'meta_sono': double.tryParse(_sonoController.text.trim()) ?? 0,
+          'meta_agua': double.tryParse(_aguaController.text.trim()) ?? 0,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -75,6 +84,9 @@ class _TelaPerfilState extends State<TelaPerfil> {
     _pesoController.dispose();
     _alturaController.dispose();
     _objetivo1Controller.dispose();
+    _caloriasController.dispose();
+    _sonoController.dispose();
+    _aguaController.dispose();
     super.dispose();
   }
 
@@ -97,7 +109,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 radius: 50,
                 backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
                     ? NetworkImage(_imagemUrl!)
-                    : const AssetImage('lib/images/logo-folha.png') as ImageProvider,
+                    : const AssetImage('lib/images/logo-folha.png')
+                        as ImageProvider,
               ),
             ),
             const SizedBox(height: 20),
@@ -106,6 +119,9 @@ class _TelaPerfilState extends State<TelaPerfil> {
             _buildTextField('Peso (kg)', _pesoController),
             _buildTextField('Altura (cm)', _alturaController),
             _buildTextField('Objetivo', _objetivo1Controller),
+            _buildTextField('Meta de Calorias Diárias', _caloriasController),
+            _buildTextField('Meta de Horas de Sono', _sonoController),
+            _buildTextField('Meta de Água Diária', _aguaController),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _salvarAlteracoes,
@@ -116,7 +132,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
           ],
