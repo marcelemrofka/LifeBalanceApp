@@ -12,7 +12,6 @@
 .swiftpm/
 migrate_working_dir/
 .env
-.lib/services/openai_service.dart
 
 # IntelliJ related
 *.iml
