@@ -9,7 +9,7 @@ class TelaPacientes extends StatelessWidget {
   const TelaPacientes({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     final String? nutriUid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
