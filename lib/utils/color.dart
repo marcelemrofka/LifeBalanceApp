@@ -13,4 +13,5 @@ class AppColors {
   static const Color error = Color(0xFFEF5350);
   static const Color verdeBg = Color(0xFF7D9E84);
   static const Color laranja = Color(0xFFF69218);
+  static const Color verdePlanos = Color(0xFF79BA87);
 }

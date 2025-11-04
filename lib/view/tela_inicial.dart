@@ -1,6 +1,6 @@
 import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
-import '../widgets/popup_login.dart'; 
+import '../widgets/popup_login.dart';
 
 class TelaInicial extends StatelessWidget {
   @override
@@ -16,7 +16,7 @@ class TelaInicial extends StatelessWidget {
             SizedBox(
               width: 300,
               child: ElevatedButton(
-                onPressed: () { 
+                onPressed: () {
                   _mostrarPopupLogin(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -48,6 +48,24 @@ class TelaInicial extends StatelessWidget {
                 child: Text('Cadastre-se'),
               ),
             ),
+            SizedBox(height: 30),
+            SizedBox(
+              width: 300,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/planos');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text('PLANOS'),
+              ),
+            ),
           ],
         ),
       ),
@@ -60,7 +78,7 @@ class TelaInicial extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return PopupLogin(); 
+        return PopupLogin();
       },
     );
   }
