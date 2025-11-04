@@ -1,7 +1,6 @@
 import 'package:app/utils/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Planos extends StatefulWidget {
   final String planoSelecionado;
@@ -56,24 +55,9 @@ class _PlanosState extends State<Planos> {
     final valor = dadosPlano!['valor'] ?? '';
     final tipo = dadosPlano!['tipo_usuario'] ?? '';
     final recomendacao = dadosPlano!['recomendacao'] ?? '';
-    final icone = dadosPlano!['icone'] ?? '';
     final beneficios = List<String>.from(dadosPlano!['beneficios'] ?? []);
     final limitacoes = List<String>.from(dadosPlano!['limitacoes'] ?? []);
-
-    IconData iconePlano;
-    switch (icone) {
-      case 'user':
-        iconePlano = FontAwesomeIcons.user;
-        break;
-      case 'repeat':
-        iconePlano = FontAwesomeIcons.repeat;
-        break;
-      case 'users':
-        iconePlano = FontAwesomeIcons.users;
-        break;
-      default:
-        iconePlano = FontAwesomeIcons.circle;
-    }
+    final imagem = dadosPlano!['imagem'] ?? '';
 
     return Scaffold(
       backgroundColor: const Color(0xFF2B2B2B),
@@ -111,12 +95,12 @@ class _PlanosState extends State<Planos> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Icon(
-                      iconePlano,
-                      color: AppColors.principal,
-                      size: 28,
+                    Image.asset(
+                      'lib/images/$imagem',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.contain,
                     ),
-                    const SizedBox(height: 8),
                     Text.rich(
                       TextSpan(
                         text: 'R\$ ${valor.toStringAsFixed(2)}',

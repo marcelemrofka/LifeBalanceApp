@@ -55,7 +55,10 @@ class _TelaPerfilState extends State<TelaPerfil> {
 
     if (uid != null) {
       try {
-        await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
+        await FirebaseFirestore.instance
+            .collection('paciente')
+            .doc(uid)
+            .update({
           'nome': _nomeController.text.trim(),
           'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
           'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
@@ -109,7 +112,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 radius: 50,
                 backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
                     ? NetworkImage(_imagemUrl!)
-                    : const AssetImage('lib/images/logo-folha.png')
+                    : const AssetImage('lib/images/logo-circulo.png')
                         as ImageProvider,
               ),
             ),

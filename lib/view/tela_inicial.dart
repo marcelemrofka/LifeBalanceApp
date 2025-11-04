@@ -11,7 +11,8 @@ class TelaInicial extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('lib/images/logo.png', width: 300, height: 300),
+            Image.asset('lib/images/logo-circulo.png', width: 400, height: 400),
+            Image.asset('lib/images/nome.png', width: 400),
             SizedBox(height: 70),
             SizedBox(
               width: 300,
@@ -46,24 +47,6 @@ class TelaInicial extends StatelessWidget {
                   ),
                 ),
                 child: Text('Cadastre-se'),
-              ),
-            ),
-            SizedBox(height: 30),
-            SizedBox(
-              width: 300,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/planos');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text('PLANOS'),
               ),
             ),
           ],

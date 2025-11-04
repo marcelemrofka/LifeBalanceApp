@@ -35,6 +35,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/images/logo.png
-    - lib/images/logo-folha.png
+    - lib/images/logo-circulo.png
+    - lib/images/flex.png
+    - lib/images/individual.png
+    - lib/images/pro.png
+    - lib/images/nome.png
 

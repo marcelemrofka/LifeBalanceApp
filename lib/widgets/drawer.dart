@@ -4,7 +4,6 @@ import 'package:app/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
 
@@ -23,24 +22,23 @@ class _CustomDrawerState extends State<CustomDrawer> {
     _carregarDados();
   }
 
-Future<void> _carregarDados() async {
-  final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-  
-  // Busca os dados do usuário através do AuthViewModel
-  final dadosUsuario = await authViewModel.buscarDadosUsuario();
-  
-  if (dadosUsuario != null) {
-    setState(() {
-      _nome = dadosUsuario['nome'] ?? authViewModel.nome;
-      _email = dadosUsuario['email'] ?? authViewModel.email;
-      final imagemPath = dadosUsuario['imagemPath'] as String?;
-      if (imagemPath != null && imagemPath.isNotEmpty) {
-        _imagemPerfil = File(imagemPath);
-      }
-    });
-  }
-}
+  Future<void> _carregarDados() async {
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
+    // Busca os dados do usuário através do AuthViewModel
+    final dadosUsuario = await authViewModel.buscarDadosUsuario();
+
+    if (dadosUsuario != null) {
+      setState(() {
+        _nome = dadosUsuario['nome'] ?? authViewModel.nome;
+        _email = dadosUsuario['email'] ?? authViewModel.email;
+        final imagemPath = dadosUsuario['imagemPath'] as String?;
+        if (imagemPath != null && imagemPath.isNotEmpty) {
+          _imagemPerfil = File(imagemPath);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,18 +52,19 @@ Future<void> _carregarDados() async {
               color: AppColors.principal,
             ),
             accountEmail: Text(
-              _email, 
+              _email,
               style: TextStyle(color: Colors.white),
             ),
             accountName: Text(
               _nome,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               backgroundImage: _imagemPerfil != null
                   ? FileImage(_imagemPerfil!)
-                  : AssetImage('lib/images/logo-folha.png') as ImageProvider,
+                  : AssetImage('lib/images/logo-circulo.png') as ImageProvider,
             ),
           ),
           ListTile(
