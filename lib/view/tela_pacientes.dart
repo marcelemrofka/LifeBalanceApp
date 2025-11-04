@@ -1,4 +1,5 @@
 import 'package:app/utils/color.dart';
+import 'package:app/view/tela_perfil.dart';
 import 'package:app/widgets/barra_navegacao_nutri.dart';
 import 'package:app/widgets/menu.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ class TelaPacientes extends StatelessWidget {
   const TelaPacientes({super.key});
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     final String? nutriUid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
@@ -44,6 +45,8 @@ class TelaPacientes extends StatelessWidget {
                 final paciente =
                     pacientes[index].data() as Map<String, dynamic>;
                 final nome = paciente['nome'] ?? 'Sem nome';
+                final email = paciente['email'] ?? '';
+                final imagem = paciente['imagemPerfil'];
 
                 return Card(
                   elevation: 2,
@@ -52,10 +55,28 @@ class TelaPacientes extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   child: ListTile(
-                    leading: const Icon(Icons.person, color: AppColors.laranja),
-                    title: Text(nome),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      backgroundImage: imagem != null && imagem.isNotEmpty
+                          ? NetworkImage(imagem)
+                          : const AssetImage('lib/images/logo-circulo.png')
+                              as ImageProvider,
+                    ),
+                    title: Text(nome,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    subtitle: Text(email),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: AppColors.laranja),
                     onTap: () {
-                      //
+                      final pacienteUid = pacientes[index].id;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TelaPerfil(uidPaciente: pacienteUid),
+                        ),
+                      );
                     },
                   ),
                 );

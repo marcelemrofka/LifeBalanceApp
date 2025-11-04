@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titulo;
   final VoidCallback? onBack;
+  final List<Widget>? acoes; // 👈 novo parâmetro opcional
 
   const CustomAppBar({
     super.key,
     required this.titulo,
     this.onBack,
+    this.acoes, // 👈 adicionado
   });
 
   @override
@@ -34,6 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Botão de voltar
           Positioned(
             left: 15,
             child: IconButton(
@@ -42,7 +45,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-          // título centralizado
+          // Título centralizado
           Center(
             child: Text(
               titulo,
@@ -54,6 +57,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               textAlign: TextAlign.center,
             ),
           ),
+
+          // Ações à direita (ex: botão Editar)
+          if (acoes != null && acoes!.isNotEmpty)
+            Positioned(
+              right: 10,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: acoes!,
+              ),
+            ),
         ],
       ),
     );

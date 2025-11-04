@@ -1,6 +1,7 @@
 import 'package:app/view/tela_cadastro_paciente.dart';
 import 'package:app/view/tela_home_nutri.dart';
 import 'package:app/view/tela_pacientes.dart';
+import 'package:app/view/tela_perfil_nutri.dart';
 import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
         '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
         '/tela_pacientes': (context) => TelaPacientes(),
         '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
+        '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
         '/planos': (context) => const Planos('pro'),
       },
     );
