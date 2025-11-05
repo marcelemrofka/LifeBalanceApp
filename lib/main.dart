@@ -6,6 +6,8 @@ import 'package:app/viewmodel/cadastro_viewmodel.dart';
 import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app/viewmodel/historico_diario_viewmodel.dart';
+import 'package:app/repository/historico_diario_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
@@ -40,7 +42,13 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => CadastroViewModel(),
           child: TelaCadastroPaciente(),
-        )
+        ),
+        // Adiciona HistoricoDiarioViewModel com seu repositório
+        ChangeNotifierProvider(
+          create: (_) => HistoricoDiarioViewModel(
+            repo: HistoricoDiarioRepository(),
+          ),
+        ),
       ],
       child: MyApp(),
     ),
