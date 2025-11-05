@@ -82,4 +82,53 @@ class HistoricoDiarioRepository {
       },
     );
   }
+
+  Future<void> registrarSono({
+    required String uidUsuario,
+    required String uidNutri,
+    required DateTime inicio,
+    required DateTime fim,
+    required double horasTotais,
+    String? observacao,
+  }) async {
+    await ensureDailyDoc(
+      uidUsuario: uidUsuario,
+      uidNutri: uidNutri,
+      onCreate: (docRef) async {
+        await docRef.set({
+          'sono': {
+            'inicio': Timestamp.fromDate(inicio),
+            'fim': Timestamp.fromDate(fim),
+            'horas_totais': horasTotais,
+            'observacao': observacao,
+          }
+        }, SetOptions(merge: true));
+      },
+      onExists: (docRef) async {
+        await docRef.update({
+          'sono': {
+            'inicio': Timestamp.fromDate(inicio),
+            'fim': Timestamp.fromDate(fim),
+            'horas_totais': horasTotais,
+            'observacao': observacao,
+          }
+        });
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>?> getSono({
+    required String uidUsuario,
+    DateTime? day,
+  }) async {
+    final now = (day ?? DateTime.now()).toLocal();
+    final docRef = _docRef(uidUsuario, now);
+    final snap = await docRef.get();
+
+    if (snap.exists) {
+      final data = snap.data();
+      return data?['sono'] as Map<String, dynamic>?;
+    }
+    return null;
+  }
 }

@@ -10,7 +10,7 @@ import '../viewmodel/historico_diario_viewmodel.dart';
 
 class TelaAgua extends StatefulWidget {
   const TelaAgua({Key? key}) : super(key: key);
-  
+
   @override
   _TelaAguaState createState() => _TelaAguaState();
 }
