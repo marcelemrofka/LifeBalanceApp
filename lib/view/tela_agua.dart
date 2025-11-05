@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app/widgets/water_circle.dart';
 
 class TelaAgua extends StatefulWidget {
   @override
@@ -88,34 +89,11 @@ class _TelaAguaState extends State<TelaAgua>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.midGrey, width: 8),
-                  ),
-                  child: ClipOval(
-                    child: AnimatedBuilder(
-                      animation: Listenable.merge([_animation, _waveAnimation]),
-                      builder: (context, child) {
-                        return CustomPaint(
-                          painter: WaterPainter(
-                              _animation.value, _waveAnimation.value),
-                          child: Container(),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Text(
-                  "${totalIngerido.toInt()} ml",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+            WaterCircleWidget(
+              totalIngerido: totalIngerido,
+              capacidadeTotal: capacidadeTotal,
+              animation: _animation,
+              waveAnimation: _waveAnimation,
             ),
             SizedBox(height: 30),
             SizedBox(
