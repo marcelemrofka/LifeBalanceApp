@@ -15,7 +15,7 @@ class _TelaSonoState extends State<TelaSono> {
   TimeOfDay? _inicio;
   TimeOfDay? _fim;
   final _obsController = TextEditingController();
-  double? _horasTotais; // <-- adicionamos essa variável
+  double? _horasTotais;
 
   @override
   void initState() {
@@ -111,8 +111,6 @@ class _TelaSonoState extends State<TelaSono> {
     if (selecionada != null) {
       setState(() {
         onSelected(selecionada);
-
-        // Cálculo automático assim que os horários forem escolhidos
         if (_inicio != null && _fim != null) {
           final inicioDT = _criarDateTime(_inicio!);
           final fimDT = _criarDateTime(_fim!);
@@ -125,7 +123,7 @@ class _TelaSonoState extends State<TelaSono> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: CustomAppBar(titulo: 'Sono'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
@@ -133,11 +131,11 @@ class _TelaSonoState extends State<TelaSono> {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFFF0F0F0),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 "Registre suas horas de descanso",
@@ -159,7 +157,7 @@ class _TelaSonoState extends State<TelaSono> {
                       children: [
                         const Text("Início",
                             style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
+                                TextStyle(fontSize: 14, color: Colors.black)),
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () => _selecionarHora(
@@ -172,14 +170,13 @@ class _TelaSonoState extends State<TelaSono> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 12),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black26),
                               borderRadius: BorderRadius.circular(6),
-                              color: Colors.grey[100],
+                              color: Colors.white,
                             ),
                             child: Text(
                               _inicio != null
                                   ? _inicio!.format(context)
-                                  : "--:--",
+                                  : "   :   ",
                               style: const TextStyle(fontSize: 15),
                             ),
                           ),
@@ -194,7 +191,7 @@ class _TelaSonoState extends State<TelaSono> {
                       children: [
                         const Text("Fim",
                             style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
+                                TextStyle(fontSize: 14, color: Colors.black)),
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () => _selecionarHora(
@@ -207,12 +204,11 @@ class _TelaSonoState extends State<TelaSono> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 12),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black26),
                               borderRadius: BorderRadius.circular(6),
-                              color: Colors.grey[100],
+                              color: Colors.white,
                             ),
                             child: Text(
-                              _fim != null ? _fim!.format(context) : "--:--",
+                              _fim != null ? _fim!.format(context) : "   :   ",
                               style: const TextStyle(fontSize: 15),
                             ),
                           ),
@@ -227,7 +223,8 @@ class _TelaSonoState extends State<TelaSono> {
 
               const Text(
                 "Observação",
-                style: TextStyle(fontSize: 14, color: Colors.black54),
+                textAlign: TextAlign.start,
+                style: TextStyle(fontSize: 14, color: Colors.black),
               ),
               const SizedBox(height: 6),
 
@@ -236,10 +233,20 @@ class _TelaSonoState extends State<TelaSono> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: Colors.white,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   border: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black26),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
@@ -263,7 +270,7 @@ class _TelaSonoState extends State<TelaSono> {
                       Text(
                         _horasTotais != null
                             ? "Total de horas de sono: ${_horasTotais!.toStringAsFixed(1)}h"
-                            : "Total de horas de sono: --",
+                            : "Total de horas de sono:    ",
                         style: const TextStyle(
                             fontSize: 14, color: Colors.black87),
                       ),
