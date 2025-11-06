@@ -24,6 +24,7 @@ import 'package:app/view/tela_refeicao.dart';
 import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
 import 'package:app/view/tela_analise_calorias.dart';
+import 'package:app/view/tela_detalhes_refeicao.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
         '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
         '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
         '/planos': (context) => const Planos('pro'),
+        // '/tela_detalhes_refeicao': (context) => const TelaDetalhesRefeicao(refeicaoId: ''), 
       },
     );
   }
