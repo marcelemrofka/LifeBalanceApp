@@ -11,8 +11,8 @@ class TelaInicial extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('lib/images/logo-circulo.png', width: 400, height: 400),
-            Image.asset('lib/images/nome.png', width: 400),
+            Image.asset('lib/images/logo-circulo.png', width: 300, height: 300),
+            Image.asset('lib/images/nome.png', width: 300),
             SizedBox(height: 70),
             SizedBox(
               width: 300,

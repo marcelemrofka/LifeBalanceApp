@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:percentages_with_animation/percentages_with_animation.dart';
 
-
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -14,39 +13,52 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  
-  Widget progressBar(String label, double gramas, double maxGramas) {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<NutritionViewModel>(context, listen: false)
+          .buscarDadosDoHistorico();
+    });
+  }
+
+  Widget progressBar(
+      String label, double gramas, double maxGramas, double width) {
     double porcentagem = min(100, (gramas / maxGramas) * 100);
 
     return Column(
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: SizedBox(
-            width: 150,
-            child: Text(label),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              color: AppColors.midText,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         SizedBox(
-          width: 150,
+          width: width,
           child: LinearPercentage(
             currentPercentage: porcentagem,
             maxPercentage: 100,
-            backgroundHeight: 10,
-            percentageHeight: 10,
+            backgroundHeight: 8,
+            percentageHeight: 8,
             leftRightText: LeftRightText.none,
             backgroundDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(6),
+              color: Colors.grey.shade200,
             ),
             percentageDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(6),
               color: AppColors.verdeGrafico,
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 5),
         Text(
           '${gramas.toStringAsFixed(0)}g',
           style: const TextStyle(fontSize: 12, color: AppColors.midText),
@@ -55,109 +67,159 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final nutrition = Provider.of<NutritionViewModel>(context).nutrition;
-     
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // Circulo
-          Stack(
-            alignment: Alignment.center,
+    final nutrition = Provider.of<NutritionViewModel>(context);
+
+    if (nutrition.carregando) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.principal),
+      );
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final circleSize = screenWidth * 0.35;
+    final barWidth = screenWidth * 0.28;
+    final horizontalPadding = screenWidth * 0.02;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 180,
-                height: 180, 
-                decoration: const BoxDecoration(color: AppColors.principal, shape: BoxShape.circle,),
+              // Esquerda (Carboidratos e Fibras)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  progressBar(
+                    "Carboidratos",
+                    nutrition.carboIngerido,
+                    nutrition.carboRecomendado,
+                    barWidth,
+                  ),
+                  SizedBox(height: circleSize * 0.09),
+                  progressBar(
+                    "Fibras",
+                    nutrition.fibraIngerida,
+                    nutrition.fibraRecomendada,
+                    barWidth,
+                  ),
+                ],
               ),
 
-              // porcentagem ao redor
-              CircularPercentage(
-                  currentPercentage: min(100, nutrition.caloriasPercentual), // limita a 100%
-                  maxPercentage: 100, 
-                  size: 180,
-                  percentageStrokeWidth: 7, 
-                  backgroundStrokeWidth: 1,
-                  percentageColor: AppColors.verdeGrafico,
-                  centerText: '', // precisa ser vazio para ser sobreposto
-                ),
+              // Círculo principal (verde escuro)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Fundo verde escuro
+                  Container(
+                    width: circleSize,
+                    height: circleSize,
+                    decoration: const BoxDecoration(
+                      color: AppColors.principal,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
 
-                // Textos dentro do circulo
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
+                  // Borda animada
+                  CircularPercentage(
+                    currentPercentage: min(100, nutrition.caloriasPercentual),
+                    maxPercentage: 100,
+                    size: circleSize,
+                    percentageStrokeWidth: circleSize * 0.035,
+                    backgroundStrokeWidth: 1,
+                    backgroundColor: Colors.transparent,
+                    percentageColor: AppColors.verdeGrafico,
+                    centerText: '',
+                  ),
+
+                  // Conteúdo interno
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
                         style: TextStyle(
-                          fontSize: 23,
+                          fontSize: 21, // Increased font size
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                    ),
-                    SizedBox(height: 4),
-                    const Text("Consumidas", style: TextStyle(fontSize: 12, color: Colors.white)),
-                    SizedBox(height: 12),
-                    Text(
-                      "Você consumiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-          SizedBox(height: 15),
-
-
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                fontSize: 12,
-                color:AppColors.midText,
-                fontWeight: FontWeight.w100,
-              ),
-              children: const [
-                TextSpan(text: 'Sua meta de calorias diárias é: ',),
-                TextSpan(
-                  text: '1800 kcal',
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
+                      ),
+                      SizedBox(height: circleSize * 0.03),
+                      Text(
+                        "Consumidas",
+                        style: TextStyle(
+                          fontSize: circleSize * 0.08,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: circleSize * 0.06),
+                      Text(
+                        "Você já atingiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
+                        style: TextStyle(
+                          fontSize: circleSize * 0.07,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
 
-          SizedBox(height: 15),
-          // NUTRIENTES 
-           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-                // Carb e Fibras
-                Column(
-                  children: [
-                      progressBar("Carboidratos", nutrition.carboIngerido.toDouble(), nutrition.carboRecomendado.toDouble()),
-                       SizedBox(height: 15),
-                      progressBar("Fibras", nutrition.fibraIngerida.toDouble(), nutrition.fibraRecomendada.toDouble()),
-                  ],
-                ),
-
-                // Proteinas e Gorduras 
-                Column(
-                  children: [
-                    progressBar("Proteínas", nutrition.proteinaIngerida.toDouble(), nutrition.proteinaRecomendada.toDouble()),
-                    SizedBox(height: 15),
-                    progressBar("Gorduras", nutrition.gorduraIngerida.toDouble(), nutrition.gorduraRecomendada.toDouble()),
-                  ]
-                ),
+              // Direita (Proteínas e Gorduras)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  progressBar(
+                    "Proteínas",
+                    nutrition.proteinaIngerida,
+                    nutrition.proteinaRecomendada,
+                    barWidth,
+                  ),
+                  SizedBox(height: circleSize * 0.09), // Proportional spacing
+                  progressBar(
+                    "Gorduras",
+                    nutrition.gorduraIngerida,
+                    nutrition.gorduraRecomendada,
+                    barWidth,
+                  ),
+                ],
+              ),
             ],
-           ),
+          ),
+        ),
 
-        ],
-      ),
+        SizedBox(
+            height: screenWidth *
+                0.05), // Espaçamento proporcional entre os gráficos e o texto
+
+        // RichText abaixo dos gráficos
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: screenWidth * 0.032, // Fonte proporcional
+              color: AppColors.midText,
+            ),
+            children: [
+              const TextSpan(text: 'Sua meta de calorias diárias é: '),
+              TextSpan(
+                text:
+                    '${nutrition.caloriasRecomendadas.toStringAsFixed(0)} kcal',
+                style: TextStyle(
+                  fontSize: screenWidth * 0.032, // Fonte proporcional
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.principal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

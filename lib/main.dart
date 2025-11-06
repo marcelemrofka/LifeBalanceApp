@@ -1,8 +1,10 @@
 import 'package:app/view/tela_cadastro_paciente.dart';
+import 'package:app/view/tela_diario_paciente.dart';
 import 'package:app/view/tela_home_nutri.dart';
 import 'package:app/view/tela_pacientes.dart';
 import 'package:app/view/tela_perfil_nutri.dart';
 import 'package:app/viewmodel/cadastro_viewmodel.dart';
+import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +38,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NutritionViewModel()),
+        ChangeNotifierProvider(create: (_) => NutritionViewModel(),child: Dashboard(),),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => RefeicaoViewModel()),
         ChangeNotifierProvider(
@@ -92,6 +94,7 @@ class MyApp extends StatelessWidget {
         '/tela_pacientes': (context) => TelaPacientes(),
         '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
         '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
+        '/tela_diario_paciente': (context) => TelaDiarioPaciente(),
         '/planos': (context) => const Planos('pro'),
       },
     );

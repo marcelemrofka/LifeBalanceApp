@@ -86,7 +86,7 @@ class TelaPacientes extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/tela_cadastro_pacientes');
+            Navigator.pushNamed(context, '/tela_diario_paciente');
           },
           backgroundColor: AppColors.laranja,
           child: const Icon(Icons.add, color: Colors.white),
