@@ -1,8 +1,8 @@
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaLembretes extends StatefulWidget {
@@ -12,8 +12,11 @@ class TelaLembretes extends StatefulWidget {
 
 class _TelaLembretesState extends State<TelaLembretes> {
   DateTime _selectedDay = DateTime.now();
-  TextEditingController _lembreteController = TextEditingController();
-  Map<DateTime, String> _lembretes = {};
+  TextEditingController _tituloController = TextEditingController();
+  TextEditingController _descricaoController = TextEditingController();
+
+  // Map of date -> { 'titulo': string, 'descricao': string, 'docId': string }
+  Map<DateTime, Map<String, dynamic>> _lembretes = {};
 
   @override
   void initState() {
@@ -22,33 +25,66 @@ class _TelaLembretesState extends State<TelaLembretes> {
   }
 
   void _loadLembretes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final lembreteJson = prefs.getString('lembretes');
-    if (lembreteJson != null) {
-      final Map<String, dynamic> decoded = jsonDecode(lembreteJson);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // If user is not signed in, keep map empty
       setState(() {
-        _lembretes = decoded.map(
-            (key, value) => MapEntry(DateTime.parse(key), value.toString()));
-        _lembreteController.text = _lembretes[_selectedDay] ?? '';
+        _lembretes = {};
       });
+      return;
     }
-  }
 
-  void _saveLembretes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Map<String, String> encoded =
-        _lembretes.map((key, value) => MapEntry(key.toIso8601String(), value));
-    await prefs.setString('lembretes', jsonEncode(encoded));
+    final query = await FirebaseFirestore.instance
+        .collection('lembretes')
+        .where('uid_usuario', isEqualTo: user.uid)
+        .get();
+
+    final Map<DateTime, Map<String, dynamic>> fetched = {};
+    for (final doc in query.docs) {
+      final data = doc.data();
+      // Expecting 'data' as Timestamp or ISO string
+      DateTime date;
+      if (data['data'] is Timestamp) {
+        date = (data['data'] as Timestamp).toDate();
+      } else if (data['data'] is String) {
+        date = DateTime.parse(data['data']);
+      } else {
+        continue; // skip malformed
+      }
+      final key = DateTime(date.year, date.month, date.day);
+      fetched[key] = {
+        'titulo': data['titulo'] ?? '',
+        'descricao': data['descricao'] ?? '',
+        'docId': doc.id,
+      };
+    }
+
+    setState(() {
+      _lembretes = fetched;
+      final todayKey =
+          DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+      _tituloController.text = _lembretes[todayKey]?['titulo'] ?? '';
+      _descricaoController.text = _lembretes[todayKey]?['descricao'] ?? '';
+    });
   }
 
   void _deleteLembrete(DateTime date) {
+    final key = DateTime(date.year, date.month, date.day);
+    final entry = _lembretes[key];
+    if (entry != null && entry['docId'] != null) {
+      FirebaseFirestore.instance
+          .collection('lembretes')
+          .doc(entry['docId'])
+          .delete();
+    }
+
     setState(() {
-      _lembretes.remove(date);
+      _lembretes.remove(key);
       if (isSameDay(date, _selectedDay)) {
-        _lembreteController.clear();
+        _tituloController.clear();
+        _descricaoController.clear();
       }
     });
-    _saveLembretes();
   }
 
   String _formatDate(DateTime date) {
@@ -71,7 +107,11 @@ class _TelaLembretesState extends State<TelaLembretes> {
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
-                  _lembreteController.text = _lembretes[selectedDay] ?? '';
+                  final key = DateTime(
+                      selectedDay.year, selectedDay.month, selectedDay.day);
+                  _tituloController.text = _lembretes[key]?['titulo'] ?? '';
+                  _descricaoController.text =
+                      _lembretes[key]?['descricao'] ?? '';
                 });
               },
               headerStyle: HeaderStyle(
@@ -103,12 +143,20 @@ class _TelaLembretesState extends State<TelaLembretes> {
             ),
             SizedBox(height: 10),
             TextField(
-              controller: _lembreteController,
+              controller: _tituloController,
               decoration: InputDecoration(
-                hintText: 'Escreva seu lembrete',
+                hintText: 'Título do lembrete',
                 border: OutlineInputBorder(),
               ),
-              maxLines: null,
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: _descricaoController,
+              decoration: InputDecoration(
+                hintText: 'Descrição do lembrete',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 4,
             ),
             SizedBox(height: 12),
             SizedBox(
@@ -129,21 +177,62 @@ class _TelaLembretesState extends State<TelaLembretes> {
                       ),
                     );
                   } else {
-                    setState(() {
-                      _lembretes[_selectedDay] = _lembreteController.text;
-                    });
-                    _saveLembretes();
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Usuário não autenticado.')),
+                      );
+                      return;
+                    }
+
+                    final key = DateTime(dataSelecionada.year,
+                        dataSelecionada.month, dataSelecionada.day);
+
+                    // If there's already a doc for this date, update it. Otherwise create new.
+                    final existing = _lembretes[key];
+
+                    final dataToSave = {
+                      'data': Timestamp.fromDate(dataSelecionada),
+                      'titulo': _tituloController.text.trim(),
+                      'descricao': _descricaoController.text.trim(),
+                      'uid_usuario': user.uid,
+                    };
+
+                    if (existing != null && existing['docId'] != null) {
+                      FirebaseFirestore.instance
+                          .collection('lembretes')
+                          .doc(existing['docId'])
+                          .update(dataToSave);
+                      setState(() {
+                        _lembretes[key] = {
+                          'titulo': dataToSave['titulo'],
+                          'descricao': dataToSave['descricao'],
+                          'docId': existing['docId'],
+                        };
+                      });
+                    } else {
+                      FirebaseFirestore.instance
+                          .collection('lembretes')
+                          .add(dataToSave)
+                          .then((docRef) {
+                        setState(() {
+                          _lembretes[key] = {
+                            'titulo': dataToSave['titulo'],
+                            'descricao': dataToSave['descricao'],
+                            'docId': docRef.id,
+                          };
+                        });
+                      });
+                    }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Lembrete salvo!')),
                     );
                   }
                 },
-                icon: Icon(Icons.save, color: Colors.white),
                 label: Text('Salvar Lembrete'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.laranja,
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12)
-                ),
+                  backgroundColor: AppColors.laranja),
               ),
             ),
             SizedBox(height: 30),
@@ -157,6 +246,8 @@ class _TelaLembretesState extends State<TelaLembretes> {
                   ),
                   SizedBox(height: 10),
                   ..._lembretes.entries.map((entry) {
+                    final date = entry.key;
+                    final value = entry.value;
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 6),
                       elevation: 2,
@@ -167,14 +258,33 @@ class _TelaLembretesState extends State<TelaLembretes> {
                         leading:
                             Icon(Icons.event_note, color: AppColors.principal),
                         title: Text(
-                          _formatDate(entry.key),
+                          _formatDate(date),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(entry.value),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if ((value['titulo'] ?? '').isNotEmpty)
+                              Text(value['titulo'],
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w600)),
+                            if ((value['descricao'] ?? '').isNotEmpty)
+                              Text(value['descricao']),
+                          ],
+                        ),
                         trailing: IconButton(
                           icon: Icon(Icons.delete, color: AppColors.principal),
-                          onPressed: () => _deleteLembrete(entry.key),
+                          onPressed: () => _deleteLembrete(date),
                         ),
+                        onTap: () {
+                          // When tapped, select the date and populate controllers
+                          setState(() {
+                            _selectedDay = date;
+                            _tituloController.text = value['titulo'] ?? '';
+                            _descricaoController.text =
+                                value['descricao'] ?? '';
+                          });
+                        },
                       ),
                     );
                   }).toList(),
