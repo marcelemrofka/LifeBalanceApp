@@ -25,8 +25,8 @@ class _DashboardState extends State<Dashboard> {
   Widget progressBar(
       String label, double gramas, double maxGramas, double width) {
     double porcentagem = (maxGramas > 0 && gramas >= 0)
-    ? min(100, (gramas / maxGramas) * 100)
-    : 0;
+        ? min(100, (gramas / maxGramas) * 100)
+        : 0;
 
     return Column(
       children: [
@@ -81,12 +81,11 @@ class _DashboardState extends State<Dashboard> {
 
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final circleSize = screenWidth * 0.35;
+    final circleSize = screenWidth * 0.33;
     final barWidth = screenWidth * 0.28;
     final horizontalPadding = screenWidth * 0.02;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -105,12 +104,8 @@ class _DashboardState extends State<Dashboard> {
                     barWidth,
                   ),
                   SizedBox(height: circleSize * 0.09),
-                  progressBar(
-                    "Fibras",
-                    nutrition.fibraIngerida,
-                    nutrition.fibraRecomendada,
-                    barWidth,
-                  ),
+                  progressBar("Fibras", nutrition.fibraIngerida,
+                      nutrition.fibraRecomendada, barWidth),
                 ],
               ),
 
@@ -133,7 +128,7 @@ class _DashboardState extends State<Dashboard> {
                     currentPercentage: min(100, nutrition.caloriasPercentual),
                     maxPercentage: 100,
                     size: circleSize,
-                    percentageStrokeWidth: circleSize * 0.035,
+                    percentageStrokeWidth: circleSize * 0.033,
                     backgroundStrokeWidth: 1,
                     backgroundColor: Colors.transparent,
                     percentageColor: AppColors.verdeGrafico,
@@ -482,4 +477,3 @@ class _DashboardState extends State<Dashboard> {
 // //     );
 // //   }
 // // }
-

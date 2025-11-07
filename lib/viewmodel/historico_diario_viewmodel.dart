@@ -9,15 +9,19 @@ class HistoricoDiarioViewModel extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
   double? metaAgua;
-  void _setLoading(bool v) { _loading = v; notifyListeners(); }
-  
+  void _setLoading(bool v) {
+    _loading = v;
+    notifyListeners();
+  }
 
   /// Função geral: verifica/cria e executa a ação.
   Future<void> ensureAndRun({
     required String uidUsuario,
     String? uidNutri,
     DateTime? day,
-    required Future<void> Function(DocumentReference<Map<String, dynamic>> docRef) action,
+    required Future<void> Function(
+            DocumentReference<Map<String, dynamic>> docRef)
+        action,
   }) async {
     _setLoading(true);
     try {
@@ -52,11 +56,17 @@ class HistoricoDiarioViewModel extends ChangeNotifier {
 
         // 2) atualiza agregados do dia com increment
         await docRef.update({
-          'total_calorias'   : FieldValue.increment((refeicao['total_calorias'] ?? 0) as num),
-          'total_proteina'   : FieldValue.increment((refeicao['total_proteina'] ?? 0) as num),
-          'total_carboidrato': FieldValue.increment((refeicao['total_carboidrato'] ?? 0) as num),
-          'total_gordura'    : FieldValue.increment((refeicao['total_lipideo'] ?? refeicao['total_gordura'] ?? 0) as num),
-          'total_fibra'      : FieldValue.increment((refeicao['total_fibra'] ?? 0) as num),
+          'total_calorias':
+              FieldValue.increment((refeicao['total_calorias'] ?? 0) as num),
+          'total_proteina':
+              FieldValue.increment((refeicao['total_proteina'] ?? 0) as num),
+          'total_carboidrato':
+              FieldValue.increment((refeicao['total_carboidrato'] ?? 0) as num),
+          'total_gordura': FieldValue.increment((refeicao['total_lipideo'] ??
+              refeicao['total_gordura'] ??
+              0) as num),
+          'total_fibra':
+              FieldValue.increment((refeicao['total_fibra'] ?? 0) as num),
         });
       },
     );
