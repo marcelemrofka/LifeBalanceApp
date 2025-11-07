@@ -15,7 +15,7 @@ class HistoricoDiarioViewModel extends ChangeNotifier {
   /// Função geral: verifica/cria e executa a ação.
   Future<void> ensureAndRun({
     required String uidUsuario,
-    required String uidNutri,
+    String? uidNutri,
     DateTime? day,
     required Future<void> Function(DocumentReference<Map<String, dynamic>> docRef) action,
   }) async {
@@ -77,7 +77,7 @@ class HistoricoDiarioViewModel extends ChangeNotifier {
   /// Adiciona água ao histórico diário
   Future<void> registrarAgua({
     required String uidUsuario,
-    required String uidNutri,
+    String? uidNutri,
     required int quantidadeMl,
   }) async {
     _setLoading(true);

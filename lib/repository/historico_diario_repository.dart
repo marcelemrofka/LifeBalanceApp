@@ -20,7 +20,7 @@ class HistoricoDiarioRepository {
   /// - Se existir: chama onExists
   Future<DocumentReference<Map<String, dynamic>>> ensureDailyDoc({
     required String uidUsuario,
-    required String uidNutri,
+    String? uidNutri,
     DateTime? day,
     Future<void> Function(DocumentReference<Map<String, dynamic>> docRef)?
         onCreate,
@@ -34,9 +34,8 @@ class HistoricoDiarioRepository {
 
     if (!snap.exists) {
       // cria base do dia
-      await docRef.set({
+      final base = <String, dynamic>{
         'uid_usuario': _db.doc('usuarios/$uidUsuario'),
-        'uid_nutri': _db.doc('usuarios/$uidNutri'),
         'data': Timestamp.fromDate(now),
         // totais do dia começam em 0
         'total_calorias': 0,
@@ -47,7 +46,14 @@ class HistoricoDiarioRepository {
         // outros agregados diários
         'agua': 0,
         'sono': 0,
-      }, SetOptions(merge: true));
+      };
+
+      // adiciona uid_nutri apenas se fornecido
+      if (uidNutri != null && uidNutri.isNotEmpty) {
+        base['uid_nutri'] = _db.doc('usuarios/$uidNutri');
+      }
+
+      await docRef.set(base, SetOptions(merge: true));
 
       if (onCreate != null) {
         await onCreate(docRef);
@@ -63,7 +69,7 @@ class HistoricoDiarioRepository {
 
   Future<void> addAgua({
     required String uidUsuario,
-    required String uidNutri,
+    String? uidNutri,
     required int ml,
   }) async {
     // garante que o doc diário existe
@@ -85,7 +91,7 @@ class HistoricoDiarioRepository {
 
   Future<void> registrarSono({
     required String uidUsuario,
-    required String uidNutri,
+    String? uidNutri,
     required DateTime inicio,
     required DateTime fim,
     required double horasTotais,

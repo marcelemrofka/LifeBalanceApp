@@ -96,12 +96,6 @@ class _TelaAguaState extends State<TelaAgua>
       }
 
       final uidNutri = pacienteDoc.data()?['nutricionista_uid'];
-      if (uidNutri == null || uidNutri.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nutricionista não vinculado')),
-        );
-        return;
-      }
 
       final vm = context.read<HistoricoDiarioViewModel>();
       await vm.registrarAgua(
