@@ -44,7 +44,6 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     setState(() {
       _resultado = resposta;
       _carregando = false;
-      // Não extrair ainda só extrair ao salvar
     });
   }
 
@@ -98,25 +97,32 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     return lista;
   }
 
-  void _salvarRefeicao(String tipoRefeicao) {
-    // Evita duplicação: só extrai uma vez
+  int _extrairNumero(String texto, String palavraChave) {
+    final exp = RegExp('$palavraChave[^0-9]*([0-9]+)');
+    final match = exp.firstMatch(texto.toLowerCase());
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '0') ?? 0;
+    }
+    return 0;
+  }
+
+  /// 🔹 Novo método: salva apenas via ViewModel (não duplica no Firebase)
+  void _salvarRefeicao(String tipoRefeicao) async {
     if (alimentosParaSalvar.isEmpty) {
       alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
     }
 
-    if (alimentosParaSalvar.isEmpty) return;
-
+    // Salva apenas pelo ViewModel (já salva no Firebase formatado)
     Provider.of<RefeicaoViewModel>(context, listen: false).adicionarRefeicao(
       tipoRefeicao: tipoRefeicao,
       resultado: _resultado,
       alimentos: alimentosParaSalvar,
     );
 
-    // Limpa listas para próximo uso
+    // Limpa tudo e volta
     alimentos.clear();
     alimentosParaSalvar.clear();
     _fluxoManualFinalizado = false;
-
     Navigator.pushReplacementNamed(context, '/tela_refeicao');
   }
 
@@ -124,9 +130,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final tipoRefeicao = args != null && args['tipoRefeicao'] != null
-        ? args['tipoRefeicao'] as String
-        : 'Refeição';
+    final tipoRefeicao = args?['tipoRefeicao'] ?? 'Refeição';
 
     return Scaffold(
       appBar: PreferredSize(
@@ -174,7 +178,6 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Fluxo padrão: imagem + IA
                     if (!_naoConcorda) ...[
                       if (!_carregando && _resultado.isEmpty)
                         ImagePickerButtons(onImageSelected: _processarImagem),
@@ -223,8 +226,6 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         ),
                       ],
                     ],
-
-                    // Fluxo "Não Concordo"
                     if (_naoConcorda && !_fluxoManualFinalizado) ...[
                       const SizedBox(height: 16),
                       TextField(
@@ -233,7 +234,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         decoration: InputDecoration(
                           labelText: "Alimento",
                           labelStyle: TextStyle(color: AppColors.verdeBg),
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: AppColors.verdeBg),
                           ),
@@ -251,7 +252,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         decoration: InputDecoration(
                           labelText: "Quantidade (g)",
                           labelStyle: TextStyle(color: AppColors.verdeBg),
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: AppColors.verdeBg),
                           ),
@@ -276,7 +277,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                               .map(
                                 (item) => ListTile(
                                   title: Text(item['alimento']),
-                                  subtitle: Text("${item['quantidade']}"),
+                                  subtitle: Text("${item['quantidade']} g"),
                                 ),
                               )
                               .toList(),
@@ -289,8 +290,6 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         child: const Text("OK"),
                       ),
                     ],
-
-                    // Fluxo final após análise manual
                     if (_resultadoManualGerado && _fluxoManualFinalizado) ...[
                       const SizedBox(height: 10),
                       ElevatedButton(

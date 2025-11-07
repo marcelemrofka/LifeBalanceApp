@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-//CHAVE OPENAI
+//CHAVE API
 
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/refeicao_vm.dart';
 import '../utils/color.dart';
+import 'package:intl/intl.dart';
+import 'tela_detalhes_refeicao.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TelaRefeicao extends StatelessWidget {
   const TelaRefeicao({super.key});
@@ -43,13 +46,13 @@ class TelaRefeicao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final refeicaoVM = Provider.of<RefeicaoViewModel>(context);
-    final historico = refeicaoVM.historico;
 
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: ClipRRect(
-          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(30)),
+          borderRadius:
+              const BorderRadius.only(bottomLeft: Radius.circular(30)),
           child: AppBar(
             backgroundColor: AppColors.verdeBg,
             elevation: 0,
@@ -80,52 +83,110 @@ class TelaRefeicao extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: historico.isEmpty
-            ? const Center(
-                child: Text(
-                  "Nenhuma refeição registrada",
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-            : ListView.builder(
-                itemCount: historico.length,
-                itemBuilder: (context, index) {
-                  final refeicao = historico[index];
-                  final tipo = refeicao['tipoRefeicao'] ?? 'Refeição';
-                  final resultado = refeicao['resultado'] ?? '';
-                  final alimentos =
-                      refeicao['alimentos'] as List<dynamic>? ?? [];
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: refeicaoVM.getHistoricoStream(),
+        builder: (context, snapshot) {
+          final historico = snapshot.data ?? [];
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: ExpansionTile(
+          if (historico.isEmpty) {
+            return const Center(
+              child: Text(
+                "Nenhuma refeição registrada",
+                style: TextStyle(fontSize: 16),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: historico.length,
+            itemBuilder: (context, index) {
+              final refeicao = historico[index];
+              final tipo = refeicao['tipoRefeicao'] ?? 'Refeição';
+              final dataTimestamp = refeicao['hora'] as Timestamp?;
+              final data = dataTimestamp?.toDate() ?? DateTime.now();
+              final dataFormatada =
+                  DateFormat('dd/MM/yyyy – HH:mm').format(data);
+
+              return Padding(
+                padding: EdgeInsets.only(
+                top: index == 0 ?  28 : 5, // 👈 o primeiro card desce um pouco mais
+                left: 10,
+                right: 10,
+                bottom: 5,
+              ), child: FractionallySizedBox(
+                  widthFactor: 0.96, // 👈 deixa o card ligeiramente menor
+                  child: Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
                       title: Text(
                         tipo,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      children: [
-                        if (resultado.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            child: Text(resultado),
-                          ),
-                        ...alimentos.map(
-                          (a) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
-                            child: Text(
-                                "${a['alimento'] ?? ''}: ${a['quantidade'] ?? ''}g"),
-                          ),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
+                      ),
+                      subtitle: Text(
+                        dataFormatada,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                TelaDetalhesRefeicao(refeicao: refeicao),
+                          ),
+                        );
+                      },
+
+                      // 🔹 Ícone de deletar (mais à direita e cinza claro)
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.grey, // tom de cinza claro
+                          size: 26,
+                        ),
+                        onPressed: () async {
+                          final confirmar = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Excluir refeição"),
+                              content: const Text(
+                                  "Tem certeza que deseja excluir esta refeição?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("Cancelar"),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  child: const Text(
+                                    "Excluir",
+                                    style: TextStyle(color: Colors.redAccent),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirmar == true) {
+                            await refeicaoVM.deletarRefeicao(refeicao['id']);
+                          }
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => abrirSubMenu(context),
