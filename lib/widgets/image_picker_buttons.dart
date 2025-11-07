@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../utils/color.dart'; // Certifique-se de que AppColors.laranja está definido
+import '../utils/color.dart'; // Certifique-se que AppColors.laranja existe
 
 class ImagePickerButtons extends StatelessWidget {
   final void Function(File imagem) onImageSelected;
@@ -17,69 +17,61 @@ class ImagePickerButtons extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text(
-            "Adicione uma imagem da sua refeição para cálculo nutricional",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+Widget build(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(24, 60, 24, 16), // 👈 aumentei o topo
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text(
+          "Adicione uma imagem da sua refeição",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18, // 👈 um pouco menor
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF616161), // 👈 cinza mais suave
+            height: 1.4,
           ),
-          const SizedBox(height: 8),
-          const Text(
-            "Você pode tirar uma foto ou escolher da galeria",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          "Você pode tirar uma foto ou escolher da galeria",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14.5,
+            color: Colors.grey,
+            height: 1.4,
           ),
-          const SizedBox(height: 30),
+        ),
 
-          // 👇 Imagem ilustrativa
+          const SizedBox(height: 45),
+
+          // Imagem ilustrativa
           Image.asset(
-            'lib/images/refeicao.png', 
-            height: 180,
+            'lib/images/refeicao.png',
+            height: 200,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
-              return const Text(
-                'Imagem não encontrada',
-                style: TextStyle(color: Colors.red),
-              );
+              return const Icon(Icons.image_not_supported, size: 80, color: Colors.grey);
             },
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 60),
+
+          // Botões menores e arredondados
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildModernButton(
+              _buildRoundedButton(
                 label: "Câmera",
-                icon: Icons.camera_alt_rounded,
+                icon: Icons.camera_alt_outlined,
                 onTap: () => _pickImage(ImageSource.camera),
-                gradient: LinearGradient(
-                  colors: [AppColors.laranja, AppColors.laranja.withOpacity(0.8)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               ),
               const SizedBox(width: 20),
-              _buildModernButton(
+              _buildRoundedButton(
                 label: "Galeria",
-                icon: Icons.photo_library_rounded,
+                icon: Icons.photo_library_outlined,
                 onTap: () => _pickImage(ImageSource.gallery),
-                gradient: LinearGradient(
-                  colors: [AppColors.laranja, AppColors.laranja.withOpacity(0.8)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               ),
             ],
           ),
@@ -88,39 +80,43 @@ class ImagePickerButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildModernButton({
+  Widget _buildRoundedButton({
     required String label,
     required IconData icon,
     required VoidCallback onTap,
-    required Gradient gradient,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(50),
       child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        width: 120,
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [AppColors.laranja, AppColors.laranja.withOpacity(0.8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(50),
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: const Offset(2, 4),
+              color: Colors.orange.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 30),
-            const SizedBox(height: 8),
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(width: 6),
             Text(
               label,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
-                fontSize: 16,
+                fontSize: 14,
               ),
             ),
           ],

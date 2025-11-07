@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:app/utils/color.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:percentages_with_animation/percentages_with_animation.dart';
@@ -13,13 +15,29 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  StreamSubscription<User?>? _authSub;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+
+    // 🔹 Sempre que trocar de usuário, busca metas do novo UID
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+      final uid = user?.uid;
       Provider.of<NutritionViewModel>(context, listen: false)
-          .buscarMetasDoPaciente();
+          .buscarMetasDoPaciente(uid);
     });
+
+    // 🔹 Chama para o usuário atual também
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    Provider.of<NutritionViewModel>(context, listen: false)
+        .buscarMetasDoPaciente(currentUid);
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 
   Widget progressBar(
@@ -80,7 +98,6 @@ class _DashboardState extends State<Dashboard> {
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
-
     final circleSize = screenWidth * 0.33;
     final barWidth = screenWidth * 0.28;
     final horizontalPadding = screenWidth * 0.02;
@@ -109,7 +126,7 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
 
-              // Círculo principal (verde escuro)
+              // Círculo principal
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -135,14 +152,14 @@ class _DashboardState extends State<Dashboard> {
                     centerText: '',
                   ),
 
-                  // Conteúdo interno
+                  // Texto dentro do círculo
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
                         style: TextStyle(
-                          fontSize: 21, // Increased font size
+                          fontSize: 21,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -178,7 +195,7 @@ class _DashboardState extends State<Dashboard> {
                     nutrition.proteinaRecomendada,
                     barWidth,
                   ),
-                  SizedBox(height: circleSize * 0.09), // Proportional spacing
+                  SizedBox(height: circleSize * 0.09),
                   progressBar(
                     "Gorduras",
                     nutrition.gorduraIngerida,
@@ -191,15 +208,13 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
 
-        SizedBox(
-            height: screenWidth *
-                0.05), // Espaçamento proporcional entre os gráficos e o texto
+        SizedBox(height: screenWidth * 0.05),
 
-        // RichText abaixo dos gráficos
+        // Texto final igual ao layout anterior
         RichText(
           text: TextSpan(
             style: TextStyle(
-              fontSize: screenWidth * 0.032, // Fonte proporcional
+              fontSize: screenWidth * 0.032,
               color: AppColors.midText,
             ),
             children: [
@@ -208,7 +223,7 @@ class _DashboardState extends State<Dashboard> {
                 text:
                     '${nutrition.caloriasRecomendadas.toStringAsFixed(0)} kcal',
                 style: TextStyle(
-                  fontSize: screenWidth * 0.032, // Fonte proporcional
+                  fontSize: screenWidth * 0.032,
                   fontWeight: FontWeight.bold,
                   color: AppColors.principal,
                 ),
@@ -220,6 +235,7 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
 
 // import 'dart:math';
 // import 'package:app/utils/color.dart';

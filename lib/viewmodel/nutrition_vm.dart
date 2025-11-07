@@ -112,26 +112,59 @@ class NutritionViewModel extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot>? _historicoListener;
   StreamSubscription<DocumentSnapshot>? _metasListener;
 
-  NutritionViewModel() {
-    _iniciarListenerHistorico();
-    _iniciarListenerMetas();
-  }
-
   void _setCarregando(bool value) {
     _carregando = value;
     notifyListeners();
   }
 
-  void _iniciarListenerHistorico() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+  /// 🔹 Chamado ao logar com um novo usuário
+  Future<void> iniciarParaUsuario(String uid) async {
+    await _historicoListener?.cancel();
+    await _metasListener?.cancel();
 
+    _setCarregando(true);
+    _iniciarListenerHistorico(uid);
+    _iniciarListenerMetas(uid);
+    _setCarregando(false);
+  }
+
+  /// 🔹 Compatibilidade (para o Dashboard)
+  Future<void> buscarMetasDoPaciente([String? uid]) async {
+    final effectiveUid = uid ?? _auth.currentUser?.uid;
+    if (effectiveUid == null) {
+      await resetarDados();
+      return;
+    }
+    await iniciarParaUsuario(effectiveUid);
+  }
+
+  /// 🔹 Chamado ao sair do app
+  Future<void> resetarDados() async {
+    await _historicoListener?.cancel();
+    await _metasListener?.cancel();
+
+    caloriasIngeridas = 0;
+    carboIngerido = 0;
+    proteinaIngerida = 0;
+    gorduraIngerida = 0;
+    fibraIngerida = 0;
+    aguaConsumida = 0;
+
+    caloriasRecomendadas = 0;
+    carboRecomendado = 0;
+    proteinaRecomendada = 0;
+    gorduraRecomendada = 0;
+    fibraRecomendada = 0;
+
+    notifyListeners();
+    if (kDebugMode) print('NutritionViewModel: dados resetados');
+  }
+
+  void _iniciarListenerHistorico(String uid) {
     final hoje = DateTime.now();
     final dataFormatada =
         "${hoje.year}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}";
     final docId = "${uid}_$dataFormatada";
-
-    await _historicoListener?.cancel();
 
     _historicoListener = _firestore
         .collection('historico')
@@ -147,16 +180,13 @@ class NutritionViewModel extends ChangeNotifier {
         fibraIngerida = (data['total_fibra'] ?? 0).toDouble();
         aguaConsumida = (data['agua'] ?? 0).toDouble();
         notifyListeners();
+      } else {
+        resetarDados();
       }
     });
   }
 
-  void _iniciarListenerMetas() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
-
-    await _metasListener?.cancel();
-
+  void _iniciarListenerMetas(String uid) {
     _metasListener = _firestore
         .collection('paciente')
         .doc(uid)
@@ -172,33 +202,6 @@ class NutritionViewModel extends ChangeNotifier {
         notifyListeners();
       }
     });
-  }
-
-  /// Método opcional, pode ser mantido para chamadas manuais
-  Future<void> buscarMetasDoPaciente() async {
-    try {
-      _setCarregando(true);
-
-      final uid = _auth.currentUser?.uid;
-      if (uid == null) return;
-
-      final docPaciente =
-          await _firestore.collection('paciente').doc(uid).get();
-
-      if (docPaciente.exists) {
-        final meta = docPaciente.data()!;
-        caloriasRecomendadas = (meta['meta_cal'] ?? 0).toDouble();
-        carboRecomendado = (meta['meta_carbo'] ?? 0).toDouble();
-        proteinaRecomendada = (meta['meta_proteina'] ?? 0).toDouble();
-        gorduraRecomendada = (meta['meta_lip'] ?? 0).toDouble();
-        fibraRecomendada = (meta['meta_fibra'] ?? 0).toDouble();
-      }
-
-      _setCarregando(false);
-    } catch (e) {
-      if (kDebugMode) print("Erro ao buscar metas: $e");
-      _setCarregando(false);
-    }
   }
 
   double get caloriasPercentual =>
