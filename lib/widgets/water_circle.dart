@@ -18,6 +18,9 @@ class WaterCircleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // progresso real
+    final progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -33,8 +36,8 @@ class WaterCircleWidget extends StatelessWidget {
               animation: Listenable.merge([animation, waveAnimation]),
               builder: (context, child) {
                 return CustomPaint(
-                  painter: WaterPainter(animation.value, waveAnimation.value),
-                  child: Container(),
+                  painter: WaterPainter(
+                      progresso * animation.value, waveAnimation.value),
                 );
               },
             ),
@@ -57,7 +60,7 @@ class WaterPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint waterPaint = Paint()..color = Colors.blue;
+    Paint waterPaint = Paint()..color = const Color(0xFF81B5DF);
     double waterHeight = size.height * (1 - progress);
 
     Path path = Path();

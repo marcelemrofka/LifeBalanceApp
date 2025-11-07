@@ -1,57 +1,67 @@
-import 'package:app/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:app/utils/color.dart';
 
 class Caixa extends StatelessWidget {
   final String titulo;
   final Widget conteudo;
+  final double? largura; // permite controle exato da largura
+  final double? altura; // permite altura fixa
 
   const Caixa({
     Key? key,
     required this.titulo,
     required this.conteudo,
+    this.largura,
+    this.altura,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      width:
+          largura ?? 205,
+      height: altura ?? 180,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Cabeçalho
+          // Cabeçalho cinza claro
           Container(
             decoration: const BoxDecoration(
               color: AppColors.lightGrey,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
               ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Center(
               child: Text(
                 titulo,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
             ),
           ),
           // Conteúdo
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: conteudo,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: conteudo,
+            ),
           ),
         ],
       ),

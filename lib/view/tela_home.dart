@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/barra_navegacao.dart';
 import 'package:app/widgets/caixa.dart';
@@ -8,9 +7,7 @@ import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/drawer.dart';
 import 'package:app/widgets/lembretes.dart';
 import 'package:app/widgets/menu.dart';
-import 'package:app/widgets/water_circle.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app/widgets/waterbox.dart';
 import 'package:flutter/material.dart';
 
 class TelaHome extends StatefulWidget {
@@ -35,17 +32,14 @@ class _TelaHomeState extends State<TelaHome>
       duration: const Duration(seconds: 1),
     );
 
-    // o _animation vai de 0 até 1 (controla o preenchimento do círculo)
     _animation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    // o _waveAnimation agora só controla um leve movimento inicial
     _waveAnimation = Tween<double>(begin: 0, end: pi / 8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // dispara a animação uma vez ao abrir
     _controller.forward();
   }
 
@@ -69,13 +63,32 @@ class _TelaHomeState extends State<TelaHome>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Dashboard(),
-            const SizedBox(height: 35),
+            const SizedBox(height: 20),
             const Carrossel(),
-            const SizedBox(height: 35),
+            const SizedBox(height: 20),
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               Caixa(titulo: 'Lembretes', conteudo: LembretesWidget()),
-              Caixa(titulo: 'Água', conteudo: LembretesWidget())
+              Caixa(
+                  titulo: 'Água',
+                  conteudo: WaterBox(
+                    animation: _animation,
+                    waveAnimation: _waveAnimation,
+                    scale: 0.5,
+                  ))
             ]),
+            const SizedBox(height: 20),
+            // Caixa de Exercícios larga
+            Caixa(
+              titulo: 'Exercícios',
+              conteudo: Center(
+                child: Text(
+                  'Cadastrar exercícios aqui',
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+              altura: 140,
+              largura: double.infinity,
+            ),
           ],
         ),
       ),

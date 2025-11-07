@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../utils/color.dart';
 
 class LembretesWidget extends StatelessWidget {
   const LembretesWidget({Key? key}) : super(key: key);
@@ -17,49 +16,7 @@ class LembretesWidget extends StatelessWidget {
 
     final uid = user.uid;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 🔹 Cabeçalho
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.lightGrey,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: const Center(
-              child: Text(
-                'Lembretes',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-
-          // 🔹 Corpo
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: StreamBuilder<QuerySnapshot>(
+    return  StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('lembretes')
                   .where('uid_usuario', isEqualTo: uid)
@@ -137,10 +94,6 @@ class LembretesWidget extends StatelessWidget {
                   }).toList(),
                 );
               },
-            ),
-          ),
-        ],
-      ),
-    );
+            );
   }
-}
+  }
