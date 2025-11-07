@@ -1,5 +1,5 @@
 import 'package:app/utils/color.dart';
-import 'package:app/view/tela_perfil.dart';
+import 'package:app/view/tela_diario_paciente.dart';
 import 'package:app/widgets/barra_navegacao_nutri.dart';
 import 'package:app/widgets/menu.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +74,7 @@ class TelaPacientes extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              TelaPerfil(uidPaciente: pacienteUid),
+                              TelaDiarioPaciente(uidPaciente: pacienteUid),
                         ),
                       );
                     },
@@ -86,7 +86,7 @@ class TelaPacientes extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/tela_diario_paciente');
+            Navigator.pushNamed(context, '/tela_cadastro_paciente');
           },
           backgroundColor: AppColors.laranja,
           child: const Icon(Icons.add, color: Colors.white),

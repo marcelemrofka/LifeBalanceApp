@@ -38,7 +38,10 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NutritionViewModel(),child: Dashboard(),),
+        ChangeNotifierProvider(
+          create: (_) => NutritionViewModel(),
+          child: Dashboard(),
+        ),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => RefeicaoViewModel()),
         ChangeNotifierProvider(
@@ -92,9 +95,8 @@ class MyApp extends StatelessWidget {
         '/tela_historico': (context) => TelaHistoricoRefeicoes(),
         '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
         '/tela_pacientes': (context) => TelaPacientes(),
-        '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
+        '/tela_cadastro_paciente': (context) => TelaCadastroPaciente(),
         '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
-        '/tela_diario_paciente': (context) => TelaDiarioPaciente(),
         '/planos': (context) => const Planos('pro'),
       },
     );
