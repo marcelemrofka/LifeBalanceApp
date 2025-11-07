@@ -2,10 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:app/utils/color.dart';
 
 final List<Map<String, dynamic>> carouselItems = [
-  {'title': 'Água', 'subtitle': 'Registre seu consumo de água!', 'icon': Icons.local_drink_rounded, 'route': '/tela_agua'},
-  {'title': 'Lembretes', 'subtitle': 'Personalize seus lembretes!', 'icon': Icons.alarm, 'route': '/tela_lembretes'},
-  {'title': 'Exercícios', 'subtitle': 'Registre suas atividades físicas!', 'icon': Icons.fitness_center, 'route': '/tela_exercicios'},
-  {'title': 'Sono', 'subtitle': 'Monitore suas horas de sono!', 'icon': Icons.nightlight ,'route': '/tela_sono'},
+  {
+    'title': 'Água',
+    'subtitle': 'Registre seu consumo de água!',
+    'icon': Icons.local_drink_rounded,
+    'route': '/tela_agua'
+  },
+  {
+    'title': 'Lembretes',
+    'subtitle': 'Personalize seus lembretes!',
+    'icon': Icons.alarm,
+    'route': '/tela_lembretes'
+  },
+  {
+    'title': 'Exercícios',
+    'subtitle': 'Registre suas atividades físicas!',
+    'icon': Icons.fitness_center,
+    'route': '/tela_exercicios'
+  },
+  {
+    'title': 'Sono',
+    'subtitle': 'Monitore suas horas de sono!',
+    'icon': Icons.nightlight,
+    'route': '/tela_sono'
+  },
 ];
 
 class Carrossel extends StatefulWidget {
@@ -21,7 +41,8 @@ class _CarrosselState extends State<Carrossel> {
 
   void _onScroll() {
     final position = _scrollController.position.pixels;
-    final cardWidth = MediaQuery.of(context).size.width * 0.6 + 16; // width + margin
+    final cardWidth =
+        MediaQuery.of(context).size.width * 0.6 + 16; // width + margin
     final index = (position / cardWidth).round();
     setState(() {
       _currentIndex = index;
@@ -64,12 +85,12 @@ class _CarrosselState extends State<Carrossel> {
                     right: index == carouselItems.length - 1 ? 10 : 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.verdeNeutro.withOpacity(0.85),
+                    color: AppColors.lightGrey,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
-                        blurRadius: 6,
+                        blurRadius: 4,
                         offset: Offset(0, 4),
                       ),
                     ],
@@ -85,7 +106,6 @@ class _CarrosselState extends State<Carrossel> {
                         ),
                       ),
                       Icon(item['icon'], size: 40, color: AppColors.midText),
-                      
                       Text(
                         item['subtitle'],
                         textAlign: TextAlign.center,

@@ -3,6 +3,7 @@ import 'package:app/widgets/barra_navegacao.dart';
 import 'package:app/widgets/carrossel.dart';
 import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/drawer.dart';
+import 'package:app/widgets/lembretes.dart';
 import 'package:app/widgets/menu.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,8 @@ class TelaHome extends StatelessWidget {
             Dashboard(),
             SizedBox(height: 35),
             Carrossel(),
+            SizedBox(height: 35),
+            LembretesWidget(),
           ],
         ),
       ),
