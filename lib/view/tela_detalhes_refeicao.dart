@@ -15,16 +15,14 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     final proteinas = refeicao['proteinas'] ?? 0;
     final gorduras = refeicao['gorduras'] ?? 0;
     final fibras = refeicao['fibras'] ?? 0;
-    final quantidadeEstimada = refeicao['quantidade'] ?? '';
     String? alimentosIncluidos = refeicao['nome'];
 
-    // ✅ Adiciona ":" após "Alimento" se não tiver
     if (alimentosIncluidos != null &&
         alimentosIncluidos.startsWith("Alimento") &&
         !alimentosIncluidos.contains(":")) {
       alimentosIncluidos = alimentosIncluidos.replaceFirst(
         "Alimento",
-        "Alimento:",
+        "Alimentos incluídos:",
       );
     }
 
@@ -35,7 +33,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Botão voltar
             Positioned(
               top: 10,
               left: 10,
@@ -44,7 +41,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
               ),
             ),
-
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -57,8 +53,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                     topRight: Radius.circular(35),
                   ),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -78,7 +73,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 25),
-
                             const Text(
                               "Informações Nutricionais",
                               style: TextStyle(
@@ -86,10 +80,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
-
-                            // 🔽 Aumentei o espaçamento aqui
                             const SizedBox(height: 24),
-
                             const Text(
                               "Composição estimada:",
                               style: TextStyle(
@@ -98,29 +89,11 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 8),
-
                             _itemComposicao("Proteínas", proteinas),
                             _itemComposicao("Carboidratos", carboidratos),
                             _itemComposicao("Gorduras", gorduras),
                             _itemComposicao("Fibras", fibras),
-
                             const SizedBox(height: 25),
-
-                            // Quantidade estimada
-                            if (quantidadeEstimada.toString().isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Text(
-                                  "Quantidade estimada: $quantidadeEstimada g",
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-
-                            // Nome (com ":" ajustado se necessário)
                             if (alimentosIncluidos != null)
                               Text(
                                 alimentosIncluidos,
@@ -130,10 +103,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                   height: 1.3,
                                 ),
                               ),
-
                             const SizedBox(height: 25),
-
-                            // Total de calorias
                             Text(
                               "Total de Calorias: ${calorias.toString()} kcal",
                               style: const TextStyle(
@@ -146,8 +116,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // Botão OK
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
@@ -184,7 +152,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     );
   }
 
-  // Linha com bolinha e valor
   static Widget _itemComposicao(String nome, dynamic valor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

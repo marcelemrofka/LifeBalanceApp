@@ -99,7 +99,7 @@ class RefeicaoViewModel extends ChangeNotifier {
       final linhas = resultado.split('\n');
       if (linhas.isNotEmpty) {
         return linhas.first
-            .replaceAll(RegExp(r'[^\w\sáàâãéèêíïóôõöúçÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ]'), '')
+            .replaceAll(RegExp(r'[^\w\sáàâãéèêíïóôõöúçÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ,]'), '')
             .trim();
       }
       return 'Alimento não identificado';
