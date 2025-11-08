@@ -16,6 +16,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     final gorduras = refeicao['gorduras'] ?? 0;
     final fibras = refeicao['fibras'] ?? 0;
     String? alimentosIncluidos = refeicao['nome'];
+    final imagemUrl = refeicao['imagemUrl']; // 🔹 URL da imagem
 
     if (alimentosIncluidos != null &&
         alimentosIncluidos.startsWith("Alimento") &&
@@ -26,13 +27,34 @@ class TelaDetalhesRefeicao extends StatelessWidget {
       );
     }
 
-    final double alturaBranca = MediaQuery.of(context).size.height * 0.68;
+    final double alturaBranca = MediaQuery.of(context).size.height * 0.62;
 
     return Scaffold(
       backgroundColor: AppColors.verdeBg,
       body: SafeArea(
         child: Stack(
           children: [
+            // 🔹 Imagem no topo (preenche tudo acima do container branco)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: alturaBranca - 40, // 🔸 sobe um pouco pra cobrir melhor
+              child: imagemUrl != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                      child: Image.network(
+                        imagemUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(color: AppColors.verdeBg),
+            ),
+
+            // 🔹 Botão de voltar
             Positioned(
               top: 10,
               left: 10,
@@ -41,6 +63,8 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
               ),
             ),
+
+            // 🔹 Container branco sobrepondo levemente a imagem
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -52,6 +76,13 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, -2),
+                    ),
+                  ],
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Column(

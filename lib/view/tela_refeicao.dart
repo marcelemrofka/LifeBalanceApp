@@ -106,151 +106,199 @@ class TelaRefeicao extends StatelessWidget {
               final carboidratos = refeicao['carboidratos'] ?? 0;
               final gorduras = refeicao['gorduras'] ?? 0;
               final fibras = refeicao['fibras'] ?? 0;
+              final imagemUrl = refeicao['imagemUrl'];
 
-              // ✅ Data formatada
               String dataFormatada = '';
-              if (refeicao['hora'] != null &&
-                  refeicao['hora'] is Timestamp) {
+              if (refeicao['hora'] != null && refeicao['hora'] is Timestamp) {
                 final dateTime = (refeicao['hora'] as Timestamp).toDate();
                 dataFormatada =
-                    DateFormat("dd/MM/yyyy 'às' HH:mm").format(dateTime);
+                    DateFormat("dd/MM/yyyy • HH:mm").format(dateTime);
               }
 
               return Padding(
                 padding: EdgeInsets.only(
-                  top: index == 0 ? 28 : 10,
+                  top: index == 0 ? 16 : 6,
                   left: 10,
                   right: 10,
-                  bottom: 5,
+                  bottom: 6,
                 ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.96,
-                  // 🔹 Agora o Card é clicável
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              TelaDetalhesRefeicao(refeicao: refeicao),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 1.5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            TelaDetalhesRefeicao(refeicao: refeicao),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 🔹 Cabeçalho: tipo e lixeira
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  tipo,
-                                  style: const TextStyle(
-                                    color: Color(0xFF2E7D32),
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                    );
+                  },
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 1.5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Imagem quase quadrada
+                          imagemUrl != null
+                              ? Container(
+                                  width: 100,
+                                  height: double.infinity,
+                                  child: Image.network(
+                                    imagemUrl,
+                                    fit: BoxFit.cover,
                                   ),
+                                )
+                              : Container(
+                                  width: 100,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image,
+                                      color: Colors.grey),
                                 ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete_outline,
-                                    color: Colors.grey,
-                                    size: 22,
-                                  ),
-                                  onPressed: () async {
-                                    final confirmar = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text("Excluir refeição"),
-                                        content: const Text(
-                                            "Tem certeza que deseja excluir esta refeição?"),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, false),
-                                            child: const Text("Cancelar"),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, true),
-                                            child: const Text(
-                                              "Excluir",
-                                              style: TextStyle(
-                                                  color: Colors.redAccent),
+
+                          // Informações da refeição
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Tipo + data/hora + excluir
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              tipo,
+                                              style: const TextStyle(
+                                                color: Color(0xFF2E7D32),
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          ),
-                                        ],
+                                            if (dataFormatada.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 2, bottom: 4),
+                                                child: Text(
+                                                  dataFormatada,
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    );
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.grey,
+                                          size: 22,
+                                        ),
+                                        onPressed: () async {
+                                          final confirmar =
+                                              await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text(
+                                                  "Excluir refeição"),
+                                              content: const Text(
+                                                  "Tem certeza que deseja excluir esta refeição?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, false),
+                                                  child:
+                                                      const Text("Cancelar"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, true),
+                                                  child: const Text(
+                                                    "Excluir",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.redAccent),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
 
-                                    if (confirmar == true) {
-                                      await refeicaoVM
-                                          .deletarRefeicao(refeicao['id']);
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-
-                            // 🔹 Data e hora em cinza
-                            if (dataFormatada.isNotEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 2, bottom: 8),
-                                child: Text(
-                                  dataFormatada,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey,
+                                          if (confirmar == true) {
+                                            await refeicaoVM
+                                                .deletarRefeicao(
+                                                    refeicao['id']);
+                                          }
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                ),
+
+                                  const SizedBox(height: 4),
+
+                                  // Nutrientes lado a lado
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Coluna Proteínas + Carboidratos
+                                      Flexible(
+                                        flex: 1,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            _item("Proteínas", proteinas),
+                                            _item("Carboidratos", carboidratos),
+                                          ],
+                                        ),
+                                      ),
+                                      // Coluna Gorduras + Fibras mais próxima
+                                      Flexible(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 8),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              _item("Gorduras", gorduras),
+                                              _item("Fibras", fibras),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-
-                            // 🔹 Linha divisória
-                            Container(
-                              height: 1,
-                              color: Colors.grey.withOpacity(0.3),
                             ),
-                            const SizedBox(height: 8),
-
-                            // 🔹 Informações nutricionais
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _item("Proteínas", proteinas),
-                                      _item("Carboidratos", carboidratos),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _item("Gorduras", gorduras),
-                                      _item("Fibras", fibras),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -268,14 +316,13 @@ class TelaRefeicao extends StatelessWidget {
     );
   }
 
-  // 🔸 Função auxiliar pra cada linha de nutriente
   Widget _item(String nome, dynamic valor) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: Text(
         "• $nome: $valor g",
         style: const TextStyle(
-          fontSize: 12.5,
+          fontSize: 11.5,
           color: Colors.black87,
           height: 1.3,
         ),
