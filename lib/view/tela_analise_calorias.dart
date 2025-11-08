@@ -20,6 +20,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
   bool _naoConcorda = false;
   bool _resultadoManualGerado = false;
   bool _fluxoManualFinalizado = false;
+  bool _calculandoManual = false;
 
   List<Map<String, dynamic>> alimentos = [];
   List<Map<String, dynamic>> alimentosParaSalvar = [];
@@ -65,15 +66,14 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     if (alimentos.isEmpty) return;
 
     setState(() {
-      _carregando = true;
-      _resultado = '';
+      _calculandoManual = true;
     });
 
     final resposta = await analisarAlimentosManuais(alimentos);
 
     setState(() {
       _resultado = resposta;
-      _carregando = false;
+      _calculandoManual = false;
       _resultadoManualGerado = true;
       _fluxoManualFinalizado = true;
       alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
@@ -97,15 +97,6 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     return lista;
   }
 
-  int _extrairNumero(String texto, String palavraChave) {
-    final exp = RegExp('$palavraChave[^0-9]*([0-9]+)');
-    final match = exp.firstMatch(texto.toLowerCase());
-    if (match != null) {
-      return int.tryParse(match.group(1) ?? '0') ?? 0;
-    }
-    return 0;
-  }
-
   void _salvarRefeicao(String tipoRefeicao) async {
     if (alimentosParaSalvar.isEmpty) {
       alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
@@ -123,32 +114,34 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     Navigator.pushReplacementNamed(context, '/tela_refeicao');
   }
 
-  Widget _buildRoundedButton(String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.laranja, AppColors.laranja.withOpacity(0.8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+  Widget _buildRoundedButton(String label, VoidCallback? onTap,
+      {double width = 160, Color? color}) {
+    return SizedBox(
+      width: width,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(50),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: color ?? AppColors.laranja,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(50),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.orange.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+          child: Center(
+            child: Text(
+              label,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14),
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
       ),
@@ -207,6 +200,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    // fluxo principal
                     if (!_naoConcorda) ...[
                       if (!_carregando && _resultado.isEmpty)
                         ImagePickerButtons(onImageSelected: _processarImagem),
@@ -217,10 +211,13 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                       if (_resultado.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         const Text(
-                          "QUANTIDADES DE CALORIAS ESTIMADAS NA REFEIÇÃO",
+                          "Quantidade de calorias e macronutrientes estimados na refeição: ",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF616161),
+                          )
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -230,14 +227,14 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         ),
                         const SizedBox(height: 16),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(
-                                child: _buildRoundedButton(
-                                    "Adicionar Refeição",
-                                    () => _salvarRefeicao(tipoRefeicao))),
+                            _buildRoundedButton(
+                                "Adicionar Refeição",
+                                () => _salvarRefeicao(tipoRefeicao),
+                                width: 140),
                             const SizedBox(width: 12),
-                            Expanded(
-                                child: _buildRoundedButton("Editar Refeição", () {
+                            _buildRoundedButton("Editar Refeição", () {
                               setState(() {
                                 _naoConcorda = true;
                                 _resultado = '';
@@ -245,14 +242,22 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                                 alimentos.clear();
                                 alimentosParaSalvar.clear();
                                 _fluxoManualFinalizado = false;
+                                _resultadoManualGerado = false;
+                                _calculandoManual = false;
                               });
-                            })),
+                            }, width: 140),
                           ],
                         ),
                       ],
                     ],
-                    if (_naoConcorda && !_fluxoManualFinalizado) ...[
+                    // fluxo manual
+                    if (_naoConcorda) ...[
                       const SizedBox(height: 16),
+                      const Text(
+                        "Adicione os alimentos e suas quantidades:",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
                       TextField(
                         controller: alimentoController,
                         cursorColor: AppColors.verdeBg,
@@ -288,13 +293,7 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: _adicionarAlimento,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.verdeBg,
-                        ),
-                        child: const Text("+ Adicionar alimento"),
-                      ),
+                      _buildRoundedButton("+ Adicionar alimento", _adicionarAlimento),
                       const SizedBox(height: 20),
                       if (alimentos.isNotEmpty)
                         Column(
@@ -307,18 +306,30 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                               )
                               .toList(),
                         ),
-                      ElevatedButton(
-                        onPressed: _recalcular,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.verdeBg,
-                        ),
-                        child: const Text("OK"),
-                      ),
-                    ],
-                    if (_resultadoManualGerado && _fluxoManualFinalizado) ...[
                       const SizedBox(height: 10),
                       _buildRoundedButton(
-                          "Adicionar Refeição", () => _salvarRefeicao(tipoRefeicao)),
+                        _calculandoManual ? "Calculando..." : "Calcular Refeição",
+                        _calculandoManual ? null : _recalcular,
+                      ),
+                      const SizedBox(height: 10),
+                      if (_calculandoManual)
+                        const Text(
+                          "Calculando calorias...",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      const SizedBox(height: 10),
+                      if (_resultadoManualGerado && _fluxoManualFinalizado) ...[
+                        const Text(
+                          "Calorias e macronutrientes calculados.\nClique no botão abaixo para adicionar sua refeição.",
+                          style: TextStyle(color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildRoundedButton(
+                            "Adicionar Refeição",
+                            () => _salvarRefeicao(tipoRefeicao),
+                            color: AppColors.verdeBg),
+                      ],
                     ],
                   ],
                 ),

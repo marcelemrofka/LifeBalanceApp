@@ -19,7 +19,7 @@ class ImagePickerButtons extends StatelessWidget {
   @override
 Widget build(BuildContext context) {
   return Padding(
-    padding: const EdgeInsets.fromLTRB(24, 60, 24, 16), // 👈 aumentei o topo
+    padding: const EdgeInsets.fromLTRB(24, 60, 24, 16), 
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -29,7 +29,7 @@ Widget build(BuildContext context) {
           style: TextStyle(
             fontSize: 18, // 👈 um pouco menor
             fontWeight: FontWeight.w600,
-            color: Color(0xFF616161), // 👈 cinza mais suave
+            color: Color(0xFF616161), // 
             height: 1.4,
           ),
         ),
