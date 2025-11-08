@@ -106,24 +106,53 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
     return 0;
   }
 
-  /// 🔹 Novo método: salva apenas via ViewModel (não duplica no Firebase)
   void _salvarRefeicao(String tipoRefeicao) async {
     if (alimentosParaSalvar.isEmpty) {
       alimentosParaSalvar = _extrairAlimentosDoResultado(_resultado);
     }
 
-    // Salva apenas pelo ViewModel (já salva no Firebase formatado)
     Provider.of<RefeicaoViewModel>(context, listen: false).adicionarRefeicao(
       tipoRefeicao: tipoRefeicao,
       resultado: _resultado,
       alimentos: alimentosParaSalvar,
     );
 
-    // Limpa tudo e volta
     alimentos.clear();
     alimentosParaSalvar.clear();
     _fluxoManualFinalizado = false;
     Navigator.pushReplacementNamed(context, '/tela_refeicao');
+  }
+
+  Widget _buildRoundedButton(String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.laranja, AppColors.laranja.withOpacity(0.8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(50),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -200,29 +229,25 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => _salvarRefeicao(tipoRefeicao),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.verdeBg,
-                          ),
-                          child: const Text("Adicionar Refeição"),
-                        ),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _naoConcorda = true;
-                              _resultado = '';
-                              _imagem = null;
-                              alimentos.clear();
-                              alimentosParaSalvar.clear();
-                              _fluxoManualFinalizado = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.verdeBg,
-                          ),
-                          child: const Text('Não Concordo'),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: _buildRoundedButton(
+                                    "Adicionar Refeição",
+                                    () => _salvarRefeicao(tipoRefeicao))),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                child: _buildRoundedButton("Editar Refeição", () {
+                              setState(() {
+                                _naoConcorda = true;
+                                _resultado = '';
+                                _imagem = null;
+                                alimentos.clear();
+                                alimentosParaSalvar.clear();
+                                _fluxoManualFinalizado = false;
+                              });
+                            })),
+                          ],
                         ),
                       ],
                     ],
@@ -292,13 +317,8 @@ class _TelaAnaliseCaloriasState extends State<TelaAnaliseCalorias> {
                     ],
                     if (_resultadoManualGerado && _fluxoManualFinalizado) ...[
                       const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () => _salvarRefeicao(tipoRefeicao),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.verdeBg,
-                        ),
-                        child: const Text("Adicionar Refeição"),
-                      ),
+                      _buildRoundedButton(
+                          "Adicionar Refeição", () => _salvarRefeicao(tipoRefeicao)),
                     ],
                   ],
                 ),

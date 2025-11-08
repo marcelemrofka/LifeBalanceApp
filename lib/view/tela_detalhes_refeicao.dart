@@ -126,13 +126,12 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
+                              horizontal: 20, vertical: 12),
                         ),
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (_) => const TelaRefeicao()),
+                            MaterialPageRoute(builder: (_) => const TelaRefeicao()),
                           );
                         },
                         child: const Text(
