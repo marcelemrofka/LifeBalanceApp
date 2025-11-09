@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-//chave
+//CHAVE OPENAI
+
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
@@ -143,7 +144,6 @@ CALORIAS TOTAIS: [valor total em kcal]
 
 ⚠️ Responda **somente** neste formato, nada mais.
 ⚠️ Caso você identifique que não há um alimento presente, diga que só pode fornecer dados sobre alimentos.
-
 
 """
       }
