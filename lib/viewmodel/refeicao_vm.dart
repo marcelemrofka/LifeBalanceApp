@@ -311,6 +311,18 @@ class RefeicaoViewModel extends ChangeNotifier {
 
     final agora = DateTime.now();
 
+    // 🔹 Busca o nutricionista vinculado (se existir)
+    String? uidNutri;
+    final pacienteDoc =
+      await _firestore.collection('paciente').doc(usuario.uid).get();
+
+  if (pacienteDoc.exists) {
+    final dados = pacienteDoc.data();
+    if (dados != null && dados['nutricionista_uid'] != null) {
+      uidNutri = dados['nutricionista_uid'];
+    }
+  }
+
     int _extrairNumero(String chave) {
       final regex = RegExp('$chave:?\\s*(\\d+)', caseSensitive: false);
       final match = regex.firstMatch(resultado);
@@ -339,6 +351,7 @@ class RefeicaoViewModel extends ChangeNotifier {
       "hora": Timestamp.fromDate(agora),
       "tipoRefeicao": tipoRefeicao,
       "uid": usuario.uid,
+      if (uidNutri != null) "uid_nutri": uidNutri,
       "imagemUrl": imagemUrl, // 🔹 Salva o link da imagem aqui
     };
 
