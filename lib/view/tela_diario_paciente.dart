@@ -1,6 +1,8 @@
 import 'package:app/utils/color.dart';
+import 'package:app/widgets/custom_appbar.dart';
 import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/water_circle.dart';
+import 'package:app/widgets/waterbox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -14,9 +16,11 @@ class TelaDiarioPaciente extends StatefulWidget {
 }
 
 class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
+  String nomePaciente = '';
   double? metaAgua;
   double? metaCalorias;
   double totalAgua = 0;
+  bool carregando = true;
 
   @override
   void initState() {
@@ -26,66 +30,63 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
 
   Future<void> _carregarDadosPaciente() async {
     try {
-      final doc = await FirebaseFirestore.instance
+      // Consulta dados do paciente
+      final pacienteDoc = await FirebaseFirestore.instance
           .collection('paciente')
           .doc(widget.uidPaciente)
           .get();
 
-      if (doc.exists) {
-        final data = doc.data()!;
+      if (pacienteDoc.exists) {
+        final data = pacienteDoc.data()!;
         setState(() {
+          nomePaciente = data['nome'] ?? 'Paciente';
           metaAgua = (data['meta_agua'] ?? 2000).toDouble();
           metaCalorias = (data['meta_calorias'] ?? 2000).toDouble();
         });
       }
 
-      // Carrega o histórico diário de água (caso queira exibir o progresso)
-      final historico = await FirebaseFirestore.instance
+      // Consulta o histórico do dia atual (água)
+      final dataAtual = DateTime.now();
+      final dataFormatada =
+          '${dataAtual.year}-${dataAtual.month.toString().padLeft(2, '0')}-${dataAtual.day.toString().padLeft(2, '0')}';
+
+      final historicoDoc = await FirebaseFirestore.instance
           .collection('historico')
           .doc(widget.uidPaciente)
           .collection('agua')
-          .doc(DateTime.now().toIso8601String().substring(0, 10)) // formato YYYY-MM-DD
+          .doc(dataFormatada)
           .get();
 
-      if (historico.exists) {
+      if (historicoDoc.exists) {
         setState(() {
-          totalAgua = (historico.data()?['total_ingerido'] ?? 0).toDouble();
+          totalAgua = (historicoDoc.data()?['total_ingerido'] ?? 0).toDouble();
         });
       }
     } catch (e) {
       debugPrint('Erro ao buscar dados do paciente: $e');
+    } finally {
+      setState(() => carregando = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(titulo: nomePaciente.isEmpty ? 'Carregando...' : nomePaciente),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: metaAgua == null
+        child: carregando
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Botão voltar
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.principal,
-                          shape: const CircleBorder(),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 10),
-
-                    const Dashboard(),
+                    Dashboard(uidPaciente: widget.uidPaciente),
                     const SizedBox(height: 20),
 
+                    // Meta calórica
                     Text(
                       'Meta Calórica: ${metaCalorias?.toStringAsFixed(0)} kcal',
                       style: const TextStyle(
@@ -125,13 +126,11 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                           SizedBox(
                             height: 160,
                             child: Center(
-                              child: WaterCircleWidget(
-                                totalIngerido: totalAgua,
-                                capacidadeTotal: metaAgua ?? 2000,
-                                animation: const AlwaysStoppedAnimation<double>(0.0),
-                                waveAnimation:
-                                    const AlwaysStoppedAnimation<double>(0.0),
-                              ),
+                              child: WaterBox(
+                                animation: const AlwaysStoppedAnimation(1.0),
+                                waveAnimation: const AlwaysStoppedAnimation(0.0),
+                                uidPaciente: widget.uidPaciente, 
+                              )
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -139,7 +138,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                             '${totalAgua.toStringAsFixed(0)} / ${metaAgua?.toStringAsFixed(0)} ml',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.black54,
+                              color: Colors.red,
                             ),
                           ),
                         ],
@@ -150,8 +149,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     // Card de Exercícios
                     Container(
                       width: double.infinity,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -177,6 +175,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     ),
                     const SizedBox(height: 30),
 
+                    // Botões inferiores
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -188,8 +187,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             child: Text(
                               'Plano Alimentar',
@@ -209,8 +207,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             child: Text(
                               'Ficha Completa',

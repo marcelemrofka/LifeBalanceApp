@@ -8,6 +8,7 @@ import 'package:app/widgets/drawer.dart';
 import 'package:app/widgets/lembretes.dart';
 import 'package:app/widgets/menu.dart';
 import 'package:app/widgets/waterbox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TelaHome extends StatefulWidget {
@@ -62,7 +63,7 @@ class _TelaHomeState extends State<TelaHome>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Dashboard(),
+            Dashboard(uidPaciente: FirebaseAuth.instance.currentUser?.uid),
             const SizedBox(height: 20),
             const Carrossel(),
             const SizedBox(height: 20),

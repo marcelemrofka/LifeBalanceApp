@@ -9,13 +9,15 @@ class WaterBox extends StatefulWidget {
   final Animation<double> animation;
   final Animation<double> waveAnimation;
   final double scale;
+  final String? uidPaciente; // 🔹 UID opcional
 
-  const WaterBox(
-      {Key? key,
-      required this.animation,
-      required this.waveAnimation,
-      this.scale = 1.0})
-      : super(key: key);
+  const WaterBox({
+    Key? key,
+    required this.animation,
+    required this.waveAnimation,
+    this.scale = 1.0,
+    this.uidPaciente, // 🔹 recebe uid do paciente selecionado (se houver)
+  }) : super(key: key);
 
   @override
   State<WaterBox> createState() => _WaterBoxState();
@@ -31,7 +33,8 @@ class _WaterBoxState extends State<WaterBox> {
   }
 
   Future<void> _carregarMeta() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    // 🔹 Se uidPaciente for passado, usa ele. Senão, usa o usuário logado.
+    final uid = widget.uidPaciente ?? FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
     final vm = context.read<HistoricoDiarioViewModel>();
@@ -45,7 +48,8 @@ class _WaterBoxState extends State<WaterBox> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    // 🔹 Determina UID conforme o contexto (nutricionista ou paciente)
+    final uid = widget.uidPaciente ?? FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
       return const Center(child: Text('Usuário não autenticado'));
     }
@@ -56,8 +60,8 @@ class _WaterBoxState extends State<WaterBox> {
     final docId = "${uid}_$dateStr";
 
     return SizedBox(
-      width: 100,
-      height: 100,
+      width: 100 * widget.scale,
+      height: 100 * widget.scale,
       child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('historico')
@@ -71,8 +75,8 @@ class _WaterBoxState extends State<WaterBox> {
 
           return Center(
             child: SizedBox(
-              width: 100,
-              height: 100,
+              width: 100 * widget.scale,
+              height: 100 * widget.scale,
               child: WaterCircleWidget(
                 totalIngerido: total,
                 capacidadeTotal: capacidadeTotal,
