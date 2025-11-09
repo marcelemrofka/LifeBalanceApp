@@ -1,3 +1,5 @@
+import 'package:app/widgets/barra_navegacao_nutri.dart';
+import 'package:app/widgets/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,12 +39,9 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('Refeições dos Pacientes',
-            style: TextStyle(color: Colors.black87, fontSize: 18)),
-        centerTitle: true,
+appBar: AppBar(
+        iconTheme: IconThemeData(size: 45, color: AppColors.midGrey),
+        actions: const [Menu()],
       ),
       body: StreamBuilder<QuerySnapshot>(
 
@@ -212,6 +211,6 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
           );
         },
       ),
-    );
+  bottomNavigationBar: const BarraNavegacaoNutri(),    );
   }
 }
