@@ -15,10 +15,12 @@ class ExercicioViewModel {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) throw Exception('Usuário não logado');
 
-    // Buscar peso do paciente
+    // Buscar peso e nutricionista_uid do paciente
     final doc = await FirebaseFirestore.instance.collection('paciente').doc(uid).get();
     if (!doc.exists) throw Exception('Paciente não encontrado');
-    final peso = (doc.data()?['peso'] ?? 0).toDouble();
+    final data = doc.data();
+    final peso = (data?['peso'] ?? 0).toDouble();
+    final uidNutri = data?['nutricionista_uid']; 
 
     // Calcular gasto via OpenAI
     final gasto = await openAIService.calcularGasto(
@@ -31,6 +33,7 @@ class ExercicioViewModel {
     // Salvar exercício no Firebase
     await FirebaseFirestore.instance.collection('exercicios').add({
       'uidPaciente': uid,
+      'uid_nutri': uidNutri, 
       'tipoExercicio': tipoExercicio,
       'intensidade': intensidade,
       'tempoMinutos': tempoMinutos,
