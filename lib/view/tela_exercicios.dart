@@ -5,6 +5,7 @@ import '../services/openai_service_exercicios.dart';
 import '../viewmodel/exercicio_view_model.dart';
 
 //CHAVE OPENAI
+const String openAiApiKey = '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';
 
 class TelaExercicios extends StatefulWidget {
   const TelaExercicios({super.key});

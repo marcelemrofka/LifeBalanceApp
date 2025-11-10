@@ -59,7 +59,8 @@ class TelaDetalhesRefeicao extends StatelessWidget {
               top: 10,
               left: 10,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.white, size: 26),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -84,7 +85,8 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -162,7 +164,8 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (_) => const TelaRefeicao()),
+                            MaterialPageRoute(
+                                builder: (_) => const TelaRefeicao()),
                           );
                         },
                         child: const Text(
