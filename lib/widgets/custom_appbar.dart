@@ -14,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(120); // 🔹 altura aumentada
+  Size get preferredSize => const Size.fromHeight(90); // 🔹 altura aumentada
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           // Botão de voltar
           Positioned(
-            top: 40, // 🔹 ajustado pra não ficar colado
+            top: 40,
             left: 15,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
