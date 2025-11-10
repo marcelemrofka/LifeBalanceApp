@@ -84,8 +84,6 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
-
     return Scaffold(
       appBar: CustomAppBar(titulo: 'Perfil'),
       body: Padding(

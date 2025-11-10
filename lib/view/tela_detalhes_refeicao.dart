@@ -16,6 +16,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     final gorduras = refeicao['gorduras'] ?? 0;
     final fibras = refeicao['fibras'] ?? 0;
     String? alimentosIncluidos = refeicao['nome'];
+    final comentario = refeicao['comentario'] ?? '';
     final imagemUrl = refeicao['imagemUrl']; // 🔹 URL da imagem
 
     if (alimentosIncluidos != null &&
@@ -145,15 +146,47 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
+                            const SizedBox(height: 15),
+                            const Divider(height: 1, color: Colors.black12),
+                            const SizedBox(height: 15),
+                            if (comentario.isNotEmpty)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Comentário: ",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        comentario,
+                                        style: const TextStyle(
+                                            color: Colors.black87),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ),
                     ),
+                    const SizedBox(height: 25),
                     Align(
-                      alignment: Alignment.centerRight,
+                      alignment: Alignment.center,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: AppColors.laranja,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
