@@ -1,3 +1,4 @@
+import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/refeicao_vm.dart';
@@ -48,41 +49,7 @@ class TelaRefeicao extends StatelessWidget {
     final refeicaoVM = Provider.of<RefeicaoViewModel>(context);
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: ClipRRect(
-          borderRadius:
-              const BorderRadius.only(bottomLeft: Radius.circular(30)),
-          child: AppBar(
-            backgroundColor: AppColors.verdeBg,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: SafeArea(
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'Histórico de Refeições',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      appBar:CustomAppBar(titulo:  'Histórico de Refeições'),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: refeicaoVM.getHistoricoStream(),
         builder: (context, snapshot) {
