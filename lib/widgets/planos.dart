@@ -55,25 +55,26 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
             ),
           ),
 
-          Center(
-            child: carregando
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Escolha seu plano",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+          SingleChildScrollView(
+            child: Center(
+              child: carregando
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Escolha seu plano",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 30),
-
-                      // carrossel de planos
-                      SingleChildScrollView(
-                        child: SizedBox(
+                        const SizedBox(height: 30),
+            
+                        // carrossel de planos
+                        SizedBox(
                           height: 600,
                           child: PageView.builder(
                             controller: PageController(viewportFraction: 0.85),
@@ -93,30 +94,30 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
                             },
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // indicadores de página
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          planos.length,
-                          (i) => Container(
-                            margin: const EdgeInsets.all(4),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: i == paginaAtual
-                                  ? AppColors.laranja
-                                  : Colors.white54,
+            
+                        const SizedBox(height: 20),
+            
+                        // indicadores de página
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            planos.length,
+                            (i) => Container(
+                              margin: const EdgeInsets.all(4),
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: i == paginaAtual
+                                    ? AppColors.laranja
+                                    : Colors.white54,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+            ),
           ),
         ],
       ),
