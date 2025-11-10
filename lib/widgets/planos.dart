@@ -72,24 +72,26 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
                       const SizedBox(height: 30),
 
                       // carrossel de planos
-                      SizedBox(
-                        height: 700,
-                        child: PageView.builder(
-                          controller: PageController(viewportFraction: 0.85),
-                          itemCount: planos.length,
-                          onPageChanged: (index) =>
-                              setState(() => paginaAtual = index),
-                          itemBuilder: (context, index) {
-                            final plano = planos[index];
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: EdgeInsets.symmetric(
-                                horizontal: paginaAtual == index ? 0 : 10,
-                                vertical: paginaAtual == index ? 0 : 20,
-                              ),
-                              child: PlanosCard(plano: plano),
-                            );
-                          },
+                      SingleChildScrollView(
+                        child: SizedBox(
+                          height: 600,
+                          child: PageView.builder(
+                            controller: PageController(viewportFraction: 0.85),
+                            itemCount: planos.length,
+                            onPageChanged: (index) =>
+                                setState(() => paginaAtual = index),
+                            itemBuilder: (context, index) {
+                              final plano = planos[index];
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: paginaAtual == index ? 0 : 10,
+                                  vertical: paginaAtual == index ? 0 : 20,
+                                ),
+                                child: PlanosCard(plano: plano),
+                              );
+                            },
+                          ),
                         ),
                       ),
 
