@@ -22,7 +22,7 @@ class BarraNavegacaoNutri extends StatelessWidget {
             context,
             icon: Icons.home,
             label: 'Home',
-            route: '/tela_refeicao',
+            route: '/tela_home_nutri',
           ),
           _verticalDivider(),
           _navItem(
@@ -35,8 +35,8 @@ class BarraNavegacaoNutri extends StatelessWidget {
           _navItem(
             context,
             icon: Icons.calendar_today,
-            label: 'Consultas',
-            route: '/tela_sobre',
+            label: 'Lembretes',
+            route: '/tela_lembretes',
           ),
         ],
       ),

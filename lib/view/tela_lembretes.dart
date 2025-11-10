@@ -232,7 +232,7 @@ class _TelaLembretesState extends State<TelaLembretes> {
                 },
                 label: Text('Salvar Lembrete'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.laranja),
+                    backgroundColor: AppColors.laranja),
               ),
             ),
             SizedBox(height: 30),
@@ -249,6 +249,7 @@ class _TelaLembretesState extends State<TelaLembretes> {
                     final date = entry.key;
                     final value = entry.value;
                     return Card(
+                      color: AppColors.verdeClarinho,
                       margin: EdgeInsets.symmetric(vertical: 6),
                       elevation: 2,
                       shape: RoundedRectangleBorder(
