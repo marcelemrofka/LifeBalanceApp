@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 //CHAVE OPENAI
+final openAiApiKey = dotenv.env['OPENAI_API_KEY'];
 
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {

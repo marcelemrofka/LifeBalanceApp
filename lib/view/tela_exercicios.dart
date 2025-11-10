@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import '../services/openai_service_exercicios.dart';
 import '../viewmodel/exercicio_view_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-//CHAVE OPENAI
-const String openAiApiKey = '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';
+final openAiApiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
 
 class TelaExercicios extends StatefulWidget {
   const TelaExercicios({super.key});
@@ -35,14 +35,16 @@ class _TelaExerciciosState extends State<TelaExercicios> {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight - 40),
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(25),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -80,7 +82,10 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                           'Caminhada',
                           'Ciclismo',
                           'Natação'
-                        ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                        ]
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
                         onChanged: (value) {
                           setState(() => tipoExercicio = value!);
                         },
@@ -96,13 +101,15 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                             children: [
                               const Text(
                                 "Intensidade",
-                                style: TextStyle(fontSize: 14, color: Colors.black87),
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.black87),
                               ),
                               const SizedBox(height: 6),
                               SizedBox(
                                 height: 50,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
@@ -113,7 +120,8 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                                     underline: const SizedBox(),
                                     dropdownColor: Colors.white,
                                     items: ['Baixa', 'Média', 'Alta']
-                                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                        .map((e) => DropdownMenuItem(
+                                            value: e, child: Text(e)))
                                         .toList(),
                                     onChanged: (value) {
                                       setState(() => intensidade = value!);
@@ -132,7 +140,8 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                             children: [
                               const Text(
                                 "Tempo de Exercício",
-                                style: TextStyle(fontSize: 14, color: Colors.black87),
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.black87),
                               ),
                               const SizedBox(height: 6),
                               SizedBox(
@@ -140,7 +149,9 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                                 child: TextField(
                                   controller: tempoController,
                                   keyboardType: TextInputType.number,
-                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
                                   decoration: InputDecoration(
                                     hintText: "Ex: 60 min",
                                     filled: true,
@@ -196,7 +207,8 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                                       ? "Estimado: ${gastoCalorico.toStringAsFixed(0)} kcal"
                                       : "Calculando...",
                                   style: const TextStyle(
-                                      fontSize: 12, fontWeight: FontWeight.w500),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500),
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -209,29 +221,35 @@ class _TelaExerciciosState extends State<TelaExercicios> {
                                       setState(() => gastoCalorico = -1);
 
                                       int minutosTotais =
-                                          _converterTempoParaMinutos(tempoController.text);
+                                          _converterTempoParaMinutos(
+                                              tempoController.text);
 
                                       final viewModel = ExercicioViewModel(
-                                          openAIService: OpenAIServiceExercicios(
-                                              apiKey: openAiApiKey));
+                                        openAIService: OpenAIServiceExercicios(
+                                            apiKey: openAiApiKey),
+                                      );
 
-                                      final gasto =
-                                          await viewModel.calcularEAdicionarExercicio(
+                                      final gasto = await viewModel
+                                          .calcularEAdicionarExercicio(
                                         tipoExercicio: tipoExercicio,
                                         intensidade: intensidade,
                                         tempoMinutos: minutosTotais,
                                       );
 
                                       setState(() => gastoCalorico = gasto);
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                            content:
-                                                Text('Exercício adicionado com sucesso!')),
+                                            content: Text(
+                                                'Exercício adicionado com sucesso!')),
                                       );
                                     } catch (e) {
                                       setState(() => gastoCalorico = 0);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Erro: ${e.toString()}')),
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text('Erro: ${e.toString()}')),
                                       );
                                     }
                                   },
