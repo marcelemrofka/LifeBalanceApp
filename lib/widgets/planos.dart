@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:app/utils/color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'planos.dart';
 
 class PlanosOverlay extends StatefulWidget {
   const PlanosOverlay({super.key});
@@ -41,7 +40,7 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // 🔹 Fundo com blur + leve véu
+          // fundo com blur
           Positioned.fill(
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
@@ -56,7 +55,6 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
             ),
           ),
 
-          // 🔹 Conteúdo central
           Center(
             child: carregando
                 ? const CircularProgressIndicator(color: Colors.white)
@@ -73,7 +71,7 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
                       ),
                       const SizedBox(height: 30),
 
-                      // 🔹 Carrossel de planos
+                      // carrossel de planos
                       SizedBox(
                         height: 700,
                         child: PageView.builder(
@@ -97,7 +95,7 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
 
                       const SizedBox(height: 20),
 
-                      // 🔹 Indicadores de página
+                      // indicadores de página
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
@@ -153,7 +151,6 @@ class PlanosCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Topo verde
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
