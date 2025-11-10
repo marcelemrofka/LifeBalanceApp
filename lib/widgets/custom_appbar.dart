@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titulo;
   final VoidCallback? onBack;
-  final List<Widget>? acoes; // 👈 novo parâmetro opcional
+  final List<Widget>? acoes;
 
   const CustomAppBar({
     super.key,
     required this.titulo,
     this.onBack,
-    this.acoes, // 👈 adicionado
+    this.acoes,
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(120); // 🔹 altura aumentada
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,
+      height: preferredSize.height,
       decoration: const BoxDecoration(
         color: AppColors.verdeBg,
         borderRadius: BorderRadius.only(
@@ -34,10 +34,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       child: Stack(
-        alignment: Alignment.center,
         children: [
           // Botão de voltar
           Positioned(
+            top: 40, // 🔹 ajustado pra não ficar colado
             left: 15,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -45,22 +45,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-          // Título centralizado
-          Center(
-            child: Text(
-              titulo,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+          // 🔹 Título alinhado na parte inferior do verde
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                titulo,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
           ),
 
           // Ações à direita (ex: botão Editar)
           if (acoes != null && acoes!.isNotEmpty)
             Positioned(
+              top: 40,
               right: 10,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
