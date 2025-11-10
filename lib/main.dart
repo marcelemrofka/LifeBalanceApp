@@ -83,7 +83,7 @@ class MyApp extends StatelessWidget {
         '/tela_pacientes': (context) => TelaPacientes(),
         '/tela_cadastro_paciente': (context) => TelaCadastroPaciente(),
         '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
-        '/planos': (context) => const Planos('pro'),
+        '/planos': (context) => PlanosOverlay(),
       },
     );
   }

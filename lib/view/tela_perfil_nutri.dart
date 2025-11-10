@@ -1,5 +1,6 @@
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
+import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -80,7 +81,7 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
       _contatoController.text = dados['contato'] ?? '';
       _bioController.text = dados['bio'] ?? '';
       _imagemUrl = dados['foto'];
-      _assinaturaPlano = dados['assinatura_plano'];
+      _assinaturaPlano = dados['plano'];
     });
   }
 
@@ -145,10 +146,24 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
                 maxLines: 3, enabled: _ehNutri),
             const SizedBox(height: 10),
             if (_assinaturaPlano != null)
-              Text(
-                'Plano Assinado: $_assinaturaPlano',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      opaque: false,
+                      barrierColor: Colors.transparent,
+                      pageBuilder: (_, __, ___) => const PlanosOverlay(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Plano Assinado: $_assinaturaPlano',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             const SizedBox(height: 20),
             if (_ehNutri)
@@ -186,6 +201,9 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
         enabled: enabled,
         controller: controller,
         maxLines: maxLines,
+        style: const TextStyle(
+          color: Colors.black87,
+        ),
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),

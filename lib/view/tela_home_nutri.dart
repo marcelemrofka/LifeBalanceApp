@@ -28,6 +28,7 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         iconTheme: const IconThemeData(size: 45, color: AppColors.midGrey),
         actions: const [Menu()],
       ),
@@ -59,7 +60,7 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
               final dados = docs[index].data() as Map<String, dynamic>;
               return FeedCard(
                 dados: dados,
-                docId: snapshot.data!.docs[index].id, 
+                docId: snapshot.data!.docs[index].id,
               );
             },
           );

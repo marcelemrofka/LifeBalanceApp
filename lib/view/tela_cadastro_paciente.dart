@@ -72,7 +72,8 @@ class _TelaCadastroPacienteState extends State<TelaCadastroPaciente> {
             _buildCampo(nomeController, "Nome completo"),
             _buildCampo(emailController, "Email"),
             _buildCampo(cpfController, "CPF"),
-            _buildCampo(dataNascimentoController, "Data de nascimento (DD-MM-AAAA)"),
+            _buildCampo(
+                dataNascimentoController, "Data de nascimento (DD-MM-AAAA)"),
             _buildCampo(pesoController, "Peso (kg)"),
             _buildCampo(alturaController, "Altura (cm)"),
             _buildCampo(objetivoController, "Objetivo"),
