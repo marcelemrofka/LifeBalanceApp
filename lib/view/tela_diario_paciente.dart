@@ -1,4 +1,5 @@
 import 'package:app/utils/color.dart';
+import 'package:app/view/tela_perfil.dart';
 import 'package:app/widgets/caixa.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:app/widgets/dashboard.dart';
@@ -238,7 +239,15 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     const SizedBox(height: 25),
 
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                                                if (!mounted) return;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                TelaPerfil(uidPaciente: widget.uidPaciente),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.laranja,
                         minimumSize: const Size(double.infinity, 48),
