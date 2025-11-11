@@ -240,7 +240,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
 
                     ElevatedButton(
                       onPressed: () {
-                        if (!mounted) return;
+                                                if (!mounted) return;
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) =>

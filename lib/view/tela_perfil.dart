@@ -1,13 +1,8 @@
-import 'dart:io';
-
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../viewmodel/auth_viewmodel.dart';
 
 class TelaPerfil extends StatefulWidget {
@@ -110,110 +105,6 @@ class _TelaPerfilState extends State<TelaPerfil> {
       print('Erro ao atualizar perfil: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro ao atualizar perfil.')),
-      );
-    }
-  }
-
-  Future<void> _handleDocumento(String tipo) async {
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final String uid = widget.uidPaciente ?? authViewModel.user!.uid;
-    final docPaciente =
-        await FirebaseFirestore.instance.collection('paciente').doc(uid).get();
-
-    final campoUrl = tipo == 'plano_alimentar'
-        ? 'plano_alimentar_url'
-        : 'ficha_completa_url';
-
-    final linkExistente = docPaciente.data()?[campoUrl];
-
-    if (_isNutricionista) {
-      // Nutricionista: escolher ação
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Selecione uma opção'),
-            content: const Text(
-                'Deseja inserir um novo documento ou visualizar o existente?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _uploadDocumento(uid, tipo, campoUrl);
-                },
-                child: const Text('Inserir'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  if (linkExistente != null) {
-                    _abrirDocumento(linkExistente);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Nenhum documento disponível ainda.')),
-                    );
-                  }
-                },
-                child: const Text('Visualizar'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      // Paciente: apenas visualizar
-      if (linkExistente != null) {
-        _abrirDocumento(linkExistente);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Nenhum documento disponível para visualização.')),
-        );
-      }
-    }
-  }
-
-  Future<void> _uploadDocumento(
-      String uid, String tipo, String campoUrl) async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
-
-      if (result == null) return;
-
-      final File arquivo = File(result.files.single.path!);
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('users/$uid/$tipo.pdf'); // sobrescreve automaticamente
-
-      final uploadTask = await storageRef.putFile(arquivo);
-      final url = await uploadTask.ref.getDownloadURL();
-
-      // Salvar o link no Firestore
-      await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
-        campoUrl: url,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Documento "$tipo" enviado com sucesso!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao enviar documento: $e')),
-      );
-    }
-  }
-
-  Future<void> _abrirDocumento(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível abrir o documento.')),
       );
     }
   }
@@ -324,51 +215,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 enabled: !_camposBloqueados),
 
             const SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _handleDocumento('plano_alimentar'),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.laranja, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      'Plano Alimentar',
-                      style: TextStyle(
-                        color: AppColors.laranja,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _handleDocumento('ficha_completa'),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.laranja, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      'Ficha Completa',
-                      style: TextStyle(
-                        color: AppColors.laranja,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+
             if (_modoEdicao || (!_temNutricionista && !_isNutricionista))
               ElevatedButton(
                 onPressed: _salvarAlteracoes,
