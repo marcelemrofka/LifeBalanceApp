@@ -45,7 +45,7 @@ class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white, // fundo branco fixo
+      // fundo branco fixo
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
