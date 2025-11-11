@@ -29,7 +29,13 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        iconTheme: const IconThemeData(size: 45, color: AppColors.midGrey),
+        iconTheme: const IconThemeData(size: 30, color: AppColors.midGrey),
+        leading: IconButton(
+          icon: const Icon(Icons.logout, color: AppColors.midGrey),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          },
+        ),
         actions: const [Menu()],
       ),
       body: StreamBuilder<QuerySnapshot>(
