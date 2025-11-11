@@ -148,10 +148,9 @@ class _TelaSonoState extends State<TelaSono> {
 
               // Campos de horário
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SizedBox(
-                    width: 130,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -185,9 +184,7 @@ class _TelaSonoState extends State<TelaSono> {
                     ),
                   ),
                   SizedBox(
-                    width: 130,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text("Fim",
                             style:
@@ -265,12 +262,12 @@ class _TelaSonoState extends State<TelaSono> {
                   ),
                   const Spacer(),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         _horasTotais != null
-                            ? "Total de horas de sono: ${_horasTotais!.toStringAsFixed(1)}h"
-                            : "Total de horas de sono:    ",
+                            ? "Horas de sono: ${_horasTotais!.toStringAsFixed(1)}h"
+                            : "Horas de sono:    ",
                         style: const TextStyle(
                             fontSize: 14, color: Colors.black87),
                       ),
@@ -278,18 +275,20 @@ class _TelaSonoState extends State<TelaSono> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.laranja,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 35, vertical: 12),
+                          minimumSize: const Size(
+                              100, 38), // 🔹 largura e altura fixas, menores
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                         onPressed: _salvarSono,
                         child: const Text(
                           "Salvar",
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500),
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],

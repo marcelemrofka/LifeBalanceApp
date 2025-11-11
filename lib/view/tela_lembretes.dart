@@ -258,23 +258,18 @@ class _TelaLembretesState extends State<TelaLembretes> {
                       child: ListTile(
                         leading:
                             Icon(Icons.event_note, color: AppColors.principal),
-                        title: Text(
-                          _formatDate(date),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        title: Text(_formatDate(date)),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if ((value['titulo'] ?? '').isNotEmpty)
-                              Text(value['titulo'],
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.w600)),
+                              Text(value['titulo']),
                             if ((value['descricao'] ?? '').isNotEmpty)
                               Text(value['descricao']),
                           ],
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.delete, color: AppColors.principal),
+                          icon: Icon(Icons.delete, color: AppColors.laranja),
                           onPressed: () => _deleteLembrete(date),
                         ),
                         onTap: () {

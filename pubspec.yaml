@@ -45,3 +45,7 @@ flutter:
     - lib/images/refeicao.png
     - lib/images/exercicios.png
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo-circulo.png"
