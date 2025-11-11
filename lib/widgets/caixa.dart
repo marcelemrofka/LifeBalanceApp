@@ -17,10 +17,17 @@ class Caixa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tamanho da tela
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Ajuste dinâmico proporcional
+    final responsiveWidth = largura ?? screenWidth * 0.45; // 45% da tela
+    final responsiveHeight = altura ?? screenHeight * 0.22; // 22% da tela
+
     return Container(
-      width:
-          largura ?? 205,
-      height: altura ?? 180,
+      width: responsiveWidth,
+      height: responsiveHeight,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -44,12 +51,14 @@ class Caixa extends StatelessWidget {
                 topRight: Radius.circular(16),
               ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(
+              vertical: responsiveHeight * 0.08, // proporcional
+            ),
             child: Center(
               child: Text(
                 titulo,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: TextStyle(
+                  fontSize: screenWidth * 0.04, // texto adaptável
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -59,7 +68,7 @@ class Caixa extends StatelessWidget {
           // Conteúdo
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(screenWidth * 0.025),
               child: conteudo,
             ),
           ),

@@ -7,7 +7,7 @@ import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/drawer.dart';
 import 'package:app/widgets/lembretes.dart';
 import 'package:app/widgets/menu.dart';
-import 'package:app/widgets/waterbox.dart';
+import 'package:app/widgets/water_circle_vm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +68,7 @@ class _TelaHomeState extends State<TelaHome>
           const SizedBox(height: 20),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             Caixa(titulo: 'Lembretes', conteudo: LembretesWidget()),
+            SizedBox(width: 3),
             Caixa(
                 titulo: 'Água',
                 conteudo: WaterBox(

@@ -1,7 +1,7 @@
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:app/widgets/dashboard.dart';
-import 'package:app/widgets/waterbox.dart';
+import 'package:app/widgets/water_circle_vm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
