@@ -94,23 +94,48 @@ class _TelaHomeState extends State<TelaHome>
                   itemCount: exercicios.length,
                   itemBuilder: (context, index) {
                     final ex = exercicios[index].data();
+                    final data = (ex['data'] as Timestamp).toDate();
+                    final dataFormatada =
+                        '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}';
+                    final tipo = ex['tipoExercicio'] ?? 'Exercício';
+                    final calorias = ex['gastoCalorico'] ?? 0;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: 120,
                             child: Text(
-                              ex['tipoExercicio'] ?? 'Exercício',
+                              tipo,
                               style: const TextStyle(
-                                  fontSize: 14, color: Colors.black87),
+                                fontSize: 15,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Text(
-                            "${ex['tempoMinutos']} min",
-                            style: const TextStyle(
-                                fontSize: 13, color: Colors.black54),
+                          SizedBox(
+                            width: 50,
+                            child: Text(
+                              dataFormatada,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+
+                          // 🔹 Coluna 3: calorias
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${calorias.toString()} kcal',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),

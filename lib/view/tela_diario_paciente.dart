@@ -1,4 +1,5 @@
 import 'package:app/utils/color.dart';
+import 'package:app/widgets/caixa.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/water_circle_vm.dart';
@@ -41,7 +42,6 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
         setState(() {
           nomePaciente = data['nome'] ?? 'Paciente';
           metaAgua = (data['meta_agua'] ?? 2000).toDouble();
-          metaCalorias = (data['meta_calorias'] ?? 2000).toDouble();
           uidPaciente = pacienteDoc.id;
         });
       }
@@ -90,60 +90,14 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     const SizedBox(height: 10),
                     Dashboard(uidPaciente: widget.uidPaciente),
                     const SizedBox(height: 20),
-
-                    // Meta calórica
-                    Text(
-                      'Meta Calórica: ${metaCalorias?.toStringAsFixed(0)} kcal',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Card de Água
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Água",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 160,
-                            child: Center(
-                                child: WaterCircleViewModel(
-                                    scale: 0.95,
-                                    uidPaciente: widget.uidPaciente)),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Meta: ${metaAgua?.toStringAsFixed(0)} ml',
-                            style: const TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 10),
+                    Caixa(
+                      titulo:
+                          'Meta de Água: ${metaAgua?.toStringAsFixed(0)} ml',
+                      conteudo: WaterCircleViewModel(
+                          scale: 0.8, uidPaciente: widget.uidPaciente),
+                      altura: 180,
+                      largura: double.infinity,
                     ),
                     const SizedBox(height: 20),
 

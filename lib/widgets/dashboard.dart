@@ -158,7 +158,7 @@ Widget build(BuildContext context) {
                     color: AppColors.midText,
                   ),
                   children: [
-                    const TextSpan(text: 'Sua meta de calorias diárias é: '),
+                    const TextSpan(text: 'A meta de calorias diárias é: '),
                     TextSpan(
                       text:
                           '${nutrition.caloriasRecomendadas.toStringAsFixed(0)} kcal',
