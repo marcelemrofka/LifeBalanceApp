@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import '../services/openai_service_exercicios.dart';
 import '../viewmodel/exercicio_view_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-final openAiApiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
+//CHAVE API OPENAI
+const String openAiApiKey ='';
 
 class TelaExercicios extends StatefulWidget {
   const TelaExercicios({super.key});

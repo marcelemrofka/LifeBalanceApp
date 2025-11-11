@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 //CHAVE OPENAI
-final openAiApiKey = dotenv.env['OPENAI_API_KEY'];
+const String openAiApiKey = '';
 
 // === Função para análise da IMAGEM ===
 Future<String> analisarImagem(File imagem) async {
@@ -14,7 +13,7 @@ Future<String> analisarImagem(File imagem) async {
 
   final headers = {
     'Content-Type': 'application/json',
-    //'Authorization': 'Bearer $openAiApiKey',
+    'Authorization': 'Bearer $openAiApiKey',
   };
 
   final body = jsonEncode({
@@ -22,7 +21,8 @@ Future<String> analisarImagem(File imagem) async {
     "messages": [
       {
         "role": "system",
-        "content": "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
+        "content":
+            "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
       },
       {
         "role": "user",
@@ -92,7 +92,8 @@ CALORIAS TOTAIS: [valor total em kcal]
 }
 
 // === Função para análise dos ALIMENTOS MANUAIS ===
-Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) async {
+Future<String> analisarAlimentosManuais(
+    List<Map<String, dynamic>> alimentos) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
 
   String listaAlimentos = alimentos.map((item) {
@@ -101,7 +102,7 @@ Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) as
 
   final headers = {
     'Content-Type': 'application/json',
-    //'Authorization': 'Bearer $openAiApiKey',
+    'Authorization': 'Bearer $openAiApiKey',
   };
 
   final body = jsonEncode({
@@ -109,7 +110,8 @@ Future<String> analisarAlimentosManuais(List<Map<String, dynamic>> alimentos) as
     "messages": [
       {
         "role": "system",
-        "content": "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
+        "content":
+            "Você é um assistente que responde estritamente no formato solicitado, sem explicações extras ou repetições."
       },
       {
         "role": "user",

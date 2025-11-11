@@ -101,33 +101,90 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Card de Exercícios
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 30),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                    Caixa(
+                      titulo: 'Exercícios',
+                      conteudo: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('exercicios')
+                            .where('uidPaciente', isEqualTo: widget.uidPaciente)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'Nenhum exercício registrado',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            );
+                          }
+
+                          final exercicios = snapshot.data!.docs;
+
+                          return ListView.builder(
+                            itemCount: exercicios.length,
+                            itemBuilder: (context, index) {
+                              final ex = exercicios[index].data();
+                              final data = (ex['data'] as Timestamp).toDate();
+                              final dataFormatada =
+                                  '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}';
+                              final tipo = ex['tipoExercicio'] ?? 'Exercício';
+                              final calorias = ex['gastoCalorico'] ?? 0;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    SizedBox(
+                                      width: 120,
+                                      child: Text(
+                                        tipo,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 50,
+                                      child: Text(
+                                        dataFormatada,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // 🔹 Coluna 3: calorias
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          '${calorias.toString()} kcal',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      child: const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Exercícios",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                      altura: 180,
+                      largura: double.infinity,
                     ),
                     const SizedBox(height: 30),
 
