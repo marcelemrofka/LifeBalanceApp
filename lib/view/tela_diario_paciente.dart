@@ -20,6 +20,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
   double? metaCalorias;
   double totalAgua = 0;
   bool carregando = true;
+  String uidPaciente = '';
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
           nomePaciente = data['nome'] ?? 'Paciente';
           metaAgua = (data['meta_agua'] ?? 2000).toDouble();
           metaCalorias = (data['meta_calorias'] ?? 2000).toDouble();
+          uidPaciente = pacienteDoc.id;
         });
       }
 
@@ -48,10 +50,12 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
       final dataAtual = DateTime.now();
       final dataFormatada =
           '${dataAtual.year}-${dataAtual.month.toString().padLeft(2, '0')}-${dataAtual.day.toString().padLeft(2, '0')}';
+      // Configura stream para atualizações em tempo real do histórico
+      final docId = "${uidPaciente}_$dataFormatada";
 
       final historicoDoc = await FirebaseFirestore.instance
           .collection('historico')
-          .doc(widget.uidPaciente)
+          .doc(docId)
           .collection('agua')
           .doc(dataFormatada)
           .get();
@@ -71,13 +75,15 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(titulo: nomePaciente.isEmpty ? 'Carregando...' : nomePaciente),
+      appBar: CustomAppBar(
+          titulo: nomePaciente.isEmpty ? 'Carregando...' : nomePaciente),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: carregando
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -125,19 +131,15 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                           SizedBox(
                             height: 160,
                             child: Center(
-                              child: WaterBox(
-                                animation: const AlwaysStoppedAnimation(1.0),
-                                waveAnimation: const AlwaysStoppedAnimation(0.0),
-                                uidPaciente: widget.uidPaciente, 
-                              )
-                            ),
+                                child: WaterCircleViewModel(
+                                    scale: 0.95,
+                                    uidPaciente: widget.uidPaciente)),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${totalAgua.toStringAsFixed(0)} / ${metaAgua?.toStringAsFixed(0)} ml',
+                            'Meta: ${metaAgua?.toStringAsFixed(0)} ml',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.red,
                             ),
                           ),
                         ],
@@ -148,7 +150,8 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                     // Card de Exercícios
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 30),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -182,7 +185,8 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                           child: OutlinedButton(
                             onPressed: () {},
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: AppColors.laranja, width: 1.5),
+                              side: BorderSide(
+                                  color: AppColors.laranja, width: 1.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -202,7 +206,8 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                           child: OutlinedButton(
                             onPressed: () {},
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: AppColors.laranja, width: 1.5),
+                              side: BorderSide(
+                                  color: AppColors.laranja, width: 1.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),

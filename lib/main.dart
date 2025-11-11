@@ -66,6 +66,8 @@ class MyApp extends StatelessWidget {
       title: 'Meu App',
       theme: appTheme,
       initialRoute: '/',
+      locale: const Locale('pt', 'BR'),
+      
       routes: {
         '/': (context) => TelaInicial(),
         '/tela_home': (context) => TelaHome(),

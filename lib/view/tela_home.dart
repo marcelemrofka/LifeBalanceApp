@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/barra_navegacao.dart';
 import 'package:app/widgets/caixa.dart';
@@ -22,8 +21,6 @@ class TelaHome extends StatefulWidget {
 class _TelaHomeState extends State<TelaHome>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
-  late Animation<double> _waveAnimation;
 
   @override
   void initState() {
@@ -32,14 +29,6 @@ class _TelaHomeState extends State<TelaHome>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
-    );
-
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    _waveAnimation = Tween<double>(begin: 0, end: pi / 8).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _controller.forward();
@@ -60,7 +49,7 @@ class _TelaHomeState extends State<TelaHome>
       ),
       drawer: CustomDrawer(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(13),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Dashboard(uidPaciente: FirebaseAuth.instance.currentUser?.uid),
           const SizedBox(height: 20),
@@ -71,11 +60,9 @@ class _TelaHomeState extends State<TelaHome>
             SizedBox(width: 3),
             Caixa(
                 titulo: 'Água',
-                conteudo: WaterBox(
-                  animation: _animation,
-                  waveAnimation: _waveAnimation,
-                  scale: 0.5,
-                ))
+                conteudo: WaterCircleViewModel(
+                    scale: 0.95,
+                    uidPaciente: FirebaseAuth.instance.currentUser?.uid))
           ]),
           const SizedBox(height: 20),
           // Caixa de Exercícios larga

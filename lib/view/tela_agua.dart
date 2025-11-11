@@ -1,11 +1,11 @@
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
+import 'package:app/widgets/water_circle_vm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:app/widgets/water_circle.dart';
 import '../viewmodel/historico_diario_viewmodel.dart';
 
 class TelaAgua extends StatefulWidget {
@@ -122,12 +122,9 @@ class _TelaAguaState extends State<TelaAgua>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            WaterCircleWidget(
-              totalIngerido: totalIngerido,
-              capacidadeTotal: capacidadeTotal,
-              animation: _animation,
-              waveAnimation: _waveAnimation,
-            ),
+            WaterCircleViewModel(
+                scale: 0.57,
+                uidPaciente: FirebaseAuth.instance.currentUser?.uid),
             SizedBox(height: 30),
             SizedBox(
               width: 110,
