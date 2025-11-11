@@ -231,14 +231,14 @@ class PlanosCard extends StatelessWidget {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 13),
 
           // Recomendações
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
               recomendacao,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+              style: const TextStyle(color: Colors.grey, fontSize: 10),
               textAlign: TextAlign.center,
             ),
           ),
