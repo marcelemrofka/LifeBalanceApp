@@ -188,54 +188,7 @@ class _TelaDiarioPacienteState extends State<TelaDiarioPaciente> {
                       largura: double.infinity,
                     ),
                     const SizedBox(height: 30),
-
-                    // Botões inferiores
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                  color: AppColors.laranja, width: 1.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: Text(
-                              'Plano Alimentar',
-                              style: TextStyle(
-                                color: AppColors.laranja,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                  color: AppColors.laranja, width: 1.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: Text(
-                              'Ficha Completa',
-                              style: TextStyle(
-                                color: AppColors.laranja,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    
                     const SizedBox(height: 25),
 
                     ElevatedButton(
