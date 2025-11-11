@@ -55,69 +55,84 @@ class _PlanosOverlayState extends State<PlanosOverlay> {
             ),
           ),
 
-          Center(
-            child: carregando
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Escolha seu plano",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
+Center(
+  child: carregando
+      ? const CircularProgressIndicator(color: Colors.white)
+      : LayoutBuilder(
+          builder: (context, constraints) {
+            final alturaDisponivel = constraints.maxHeight * 0.8;
 
-                      // carrossel de planos
-                      SingleChildScrollView(
-                        child: SizedBox(
-                          height: 600,
-                          child: PageView.builder(
-                            controller: PageController(viewportFraction: 0.85),
-                            itemCount: planos.length,
-                            onPageChanged: (index) =>
-                                setState(() => paginaAtual = index),
-                            itemBuilder: (context, index) {
-                              final plano = planos[index];
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: paginaAtual == index ? 0 : 10,
-                                  vertical: paginaAtual == index ? 0 : 20,
-                                ),
-                                child: PlanosCard(plano: plano),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // indicadores de página
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          planos.length,
-                          (i) => Container(
-                            margin: const EdgeInsets.all(4),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: i == paginaAtual
-                                  ? AppColors.laranja
-                                  : Colors.white54,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Escolha seu plano",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                   ),
-          ),
+                ),
+                const SizedBox(height: 20),
+
+                // carrossel 100% responsivo
+                SizedBox(
+                  height: alturaDisponivel,
+                  child: PageView.builder(
+                    controller: PageController(viewportFraction: 0.85),
+                    itemCount: planos.length,
+                    onPageChanged: (index) =>
+                        setState(() => paginaAtual = index),
+                    itemBuilder: (context, index) {
+                      final plano = planos[index];
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: paginaAtual == index ? 0 : 10,
+                          vertical: paginaAtual == index ? 0 : 15,
+                        ),
+                        // permite rolar internamente se o conteúdo for grande
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: alturaDisponivel * 0.9,
+                              maxHeight: alturaDisponivel,
+                            ),
+                            child: PlanosCard(plano: plano),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // indicadores
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    planos.length,
+                    (i) => Container(
+                      margin: const EdgeInsets.all(4),
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: i == paginaAtual
+                            ? AppColors.laranja
+                            : Colors.white54,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+),
+
         ],
       ),
     );
@@ -228,7 +243,6 @@ class PlanosCard extends StatelessWidget {
             ),
           ),
 
-          const Spacer(),
 
           // Botão
           Padding(
