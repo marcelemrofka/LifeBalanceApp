@@ -96,146 +96,188 @@ class _DashboardState extends State<Dashboard> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final nutrition = Provider.of<NutritionViewModel>(context);
+Widget build(BuildContext context) {
+  final nutrition = Provider.of<NutritionViewModel>(context);
 
-    if (nutrition.carregando) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.principal),
-      );
-    }
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final circleSize = screenWidth * 0.33;
-    final barWidth = screenWidth * 0.28;
-    final horizontalPadding = screenWidth * 0.02;
-
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Esquerda (Carboidratos e Fibras)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  progressBar(
-                    "Carboidratos",
-                    nutrition.carboIngerido,
-                    nutrition.carboRecomendado,
-                    barWidth,
-                  ),
-                  SizedBox(height: circleSize * 0.09),
-                  progressBar(
-                    "Fibras",
-                    nutrition.fibraIngerida,
-                    nutrition.fibraRecomendada,
-                    barWidth,
-                  ),
-                ],
-              ),
-
-              // Círculo principal
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: circleSize,
-                    height: circleSize,
-                    decoration: const BoxDecoration(
-                      color: AppColors.principal,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  CircularPercentage(
-                    currentPercentage: min(100, nutrition.caloriasPercentual),
-                    maxPercentage: 100,
-                    size: circleSize,
-                    percentageStrokeWidth: circleSize * 0.033,
-                    backgroundStrokeWidth: 1,
-                    backgroundColor: Colors.transparent,
-                    percentageColor: AppColors.verdeGrafico,
-                    centerText: '',
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
-                        style: const TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: circleSize * 0.03),
-                      const Text(
-                        "Consumidas",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: circleSize * 0.06),
-                      Text(
-                        "Você já atingiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
-                        style: TextStyle(
-                          fontSize: circleSize * 0.07,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              // Direita (Proteínas e Gorduras)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  progressBar(
-                    "Proteínas",
-                    nutrition.proteinaIngerida,
-                    nutrition.proteinaRecomendada,
-                    barWidth,
-                  ),
-                  SizedBox(height: circleSize * 0.09),
-                  progressBar(
-                    "Gorduras",
-                    nutrition.gorduraIngerida,
-                    nutrition.gorduraRecomendada,
-                    barWidth,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: screenWidth * 0.05),
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: screenWidth * 0.032,
-              color: AppColors.midText,
-            ),
-            children: [
-              const TextSpan(text: 'Sua meta de calorias diárias é: '),
-              TextSpan(
-                text:
-                    '${nutrition.caloriasRecomendadas.toStringAsFixed(0)} kcal',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.032,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.principal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+  if (nutrition.carregando) {
+    return const Center(
+      child: CircularProgressIndicator(color: AppColors.principal),
     );
   }
+
+  final size = MediaQuery.of(context).size;
+  final screenWidth = size.width;
+  final screenHeight = size.height;
+
+  // 🔹 Proporções dinâmicas baseadas no menor lado da tela
+  final baseSize = min(screenWidth, screenHeight);
+  final circleSize = baseSize * 0.33;
+  final barWidth = baseSize * 0.25;
+  final horizontalPadding = screenWidth * 0.04;
+
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        // 🔹 Verifica se a tela é estreita (modo retrato)
+        final isPortrait = constraints.maxWidth < 600;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 🔸 Parte superior (gráficos)
+            if (isPortrait)
+              Column(
+                children: [
+                  SizedBox(height: screenHeight * 0.02),
+                  _buildDashboardContent(
+                      circleSize, barWidth, nutrition, true),
+                  SizedBox(height: screenHeight * 0.04),
+                ],
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: _buildDashboardContent(
+                        circleSize, barWidth, nutrition, false),
+                  ),
+                ],
+              ),
+
+            // 🔸 Texto inferior
+            Padding(
+              padding: EdgeInsets.only(top: screenHeight * 0.015),
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: baseSize * 0.032,
+                    color: AppColors.midText,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Sua meta de calorias diárias é: '),
+                    TextSpan(
+                      text:
+                          '${nutrition.caloriasRecomendadas.toStringAsFixed(0)} kcal',
+                      style: TextStyle(
+                        fontSize: baseSize * 0.034,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.principal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+
+Widget _buildDashboardContent(double circleSize, double barWidth,
+    NutritionViewModel nutrition, bool isPortrait) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      // Esquerda
+      Flexible(
+        flex: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            progressBar("Carboidratos", nutrition.carboIngerido,
+                nutrition.carboRecomendado, barWidth),
+            SizedBox(height: circleSize * 0.08),
+            progressBar("Fibras", nutrition.fibraIngerida,
+                nutrition.fibraRecomendada, barWidth),
+          ],
+        ),
+      ),
+
+      // Círculo central
+      Flexible(
+        flex: 3,
+        child: Column(
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: circleSize,
+                  height: circleSize,
+                  decoration: const BoxDecoration(
+                    color: AppColors.principal,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                CircularPercentage(
+                  currentPercentage:
+                      min(100, nutrition.caloriasPercentual),
+                  maxPercentage: 100,
+                  size: circleSize,
+                  percentageStrokeWidth: circleSize * 0.033,
+                  backgroundStrokeWidth: 1,
+                  backgroundColor: Colors.transparent,
+                  percentageColor: AppColors.verdeGrafico,
+                  centerText: '',
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${nutrition.caloriasIngeridas.toStringAsFixed(0)} kcal',
+                      style: TextStyle(
+                        fontSize: circleSize * 0.15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: circleSize * 0.03),
+                    const Text(
+                      "Consumidas",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: circleSize * 0.05),
+                    Text(
+                      "Você já atingiu ${nutrition.caloriasPercentual.toStringAsFixed(0)}%",
+                      style: TextStyle(
+                        fontSize: circleSize * 0.07,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+
+      // Direita
+      Flexible(
+        flex: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            progressBar("Proteínas", nutrition.proteinaIngerida,
+                nutrition.proteinaRecomendada, barWidth),
+            SizedBox(height: circleSize * 0.08),
+            progressBar("Gorduras", nutrition.gorduraIngerida,
+                nutrition.gorduraRecomendada, barWidth),
+          ],
+        ),
+      ),
+    ],
+  );
+}
 }
