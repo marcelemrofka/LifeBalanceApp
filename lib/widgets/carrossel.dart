@@ -125,7 +125,7 @@ class _CarrosselState extends State<Carrossel> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            carouselItems.length,
+            2,
             (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
