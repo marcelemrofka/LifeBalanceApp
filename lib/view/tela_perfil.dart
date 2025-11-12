@@ -3,7 +3,14 @@ import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../viewmodel/auth_viewmodel.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 class TelaPerfil extends StatefulWidget {
   final String? uidPaciente;
@@ -31,6 +38,9 @@ class _TelaPerfilState extends State<TelaPerfil> {
   bool _isNutricionista = false;
   bool _modoEdicao = false;
 
+  String? _planoUrl;
+  String? _fichaUrl;
+
   final List<String> _niveisAtividade = [
     'nenhum',
     'leve',
@@ -47,8 +57,6 @@ class _TelaPerfilState extends State<TelaPerfil> {
 
   Future<void> _carregarPerfil() async {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-
-    // se for o nutricionista visualizando um paciente:
     final String uid = widget.uidPaciente ?? authViewModel.user!.uid;
 
     final doc =
@@ -64,6 +72,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
       _isNutricionista = isNutricionista;
       _temNutricionista = dadosUsuario['nutricionista_responsavel'] != null;
       _imagemUrl = dadosUsuario['imagemPerfil'];
+      _planoUrl = dadosUsuario['planoUrl'];
+      _fichaUrl = dadosUsuario['fichaUrl'];
 
       _nomeController.text = dadosUsuario['nome'] ?? '';
       _emailController.text = dadosUsuario['email'] ?? authViewModel.email;
@@ -77,6 +87,111 @@ class _TelaPerfilState extends State<TelaPerfil> {
       _idadeController.text = dadosUsuario['idade']?.toString() ?? '';
       _sexoController.text = dadosUsuario['sexo'] ?? '';
     });
+  }
+
+  Future<void> _uploadArquivo(String tipo) async {
+    final uid = widget.uidPaciente ??
+        Provider.of<AuthViewModel>(context, listen: false).user!.uid;
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = File(result.files.single.path!);
+    final path = 'users/$uid/$tipo/${tipo}.pdf';
+    final ref = FirebaseStorage.instance.ref().child(path);
+
+    try {
+      await ref.putFile(file);
+      final url = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
+        if (tipo == 'plano') 'planoUrl': url,
+        if (tipo == 'ficha') 'fichaUrl': url,
+      });
+
+      setState(() {
+        if (tipo == 'plano') _planoUrl = url;
+        if (tipo == 'ficha') _fichaUrl = url;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$tipo enviado com sucesso!')),
+      );
+    } catch (e) {
+      print('Erro ao enviar arquivo: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao enviar arquivo.')),
+      );
+    }
+  }
+
+  Future<void> _abrirPdf(String? url) async {
+  if (url == null || url.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nenhum documento disponível.')),
+    );
+    return;
+  }
+
+  try {
+    // Faz o download temporário do arquivo
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final tempDir = await getTemporaryDirectory();
+      final filePath = '${tempDir.path}/documento.pdf';
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      // Abre o arquivo no visualizador de PDF do sistema
+      await OpenFilex.open(filePath);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao baixar o arquivo PDF.')),
+      );
+    }
+  } catch (e) {
+    print('Erro ao abrir PDF: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Erro ao abrir o PDF.')),
+    );
+  }
+}
+
+
+  Future<void> _acaoDocumento(String tipo) async {
+    if (_isNutricionista) {
+      // Nutricionista escolhe ação
+      final escolha = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('O que deseja fazer?'),
+          content: const Text('Selecione uma opção:'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'inserir'),
+              child: const Text('Inserir documento'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'visualizar'),
+              child: const Text('Visualizar documento'),
+            ),
+          ],
+        ),
+      );
+
+      if (escolha == 'inserir') {
+        await _uploadArquivo(tipo);
+      } else if (escolha == 'visualizar') {
+        await _abrirPdf(tipo == 'plano' ? _planoUrl : _fichaUrl);
+      }
+    } else {
+      // Paciente apenas visualiza
+      await _abrirPdf(tipo == 'plano' ? _planoUrl : _fichaUrl);
+    }
   }
 
   Future<void> _salvarAlteracoes() async {
@@ -110,13 +225,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
   }
 
   bool get _camposBloqueados {
-    // Paciente sem nutricionista: pode editar
     if (!_isNutricionista && !_temNutricionista) return false;
-
-    // Nutricionista no modo de edição: pode editar
     if (_isNutricionista && _modoEdicao) return false;
-
-    // Todos os outros casos: bloqueado
     return true;
   }
 
@@ -169,7 +279,6 @@ class _TelaPerfilState extends State<TelaPerfil> {
               ),
             ),
             const SizedBox(height: 20),
-
             _buildTextField('Nome', _nomeController,
                 enabled: !_camposBloqueados),
             _buildTextField('Email', _emailController, enabled: false),
@@ -181,8 +290,6 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 enabled: !_camposBloqueados),
             _buildTextField('Objetivo', _objetivoController,
                 enabled: !_camposBloqueados),
-
-            // Dropdown de nível de atividade
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: DropdownButtonFormField<String>(
@@ -200,22 +307,67 @@ class _TelaPerfilState extends State<TelaPerfil> {
                     : (valor) => setState(() => _nivelAtividade = valor),
               ),
             ),
-
             const Divider(height: 30),
             const Text(
               'Metas Diárias',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             _buildTextField('Meta de Calorias (kcal)', _metaCalController,
                 enabled: !_camposBloqueados),
             _buildTextField('Meta de Sono (h)', _metaSonoController,
                 enabled: !_camposBloqueados),
             _buildTextField('Meta de Água (ml)', _metaAguaController,
                 enabled: !_camposBloqueados),
-
             const SizedBox(height: 25),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _acaoDocumento('plano'),
+                    style: OutlinedButton.styleFrom(
+                      side:
+                          BorderSide(color: AppColors.laranja, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text(
+                      'Plano Alimentar',
+                      style: TextStyle(
+                        color: AppColors.laranja,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _acaoDocumento('ficha'),
+                    style: OutlinedButton.styleFrom(
+                      side:
+                          BorderSide(color: AppColors.laranja, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text(
+                      'Ficha Completa',
+                      style: TextStyle(
+                        color: AppColors.laranja,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
             if (_modoEdicao || (!_temNutricionista && !_isNutricionista))
               ElevatedButton(
                 onPressed: _salvarAlteracoes,

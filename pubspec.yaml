@@ -26,6 +26,12 @@ dependencies:
   firebase_auth: ^5.5.4
   flutter_dotenv: ^5.0.2
   font_awesome_flutter: ^10.9.1
+  firebase_storage: ^12.4.10
+  file_picker: ^8.0.0
+  url_launcher: ^6.3.0
+  path_provider: ^2.1.2
+  open_filex: ^4.4.0
+
 
 dev_dependencies:
   flutter_test:
@@ -40,4 +46,11 @@ flutter:
     - lib/images/individual.png
     - lib/images/pro.png
     - lib/images/nome.png
+    - lib/images/sono.png
+    - lib/images/refeicao.png
+    - lib/images/exercicios.png
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo-circulo.png"

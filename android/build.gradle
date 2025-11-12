@@ -1,3 +1,35 @@
+// allprojects {
+//     repositories {
+//         google()
+//         mavenCentral()
+//     }
+// }
+
+// rootProject.buildDir = "../build"
+// subprojects {
+//     project.buildDir = "${rootProject.buildDir}/${project.name}"
+// }
+// subprojects {
+//     project.evaluationDependsOn(":app")
+// }
+
+// tasks.register("clean", Delete) {
+//     delete rootProject.buildDir
+// }
+
+buildscript {
+    ext.kotlin_version = '1.9.22' // pode ajustar se seu Flutter usar outra versão
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // 🔧 Atualizado para suportar SDK XML version 4
+        classpath 'com.android.tools.build:gradle:8.6.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -5,14 +37,20 @@ allprojects {
     }
 }
 
+// 🧩 Define o diretório de build padrão
 rootProject.buildDir = "../build"
+
+// 🔄 Garante que todos os subprojetos usem a mesma pasta de build
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// 🧹 Tarefa clean personalizada
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+

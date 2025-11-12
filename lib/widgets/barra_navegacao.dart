@@ -36,7 +36,7 @@ class BarraNavegacao extends StatelessWidget {
             context,
             icon: Icons.perm_identity_sharp,
             label: 'Meu Nutri',
-            route: '/',
+            route: '/tela_perfil_nutri',
           ),
         ],
       ),

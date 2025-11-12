@@ -15,36 +15,58 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     final proteinas = refeicao['proteinas'] ?? 0;
     final gorduras = refeicao['gorduras'] ?? 0;
     final fibras = refeicao['fibras'] ?? 0;
-    final quantidadeEstimada = refeicao['quantidade'] ?? '';
     String? alimentosIncluidos = refeicao['nome'];
+    final comentario = refeicao['comentario'] ?? '';
+    final imagemUrl = refeicao['imagemUrl']; // 🔹 URL da imagem
 
-    // ✅ Adiciona ":" após "Alimento" se não tiver
     if (alimentosIncluidos != null &&
         alimentosIncluidos.startsWith("Alimento") &&
         !alimentosIncluidos.contains(":")) {
       alimentosIncluidos = alimentosIncluidos.replaceFirst(
         "Alimento",
-        "Alimento:",
+        "Alimentos incluídos:",
       );
     }
 
-    final double alturaBranca = MediaQuery.of(context).size.height * 0.68;
+    final double alturaBranca = MediaQuery.of(context).size.height * 0.62;
 
     return Scaffold(
       backgroundColor: AppColors.verdeBg,
       body: SafeArea(
         child: Stack(
           children: [
-            // Botão voltar
+            // 🔹 Imagem no topo (preenche tudo acima do container branco)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: alturaBranca - 40, // 🔸 sobe um pouco pra cobrir melhor
+              child: imagemUrl != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                      child: Image.network(
+                        imagemUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(color: AppColors.verdeBg),
+            ),
+
+            // 🔹 Botão de voltar
             Positioned(
               top: 10,
               left: 10,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.white, size: 26),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
 
+            // 🔹 Container branco sobrepondo levemente a imagem
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -56,6 +78,13 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, -2),
+                    ),
+                  ],
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -78,7 +107,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 25),
-
                             const Text(
                               "Informações Nutricionais",
                               style: TextStyle(
@@ -86,10 +114,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
-
-                            // 🔽 Aumentei o espaçamento aqui
                             const SizedBox(height: 24),
-
                             const Text(
                               "Composição estimada:",
                               style: TextStyle(
@@ -98,29 +123,11 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 8),
-
                             _itemComposicao("Proteínas", proteinas),
                             _itemComposicao("Carboidratos", carboidratos),
                             _itemComposicao("Gorduras", gorduras),
                             _itemComposicao("Fibras", fibras),
-
                             const SizedBox(height: 25),
-
-                            // Quantidade estimada
-                            if (quantidadeEstimada.toString().isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Text(
-                                  "Quantidade estimada: $quantidadeEstimada g",
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-
-                            // Nome (com ":" ajustado se necessário)
                             if (alimentosIncluidos != null)
                               Text(
                                 alimentosIncluidos,
@@ -130,10 +137,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                   height: 1.3,
                                 ),
                               ),
-
                             const SizedBox(height: 25),
-
-                            // Total de calorias
                             Text(
                               "Total de Calorias: ${calorias.toString()} kcal",
                               style: const TextStyle(
@@ -142,23 +146,53 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
+                            const SizedBox(height: 15),
+                            const Divider(height: 1, color: Colors.black12),
+                            const SizedBox(height: 15),
+                            if (comentario.isNotEmpty)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Comentário: ",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        comentario,
+                                        style: const TextStyle(
+                                            color: Colors.black87),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ),
                     ),
-
-                    // Botão OK
+                    const SizedBox(height: 25),
                     Align(
-                      alignment: Alignment.centerRight,
+                      alignment: Alignment.center,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: AppColors.laranja,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
+                              horizontal: 20, vertical: 12),
                         ),
                         onPressed: () {
                           Navigator.pushReplacement(
@@ -184,7 +218,6 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     );
   }
 
-  // Linha com bolinha e valor
   static Widget _itemComposicao(String nome, dynamic valor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

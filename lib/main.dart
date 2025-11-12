@@ -1,11 +1,15 @@
+import 'package:app/utils/appTheme.dart';
 import 'package:app/view/tela_cadastro_paciente.dart';
 import 'package:app/view/tela_home_nutri.dart';
 import 'package:app/view/tela_pacientes.dart';
 import 'package:app/view/tela_perfil_nutri.dart';
 import 'package:app/viewmodel/cadastro_viewmodel.dart';
+import 'package:app/widgets/dashboard.dart';
 import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app/viewmodel/historico_diario_viewmodel.dart';
+import 'package:app/repository/historico_diario_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:app/viewmodel/nutrition_vm.dart';
@@ -21,10 +25,8 @@ import 'package:app/view/tela_exercicios.dart';
 import 'package:app/view/tela_sono.dart';
 import 'package:app/view/sobre.dart';
 import 'package:app/view/tela_refeicao.dart';
-import 'package:app/view/tela_historico_refeicao.dart';
 import 'package:app/view/tela_perfil.dart';
 import 'package:app/view/tela_analise_calorias.dart';
-import 'package:app/view/tela_detalhes_refeicao.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,13 +37,21 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NutritionViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => NutritionViewModel(),
+          child: Dashboard(),
+        ),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => RefeicaoViewModel()),
         ChangeNotifierProvider(
           create: (_) => CadastroViewModel(),
           child: TelaCadastroPaciente(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HistoricoDiarioViewModel(
+            repo: HistoricoDiarioRepository(),
+          ),
+        ),
       ],
       child: MyApp(),
     ),
@@ -54,19 +64,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Meu App',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF43644A),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF43644A),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-      ),
+      theme: appTheme,
       initialRoute: '/',
+      locale: const Locale('pt', 'BR'),
+      
       routes: {
         '/': (context) => TelaInicial(),
         '/tela_home': (context) => TelaHome(),
@@ -80,13 +81,11 @@ class MyApp extends StatelessWidget {
         '/tela_perfil': (context) => TelaPerfil(),
         '/tela_sobre': (context) => TelaSobre(),
         '/tela_refeicao': (context) => TelaRefeicao(),
-        '/tela_historico': (context) => TelaHistoricoRefeicoes(),
         '/tela_analise_calorias': (context) => TelaAnaliseCalorias(),
         '/tela_pacientes': (context) => TelaPacientes(),
-        '/tela_cadastro_pacientes': (context) => TelaCadastroPaciente(),
+        '/tela_cadastro_paciente': (context) => TelaCadastroPaciente(),
         '/tela_perfil_nutri': (context) => TelaPerfilNutri(),
-        '/planos': (context) => const Planos('pro'),
-        // '/tela_detalhes_refeicao': (context) => const TelaDetalhesRefeicao(refeicaoId: ''), 
+        '/planos': (context) => PlanosOverlay(),
       },
     );
   }

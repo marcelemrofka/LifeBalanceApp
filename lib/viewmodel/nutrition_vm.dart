@@ -1,107 +1,218 @@
-import 'package:app/models/alimento_model.dart';
-import 'package:app/models/refeicao_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:app/models/nutrition_model.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/foundation.dart';
+
+// class NutritionViewModel extends ChangeNotifier {
+//   // --- Dados atuais ---
+//   double caloriasIngeridas = 0;
+//   double carboIngerido = 0;
+//   double proteinaIngerida = 0;
+//   double gorduraIngerida = 0;
+//   double fibraIngerida = 0;
+
+//   // --- Metas (vêm da coleção paciente) ---
+//   double caloriasRecomendadas = 0;
+//   double carboRecomendado = 0;
+//   double proteinaRecomendada = 0;
+//   double gorduraRecomendada = 0;
+//   double fibraRecomendada = 0;
+
+//   double get caloriasPercentual =>
+//       caloriasRecomendadas > 0 ? (caloriasIngeridas / caloriasRecomendadas) * 100 : 0;
+
+//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+//   bool _carregando = false;
+//   bool get carregando => _carregando;
+
+//   void _setCarregando(bool value) {
+//     _carregando = value;
+//     notifyListeners();
+//   }
+
+//   /// Busca metas do paciente e valores consumidos no histórico do dia
+//   Future<void> buscarDadosDoHistorico() async {
+//     try {
+//       _setCarregando(true);
+
+//       final uid = _auth.currentUser?.uid;
+//       if (uid == null) return;
+
+//       // ======================
+//       // 🔹 BUSCAR METAS DO PACIENTE
+//       // ======================
+//       final docPaciente =
+//           await _firestore.collection('paciente').doc(uid).get();
+
+//       if (docPaciente.exists) {
+//         final meta = docPaciente.data()!;
+//         caloriasRecomendadas = (meta['meta_cal'] ?? 0).toDouble();
+//         carboRecomendado = (meta['meta_carbo'] ?? 0).toDouble();
+//         proteinaRecomendada = (meta['meta_proteina'] ?? 0).toDouble();
+//         gorduraRecomendada = (meta['meta_lip'] ?? 0).toDouble();
+//         fibraRecomendada = (meta['meta_fibra'] ?? 0).toDouble();
+//       }
+
+//       // ======================
+//       // 🔹 BUSCAR HISTÓRICO DO DIA
+//       // ======================
+//       final hoje = DateTime.now();
+//       final dataFormatada =
+//           "${hoje.year}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}";
+//       final docId = "${uid}_${dataFormatada}";
+
+//       final docHistorico =
+//           await _firestore.collection('historico').doc(docId).get();
+
+//       if (docHistorico.exists) {
+//         final data = docHistorico.data()!;
+//         caloriasIngeridas = (data['total_calorias'] ?? 0).toDouble();
+//         carboIngerido = (data['total_carboidrato'] ?? 0).toDouble();
+//         proteinaIngerida = (data['total_proteina'] ?? 0).toDouble();
+//         gorduraIngerida = (data['total_gordura'] ?? 0).toDouble();
+//         fibraIngerida = (data['total_fibra'] ?? 0).toDouble();
+//       }
+
+//       _setCarregando(false);
+//     } catch (e) {
+//       if (kDebugMode) print("Erro ao buscar dados de nutrição: $e");
+//       _setCarregando(false);
+//     }
+//   }
+// }
+
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class NutritionViewModel extends ChangeNotifier {
-  // Dados nutricionais
-  NutritionModel _nutrition = NutritionModel(
-    caloriasIngeridas: 0,
-    carboIngerido: 0,
-    proteinaIngerida: 0,
-    gorduraIngerida: 0,
-    fibraIngerida: 0,
-    caloriasRecomendada: 1800,
-    carboRecomendado: 185,
-    proteinaRecomendada: 100,
-    gorduraRecomendada: 53,
-    fibraRecomendada: 25,
-  );
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  NutritionModel get nutrition => _nutrition;
+  // --- Dados atuais ---
+  double caloriasIngeridas = 0;
+  double carboIngerido = 0;
+  double proteinaIngerida = 0;
+  double gorduraIngerida = 0;
+  double fibraIngerida = 0;
+  double aguaConsumida = 0;
 
-  // Alimentos por refeição (temporários)
-  final Map<String, List<Alimento>> _alimentosPorRefeicao = {};
-  Map<String, List<Alimento>> get alimentosPorRefeicao => _alimentosPorRefeicao;
+  // --- Metas ---
+  double caloriasRecomendadas = 0;
+  double carboRecomendado = 0;
+  double proteinaRecomendada = 0;
+  double gorduraRecomendada = 0;
+  double fibraRecomendada = 0;
 
-  // Histórico de refeições
-  final List<RefeicaoModel> _historico = [];
-  List<RefeicaoModel> get historico => _historico;
+  bool _carregando = false;
+  bool get carregando => _carregando;
 
-  // Atualiza totais nutricionais
-  void updateNutrition({
-    int? caloriasIngeridas,
-    int? caloriasRecomendada,
-    int? carboIngerido,
-    int? carboRecomendado,
-    int? proteinaIngerida,
-    int? proteinaRecomendada,
-    int? gorduraIngerida,
-    int? gorduraRecomendada,
-    int? fibraIngerida,
-    int? fibraRecomendada,
-  }) {
-    _nutrition = NutritionModel(
-      caloriasIngeridas: caloriasIngeridas ?? _nutrition.caloriasIngeridas,
-      caloriasRecomendada:
-          caloriasRecomendada ?? _nutrition.caloriasRecomendada,
-      carboIngerido: carboIngerido ?? _nutrition.carboIngerido,
-      carboRecomendado: carboRecomendado ?? _nutrition.carboRecomendado,
-      proteinaIngerida: proteinaIngerida ?? _nutrition.proteinaIngerida,
-      proteinaRecomendada:
-          proteinaRecomendada ?? _nutrition.proteinaRecomendada,
-      gorduraIngerida: gorduraIngerida ?? _nutrition.gorduraIngerida,
-      gorduraRecomendada: gorduraRecomendada ?? _nutrition.gorduraRecomendada,
-      fibraIngerida: fibraIngerida ?? _nutrition.fibraIngerida,
-      fibraRecomendada: fibraRecomendada ?? _nutrition.fibraRecomendada,
-    );
+  StreamSubscription<DocumentSnapshot>? _historicoListener;
+  StreamSubscription<DocumentSnapshot>? _metasListener;
+
+  void _setCarregando(bool value) {
+    _carregando = value;
     notifyListeners();
   }
 
-  void adicionarAlimento(String refeicao, Alimento alimento) {
-    _alimentosPorRefeicao.putIfAbsent(refeicao, () => []);
-    _alimentosPorRefeicao[refeicao]!.add(alimento);
+  /// 🔹 Chamado ao logar com um novo usuário
+  Future<void> iniciarParaUsuario(String uid) async {
+    await _historicoListener?.cancel();
+    await _metasListener?.cancel();
 
-    int calorias = 0, carbo = 0, proteina = 0, gordura = 0, fibra = 0;
-
-    _alimentosPorRefeicao.values.expand((list) => list).forEach((alimento) {
-      calorias += alimento.calorias.toInt();
-      carbo += alimento.carboidratos.toInt();
-      proteina += alimento.proteinas.toInt();
-      gordura += alimento.gorduras.toInt();
-      fibra += alimento.fibras.toInt();
-    });
-
-    _nutrition = NutritionModel(
-      caloriasIngeridas: calorias,
-      carboIngerido: carbo,
-      proteinaIngerida: proteina,
-      gorduraIngerida: gordura,
-      fibraIngerida: fibra,
-      caloriasRecomendada: _nutrition.caloriasRecomendada,
-      carboRecomendado: _nutrition.carboRecomendado,
-      proteinaRecomendada: _nutrition.proteinaRecomendada,
-      gorduraRecomendada: _nutrition.gorduraRecomendada,
-      fibraRecomendada: _nutrition.fibraRecomendada,
-    );
-
-    notifyListeners();
+    _setCarregando(true);
+    _iniciarListenerHistorico(uid);
+    _iniciarListenerMetas(uid);
+    _setCarregando(false);
   }
 
-  Future<void> salvarRefeicao(RefeicaoModel refeicao) async {
-    final firestore = FirebaseFirestore.instance;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-
-    try {
-      await firestore.collection('refeicoes').add({
-        ...refeicao.toMap(),
-        'usuario': firestore.collection('usuarios').doc(uid),
-      });
-      print('Refeição salva com sucesso!');
-    } catch (e) {
-      print('Erro ao salvar refeição: $e');
+  /// 🔹 Compatibilidade (para o Dashboard)
+  Future<void> buscarMetasDoPaciente([String? uid]) async {
+    final effectiveUid = uid ?? _auth.currentUser?.uid;
+    if (effectiveUid == null) {
+      await resetarDados();
+      return;
     }
+    await iniciarParaUsuario(effectiveUid);
+  }
+
+  /// 🔹 Chamado ao sair do app
+  Future<void> resetarDados() async {
+    await _historicoListener?.cancel();
+    await _metasListener?.cancel();
+
+    caloriasIngeridas = 0;
+    carboIngerido = 0;
+    proteinaIngerida = 0;
+    gorduraIngerida = 0;
+    fibraIngerida = 0;
+    aguaConsumida = 0;
+
+    caloriasRecomendadas = 0;
+    carboRecomendado = 0;
+    proteinaRecomendada = 0;
+    gorduraRecomendada = 0;
+    fibraRecomendada = 0;
+
+    notifyListeners();
+    if (kDebugMode) print('NutritionViewModel: dados resetados');
+  }
+
+  void _iniciarListenerHistorico(String uid) {
+    final hoje = DateTime.now();
+    final dataFormatada =
+        "${hoje.year}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}";
+    final docId = "${uid}_$dataFormatada";
+
+    _historicoListener = _firestore
+        .collection('historico')
+        .doc(docId)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists) {
+        final data = doc.data()!;
+        caloriasIngeridas = (data['total_calorias'] ?? 0).toDouble();
+        carboIngerido = (data['total_carboidrato'] ?? 0).toDouble();
+        proteinaIngerida = (data['total_proteina'] ?? 0).toDouble();
+        gorduraIngerida = (data['total_gordura'] ?? 0).toDouble();
+        fibraIngerida = (data['total_fibra'] ?? 0).toDouble();
+        aguaConsumida = (data['agua'] ?? 0).toDouble();
+        notifyListeners();
+      } else {
+        resetarDados();
+      }
+    });
+  }
+
+  void _iniciarListenerMetas(String uid) {
+    _metasListener = _firestore
+        .collection('paciente')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists) {
+        final meta = doc.data()!;
+        caloriasRecomendadas = (meta['meta_cal'] ?? 0).toDouble();
+        carboRecomendado = (meta['meta_carbo'] ?? 0).toDouble();
+        proteinaRecomendada = (meta['meta_proteina'] ?? 0).toDouble();
+        gorduraRecomendada = (meta['meta_lip'] ?? 0).toDouble();
+        fibraRecomendada = (meta['meta_fibra'] ?? 0).toDouble();
+        notifyListeners();
+      }
+    });
+  }
+
+  double get caloriasPercentual =>
+      caloriasRecomendadas > 0
+          ? (caloriasIngeridas / caloriasRecomendadas) * 100
+          : 0;
+
+  @override
+  void dispose() {
+    _historicoListener?.cancel();
+    _metasListener?.cancel();
+    super.dispose();
   }
 }

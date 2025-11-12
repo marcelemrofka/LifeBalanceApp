@@ -1,12 +1,16 @@
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
+import 'package:app/widgets/water_circle_vm.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:app/widgets/water_circle.dart';
+import '../viewmodel/historico_diario_viewmodel.dart';
 
 class TelaAgua extends StatefulWidget {
+  const TelaAgua({Key? key}) : super(key: key);
+
   @override
   _TelaAguaState createState() => _TelaAguaState();
 }
@@ -29,55 +33,84 @@ class _TelaAguaState extends State<TelaAgua>
     _waveAnimation = Tween<double>(begin: 0, end: pi / 8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _carregarTotalIngerido();
+
+    _inicializarMeta();
   }
 
-  Future<void> _carregarTotalIngerido() async {
+  Future<void> _inicializarMeta() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      final doc =
-          await FirebaseFirestore.instance.collection('agua').doc(uid).get();
+    if (uid == null) return;
 
-      if (doc.exists) {
+    final vm = context.read<HistoricoDiarioViewModel>();
+    await vm.carregarMetaAgua(uid);
+
+    setState(() {
+      capacidadeTotal = vm.metaAgua ?? 2000;
+    });
+
+    // Configura stream para atualizações em tempo real do histórico
+    final today = DateTime.now();
+    final dateStr =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    final docId = "${uid}_$dateStr";
+
+    FirebaseFirestore.instance
+        .collection('historico')
+        .doc(docId)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists && mounted) {
         setState(() {
-          totalIngerido = (doc.data()?['quantidade'] ?? 0).toDouble();
+          totalIngerido = (doc.data()?['agua'] ?? 0).toDouble();
           double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
           _animation =
               Tween<double>(begin: 0, end: progresso).animate(_controller);
           _controller.forward(from: 0);
         });
       }
-    }
-  }
-
-  Future<void> _salvarTotalIngerido() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      await FirebaseFirestore.instance.collection('agua').doc(uid).set({
-        'quantidade': totalIngerido,
-      }, SetOptions(merge: true));
-    }
-  }
-
-  void adicionarAgua() {
-    setState(() {
-      totalIngerido += quantidadeSelecionada;
-      double progresso = (totalIngerido / capacidadeTotal).clamp(0.0, 1.0);
-      _animation = Tween<double>(begin: _animation.value, end: progresso)
-          .animate(_controller);
-      _controller.forward(from: 0);
     });
-    _salvarTotalIngerido();
   }
 
-  void resetarAgua() {
-    setState(() {
-      totalIngerido = 0;
-      _animation =
-          Tween<double>(begin: _animation.value, end: 0).animate(_controller);
-      _controller.forward(from: 0);
-    });
-    _salvarTotalIngerido();
+  Future<void> _adicionarAgua() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Usuário não autenticado')),
+        );
+        return;
+      }
+
+      final uid = user.uid;
+      // pega uid do nutricionista vinculado
+      final pacienteDoc = await FirebaseFirestore.instance
+          .collection('paciente')
+          .doc(uid)
+          .get();
+
+      if (!pacienteDoc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Dados do paciente não encontrados')),
+        );
+        return;
+      }
+
+      final uidNutri = pacienteDoc.data()?['nutricionista_uid'];
+
+      final vm = context.read<HistoricoDiarioViewModel>();
+      await vm.registrarAgua(
+        uidUsuario: uid,
+        uidNutri: uidNutri,
+        quantidadeMl: quantidadeSelecionada,
+      );
+
+      // Não precisa atualizar o estado manualmente pois temos um listener
+      // que será notificado quando o Firestore for atualizado
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao registrar água: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -89,12 +122,9 @@ class _TelaAguaState extends State<TelaAgua>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            WaterCircleWidget(
-              totalIngerido: totalIngerido,
-              capacidadeTotal: capacidadeTotal,
-              animation: _animation,
-              waveAnimation: _waveAnimation,
-            ),
+            WaterCircleViewModel(
+                scale: 0.57,
+                uidPaciente: FirebaseAuth.instance.currentUser?.uid),
             SizedBox(height: 30),
             SizedBox(
               width: 110,
@@ -116,9 +146,7 @@ class _TelaAguaState extends State<TelaAgua>
                       );
                     }).toList(),
                     onChanged: (newValue) {
-                      setState(() {
-                        quantidadeSelecionada = newValue!;
-                      });
+                      setState(() => quantidadeSelecionada = newValue!);
                     },
                   ),
                 ),
@@ -134,7 +162,7 @@ class _TelaAguaState extends State<TelaAgua>
             ),
             SizedBox(height: 15),
             ElevatedButton(
-              onPressed: adicionarAgua,
+              onPressed: _adicionarAgua,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.laranja,
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
@@ -148,31 +176,4 @@ class _TelaAguaState extends State<TelaAgua>
       ),
     );
   }
-}
-
-class WaterPainter extends CustomPainter {
-  final double progress;
-  final double waveValue;
-
-  WaterPainter(this.progress, this.waveValue);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint waterPaint = Paint()..color = Colors.blue;
-    double waterHeight = size.height * (1 - progress);
-
-    Path path = Path();
-    for (double i = 0; i <= size.width; i++) {
-      double waveHeight = 2 * sin((i / size.width * 4 * pi) + waveValue);
-      path.lineTo(i, waterHeight + waveHeight);
-    }
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    canvas.drawPath(path, waterPaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

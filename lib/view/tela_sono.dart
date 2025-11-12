@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app/widgets/custom_appbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:app/utils/color.dart';
+import 'package:app/repository/historico_diario_repository.dart';
 
 class TelaSono extends StatefulWidget {
   @override
@@ -9,192 +10,293 @@ class TelaSono extends StatefulWidget {
 }
 
 class _TelaSonoState extends State<TelaSono> {
-  TimeOfDay? _horaSono;
-  TimeOfDay? _horaDespertar;
-  String _totalHorasDormidas = "";
-
   final user = FirebaseAuth.instance.currentUser;
+  final _repository = HistoricoDiarioRepository();
+  TimeOfDay? _inicio;
+  TimeOfDay? _fim;
+  final _obsController = TextEditingController();
+  double? _horasTotais;
 
   @override
   void initState() {
     super.initState();
-    if (user != null) {
-      _carregarDadosSono();
-    }
+    if (user != null) _carregarDadosSono();
   }
 
-  void _salvarDadosSono() async {
+  Future<void> _carregarDadosSono() async {
     if (user == null) return;
 
-    await FirebaseFirestore.instance.collection('sono').doc(user!.uid).set({
-      'horaSono': _horaSono != null ? {'hour': _horaSono!.hour, 'minute': _horaSono!.minute} : null,
-      'horaDespertar': _horaDespertar != null ? {'hour': _horaDespertar!.hour, 'minute': _horaDespertar!.minute} : null,
-      'totalHorasDormidas': _totalHorasDormidas,
-    });
-  }
-
-  void _carregarDadosSono() async {
-    if (user == null) return;
-
-    final doc = await FirebaseFirestore.instance.collection('sono').doc(user!.uid).get();
-    if (doc.exists) {
-      final dados = doc.data();
-      if (dados != null) {
-        setState(() {
-          if (dados['horaSono'] != null) {
-            _horaSono = TimeOfDay(
-              hour: dados['horaSono']['hour'],
-              minute: dados['horaSono']['minute'],
-            );
-          }
-          if (dados['horaDespertar'] != null) {
-            _horaDespertar = TimeOfDay(
-              hour: dados['horaDespertar']['hour'],
-              minute: dados['horaDespertar']['minute'],
-            );
-          }
-          _totalHorasDormidas = dados['totalHorasDormidas'] ?? "";
-        });
-      }
-    }
-  }
-
-  void _calcularHorasDormidas() {
-    if (_horaSono != null && _horaDespertar != null) {
-      final agora = DateTime.now();
-      final horaSono = DateTime(agora.year, agora.month, agora.day, _horaSono!.hour, _horaSono!.minute);
-      final horaDespertar = DateTime(agora.year, agora.month, agora.day, _horaDespertar!.hour, _horaDespertar!.minute);
-
-      int horasDormidas;
-      if (horaDespertar.isBefore(horaSono)) {
-        horasDormidas = horaDespertar.add(Duration(days: 1)).difference(horaSono).inHours;
-      } else {
-        horasDormidas = horaDespertar.difference(horaSono).inHours;
-      }
-
+    final dados = await _repository.getSono(uidUsuario: user!.uid);
+    if (dados != null) {
       setState(() {
-        _totalHorasDormidas = "$horasDormidas horas";
+        if (dados['inicio'] != null) {
+          final inicio = (dados['inicio'] as DateTime);
+          _inicio = TimeOfDay(hour: inicio.hour, minute: inicio.minute);
+        }
+        if (dados['fim'] != null) {
+          final fim = (dados['fim'] as DateTime);
+          _fim = TimeOfDay(hour: fim.hour, minute: fim.minute);
+        }
+        _obsController.text = dados['observacao'] ?? '';
+
+        // Calcula se já houver dados salvos
+        if (_inicio != null && _fim != null) {
+          final inicioDT = _criarDateTime(_inicio!);
+          final fimDT = _criarDateTime(_fim!);
+          _horasTotais = _calcularHorasSono(inicioDT, fimDT);
+        }
       });
-
-      _salvarDadosSono();
-
-      if (horasDormidas < 7) {
-        _mostrarAlerta("Você dormiu pouco! Menos de 7 horas de sono.");
-      } else if (horasDormidas > 9) {
-        _mostrarAlerta("Você dormiu demais! Mais de 9 horas de sono.");
-      } else {
-        _mostrarAlerta("Parabéns! Você teve uma boa quantidade de horas de sono!");
-      }
     }
   }
 
-  void _mostrarAlerta(String mensagem) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text("Atenção"),
-        content: Text(mensagem),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text("OK")),
-        ],
-      ),
-    );
+  double _calcularHorasSono(DateTime inicio, DateTime fim) {
+    var diferenca = fim.difference(inicio);
+    if (diferenca.isNegative) {
+      // Caso o sono comece antes da meia-noite e termine depois
+      diferenca = diferenca + const Duration(days: 1);
+    }
+    return diferenca.inMinutes / 60.0;
   }
 
-  Future<void> _selecionarHora(TimeOfDay initialTime, Function(TimeOfDay) onTimeSelected) async {
-    final TimeOfDay? selectedTime = await showTimePicker(
+  DateTime _criarDateTime(TimeOfDay hora) {
+    final agora = DateTime.now();
+    return DateTime(agora.year, agora.month, agora.day, hora.hour, hora.minute);
+  }
+
+  Future<void> _salvarSono() async {
+    if (user == null || _inicio == null || _fim == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "Por favor, selecione os horários de início e fim do sono")),
+      );
+      return;
+    }
+
+    try {
+      final inicio = _criarDateTime(_inicio!);
+      final fim = _criarDateTime(_fim!);
+      final horasTotais = _horasTotais ?? _calcularHorasSono(inicio, fim);
+
+      await _repository.registrarSono(
+        uidUsuario: user!.uid,
+        uidNutri: 'default',
+        inicio: inicio,
+        fim: fim,
+        horasTotais: horasTotais,
+        observacao: _obsController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Registro de sono salvo com sucesso! Total: ${horasTotais.toStringAsFixed(1)}h"),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao salvar o registro de sono: $e")),
+      );
+    }
+  }
+
+  Future<void> _selecionarHora({
+    required TimeOfDay initialTime,
+    required Function(TimeOfDay) onSelected,
+  }) async {
+    final selecionada = await showTimePicker(
       context: context,
       initialTime: initialTime,
     );
-
-    if (selectedTime != null) {
-      onTimeSelected(selectedTime);
-      _calcularHorasDormidas();
+    if (selecionada != null) {
+      setState(() {
+        onSelected(selecionada);
+        if (_inicio != null && _fim != null) {
+          final inicioDT = _criarDateTime(_inicio!);
+          final fimDT = _criarDateTime(_fim!);
+          _horasTotais = _calcularHorasSono(inicioDT, fimDT);
+        }
+      });
     }
-  }
-
-  Widget _buildHoraCard(String label, TimeOfDay? time, VoidCallback onPressed, IconData icon) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: ListTile(
-        leading: Icon(icon, color: Color(0xFF43644A)),
-        title: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        subtitle: Text(time != null ? time.format(context) : "Hora não selecionada"),
-        trailing: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.principal),
-          icon: Icon(Icons.access_time, color: Color(0xFF43644A)),
-          label: Text("Selecionar"),
-          onPressed: onPressed,
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Registro de Sono', style: TextStyle(color: AppColors.lightText)),
-        backgroundColor: AppColors.principal,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.lightText),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Text(
-              "Informe os horários de sono e despertar para saber quanto tempo você dormiu.",
-              style: TextStyle(fontSize: 16, color: AppColors.midText),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            _buildHoraCard(
-              "Hora de dormir",
-              _horaSono,
-              () => _selecionarHora(TimeOfDay.now(), (time) {
-                setState(() {
-                  _horaSono = time;
-                });
-              }),
-              Icons.bedtime,
-            ),
-            _buildHoraCard(
-              "Hora de despertar",
-              _horaDespertar,
-              () => _selecionarHora(TimeOfDay.now(), (time) {
-                setState(() {
-                  _horaDespertar = time;
-                });
-              }),
-              Icons.wb_sunny,
-            ),
-            SizedBox(height: 30),
-            if (_totalHorasDormidas.isNotEmpty)
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.nightlight_round, color: Color(0xFF43644A)),
-                    SizedBox(width: 10),
-                    Text(
-                      "Total dormido: $_totalHorasDormidas",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.midText),
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(titulo: 'Sono'),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Color(0xFFF0F0F0),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Registre suas horas de descanso",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87),
+              ),
+              const SizedBox(height: 16),
+
+              // Campos de horário
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Início",
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black)),
+                        const SizedBox(height: 6),
+                        GestureDetector(
+                          onTap: () => _selecionarHora(
+                            initialTime: TimeOfDay.now(),
+                            onSelected: (hora) {
+                              _inicio = hora;
+                            },
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: Colors.white,
+                            ),
+                            child: Text(
+                              _inicio != null
+                                  ? _inicio!.format(context)
+                                  : "   :   ",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  SizedBox(
+                    child: Column(
+                      children: [
+                        const Text("Fim",
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black)),
+                        const SizedBox(height: 6),
+                        GestureDetector(
+                          onTap: () => _selecionarHora(
+                            initialTime: TimeOfDay.now(),
+                            onSelected: (hora) {
+                              _fim = hora;
+                            },
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: Colors.white,
+                            ),
+                            child: Text(
+                              _fim != null ? _fim!.format(context) : "   :   ",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Observação",
+                textAlign: TextAlign.start,
+                style: TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              const SizedBox(height: 6),
+
+              TextField(
+                controller: _obsController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-          ],
+
+              const SizedBox(height: 25),
+
+              Row(
+                children: [
+                  // Corrigido o caminho da imagem
+                  Image.asset(
+                    'lib/images/sono.png',
+                    height: 150,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.image_not_supported, size: 60);
+                    },
+                  ),
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        _horasTotais != null
+                            ? "Horas de sono: ${_horasTotais!.toStringAsFixed(1)}h"
+                            : "Horas de sono:    ",
+                        style: const TextStyle(
+                            fontSize: 14, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.laranja,
+                          minimumSize: const Size(
+                              100, 38), // 🔹 largura e altura fixas, menores
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onPressed: _salvarSono,
+                        child: const Text(
+                          "Salvar",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

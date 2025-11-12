@@ -1,23 +1,76 @@
-import 'package:app/utils/color.dart';
 import 'package:app/widgets/barra_navegacao_nutri.dart';
-import 'package:app/widgets/drawer.dart';
 import 'package:app/widgets/menu.dart';
+import 'package:app/widgets/feed_card.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app/utils/color.dart';
 
-class TelaHomeNutri extends StatelessWidget {
-  const TelaHomeNutri({super.key});
+class TelaHomeNutri extends StatefulWidget {
+  const TelaHomeNutri({Key? key}) : super(key: key);
+
+  @override
+  State<TelaHomeNutri> createState() => _TelaHomeNutriState();
+}
+
+class _TelaHomeNutriState extends State<TelaHomeNutri> {
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
+    final uidNutri = _auth.currentUser?.uid;
+
+    if (uidNutri == null) {
+      return const Scaffold(
+        body: Center(child: Text('Erro: Usuário não autenticado')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(size: 45, color: AppColors.midGrey),
+        automaticallyImplyLeading: false,
+        iconTheme: const IconThemeData(size: 30, color: AppColors.midGrey),
+        leading: IconButton(
+          icon: const Icon(Icons.logout, color: AppColors.midGrey),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          },
+        ),
         actions: const [Menu()],
       ),
-      drawer: CustomDrawer(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Text('NUTRICIONISTA'),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('refeicoes')
+            .where('uid_nutri', isEqualTo: uidNutri)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Center(child: Text('Erro ao carregar refeições'));
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
+            return const Center(
+              child: Text('Nenhuma refeição registrada pelos pacientes.'),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final dados = docs[index].data() as Map<String, dynamic>;
+              return FeedCard(
+                dados: dados,
+                docId: snapshot.data!.docs[index].id,
+              );
+            },
+          );
+        },
       ),
       bottomNavigationBar: const BarraNavegacaoNutri(),
     );
