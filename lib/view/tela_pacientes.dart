@@ -13,6 +13,16 @@ class TelaPacientes extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? nutriUid = FirebaseAuth.instance.currentUser?.uid;
 
+    if (nutriUid == null) {
+      return const Scaffold(
+        body: Center(child: Text("Usuário não autenticado")),
+      );
+    }
+
+    // 🔥 Referência do nutricionista logado
+    final nutriRef =
+        FirebaseFirestore.instance.collection('nutricionista').doc(nutriUid);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6F6),
       appBar: AppBar(
@@ -22,7 +32,8 @@ class TelaPacientes extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('paciente')
-            .where('nutricionista_uid', isEqualTo: nutriUid)
+            .where('nutricionista_uid',
+                isEqualTo: nutriRef) // 🔥 busca por referência
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -43,16 +54,15 @@ class TelaPacientes extends StatelessWidget {
             itemCount: pacientes.length,
             itemBuilder: (context, index) {
               final pacienteDoc = pacientes[index];
-              final paciente = pacienteDoc.data() as Map<String, dynamic>;
-              final nome = paciente['nome'] ?? 'Sem nome';
-              final email = paciente['email'] ?? '';
-              final imagem = paciente['imagemPerfil'];
+              final pacienteData = pacienteDoc.data() as Map<String, dynamic>;
+              final nome = pacienteData['nome'] ?? 'Sem nome';
+              final email = pacienteData['email'] ?? '';
+              final imagem = pacienteData['imagemPerfil'];
               final pacienteUid = pacienteDoc.id;
 
               return Dismissible(
                 key: Key(pacienteUid),
-                direction: DismissDirection
-                    .endToStart, // deslizar da direita para a esquerda
+                direction: DismissDirection.endToStart,
                 background: Container(
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
@@ -60,7 +70,6 @@ class TelaPacientes extends StatelessWidget {
                   child:
                       const Icon(Icons.link_off, color: Colors.white, size: 32),
                 ),
-
                 confirmDismiss: (direction) async {
                   return await showDialog(
                     context: context,
@@ -85,16 +94,16 @@ class TelaPacientes extends StatelessWidget {
                     ),
                   );
                 },
-
                 onDismissed: (direction) async {
                   try {
                     final pacienteRef = FirebaseFirestore.instance
                         .collection('paciente')
                         .doc(pacienteUid);
 
-                    final pacienteData = await pacienteRef.get();
-                    final relacaoRef =
-                        pacienteData['relacao_nutri_paciente_ref'];
+                    final pacienteSnap = await pacienteRef.get();
+                    final dados = pacienteSnap.data() as Map<String, dynamic>?;
+
+                    final relacaoRef = dados?['relacao_nutri_paciente_ref'];
 
                     // 🔹 1. Remove vínculo do paciente
                     await pacienteRef.update({
@@ -125,7 +134,6 @@ class TelaPacientes extends StatelessWidget {
                     );
                   }
                 },
-
                 child: Card(
                   elevation: 2,
                   color: Colors.white,
