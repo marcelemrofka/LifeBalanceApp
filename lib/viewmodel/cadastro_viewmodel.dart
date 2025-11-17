@@ -127,31 +127,76 @@ class CadastroViewModel extends ChangeNotifier {
         throw Exception("Nutricionista não autenticado");
       }
 
-      // verifica se já existe
-      final existingFirestore = await _firestore
-          .collection('pacientes')
+      final firestore = _firestore;
+
+      // 🔎 1. VERIFICA SE JÁ EXISTE PACIENTE COM ESSE EMAIL
+      final existing = await firestore
+          .collection('paciente')
           .where('email', isEqualTo: email)
           .get();
 
-      if (existingFirestore.docs.isNotEmpty) {
-        _erro = "Email já cadastrado em outro paciente.";
-        _carregando = false;
-        notifyListeners();
-        return false;
-      }
+      // =====================================================
+      // 2️⃣ PACIENTE JÁ EXISTE NO FIRESTORE
+      // =====================================================
+      if (existing.docs.isNotEmpty) {
+        final doc = existing.docs.first;
+        final pacienteRef = doc.reference;
+        final dataPac = doc.data();
 
-      // 🔹 Verifica se já existe no Firebase Authentication
-      try {
-        final methods = await _auth.fetchSignInMethodsForEmail(email);
-        if (methods.isNotEmpty) {
-          _erro = "Email já cadastrado na autenticação.";
+        final relacaoExistente = dataPac['relacao_nutri_paciente_ref'];
+
+        if (relacaoExistente != null) {
+          // ❌ Já tem vínculo com outro nutricionista
+          _erro = "Usuário já conveniado a outro nutricionista.";
           _carregando = false;
           notifyListeners();
           return false;
         }
-      } catch (e) {
-        // ignora se der erro, significa que o email não existe
+
+        // ✔ Não tem vínculo → apenas vincular ao nutricionista atual
+        final nutricionistaRef =
+            firestore.collection('nutricionista').doc(currentUser.uid);
+
+        // Criar nova relação
+        final novaRelacao =
+            await firestore.collection('relacao_nutri_paciente').add({
+          'uid_paciente': pacienteRef,
+          'uid_nutricionista': nutricionistaRef,
+          'data_inicio': FieldValue.serverTimestamp(),
+          'data_fim': null,
+          'esta_ativo': true,
+        });
+
+        // Atualiza paciente com novo vínculo
+        await pacienteRef.update({
+          'nutricionista_uid': nutricionistaRef,
+          'relacao_nutri_paciente_ref': novaRelacao,
+        });
+
+        _carregando = false;
+        notifyListeners();
+        return true;
       }
+
+      // =====================================================
+      // 3️⃣ VERIFICA SE O EMAIL JÁ EXISTE NO AUTH
+      // =====================================================
+      try {
+        final methods = await _auth.fetchSignInMethodsForEmail(email);
+        if (methods.isNotEmpty) {
+          _erro =
+              "Email já cadastrado na autenticação. Use o acesso normal para entrar.";
+          _carregando = false;
+          notifyListeners();
+          return false;
+        }
+      } catch (_) {
+        // se der erro ignora, significa que não existe
+      }
+
+      // =====================================================
+      // 4️⃣ CRIA UM PACIENTE TOTALMENTE NOVO
+      // =====================================================
 
       final nascimento = DateTime.parse(dataNascimento);
       final idade = DateTime.now().year -
@@ -164,12 +209,20 @@ class CadastroViewModel extends ChangeNotifier {
 
       final senhaGerada = "${DateTime.now().millisecondsSinceEpoch}";
 
+      // Cria usuário no Auth
       final newUser = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senhaGerada,
       );
 
-      await _firestore.collection('paciente').doc(newUser.user!.uid).set({
+      final pacienteRef =
+          firestore.collection('paciente').doc(newUser.user!.uid);
+
+      final nutricionistaRef =
+          firestore.collection('nutricionista').doc(currentUser.uid);
+
+      // Cria documento do paciente
+      await pacienteRef.set({
         'nome': nome,
         'email': email,
         'cpf': cpf,
@@ -180,15 +233,12 @@ class CadastroViewModel extends ChangeNotifier {
         'objetivo': objetivo,
         'tp_user': false,
         'status': 'ativo',
-        'nutricionista_uid': currentUser.uid,
+        'nutricionista_uid': nutricionistaRef,
       });
-      // Adiciona relação na coleção relacao_nutri_paciente
-      final pacienteRef =
-          _firestore.collection('paciente').doc(newUser.user!.uid);
-      final nutricionistaRef =
-          _firestore.collection('nutricionista').doc(currentUser.uid);
+
+      // Cria relação nutricionista–paciente
       final relacaoRef =
-          await _firestore.collection('relacao_nutri_paciente').add({
+          await firestore.collection('relacao_nutri_paciente').add({
         'uid_paciente': pacienteRef,
         'uid_nutricionista': nutricionistaRef,
         'data_inicio': FieldValue.serverTimestamp(),
@@ -196,16 +246,16 @@ class CadastroViewModel extends ChangeNotifier {
         'esta_ativo': true,
       });
 
-      // Salva referência da relação no documento do paciente
+      // Atualiza paciente com a referência
       await pacienteRef.update({
         'relacao_nutri_paciente_ref': relacaoRef,
       });
 
+      // Reautentica nutricionista
       await _auth.signOut();
       await _auth.signInWithEmailAndPassword(
         email: currentUser.email!,
-        password:
-            'SENHA_DO_NUTRICIONISTA_AQUI', // ⚠️ Substitua por forma segura de manter a sessão
+        password: 'SENHA_DO_NUTRICIONISTA_AQUI',
       );
 
       _carregando = false;
