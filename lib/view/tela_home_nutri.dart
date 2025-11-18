@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/utils/color.dart';
 
 class TelaHomeNutri extends StatefulWidget {
-  const TelaHomeNutri({Key? key}) : super(key: key);
+  const TelaHomeNutri({super.key});
 
   @override
   State<TelaHomeNutri> createState() => _TelaHomeNutriState();
@@ -38,15 +38,18 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
         ),
         actions: const [Menu()],
       ),
+
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('refeicoes')
             .where('uid_nutri', isEqualTo: uidNutri)
+            .orderBy('data', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (snapshot.hasError) {
             return const Center(child: Text('Erro ao carregar refeições'));
           }
@@ -55,7 +58,7 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
 
           if (docs.isEmpty) {
             return const Center(
-              child: Text('Nenhuma refeição registrada pelos pacientes.'),
+              child: Text('Nenhuma refeição registrada pelos seus pacientes.'),
             );
           }
 
@@ -72,6 +75,7 @@ class _TelaHomeNutriState extends State<TelaHomeNutri> {
           );
         },
       ),
+
       bottomNavigationBar: const BarraNavegacaoNutri(),
     );
   }

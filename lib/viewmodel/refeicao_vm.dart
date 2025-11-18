@@ -120,7 +120,7 @@ class RefeicaoViewModel extends ChangeNotifier {
     }
 
     final refeicao = {
-      "nome": _extrairNome(),
+      "nome_alimento": _extrairNome(),
       "quantidade":
           alimentos.isNotEmpty ? alimentos.first['quantidade'] ?? 0 : 0,
       "calorias": _extrairNumero('Calorias'),

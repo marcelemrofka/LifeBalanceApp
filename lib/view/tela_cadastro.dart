@@ -107,7 +107,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
   }
 
   Widget _buildNutriForm(BuildContext context, CadastroViewModel viewModel) {
-    String? planoSelecionado; // plano escolhido no modal
+    String? planoSelecionado; 
 
     return StatefulBuilder(
       builder: (context, setState) {
@@ -120,14 +120,16 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
               _buildTextField('Contato', contatoController),
               _buildTextField('Email', emailControllerNutri),
               _buildTextField('Senha', senhaControllerNutri, obscureText: true),
-              _buildTextField('Confirmar Senha', confirmarSenhaControllerNutri,
-                  obscureText: true),
+              _buildTextField(
+                'Confirmar Senha',
+                confirmarSenhaControllerNutri,
+                obscureText: true,
+              ),
 
-              // seletor de plano
               const SizedBox(height: 10),
+
               GestureDetector(
                 onTap: () async {
-                  // Abre o modal com o carrossel de planos
                   final plano = await Navigator.of(context).push(
                     PageRouteBuilder(
                       opaque: false,
@@ -138,7 +140,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
 
                   if (plano != null) {
                     setState(() {
-                      planoSelecionado = plano.toString();
+                      planoSelecionado = plano.toString(); 
                     });
                   }
                 },
@@ -181,7 +183,6 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                   ? const CircularProgressIndicator(color: Colors.white)
                   : ElevatedButton(
                       onPressed: () async {
-                        // validações específicas nutri
                         if (nomeControllerNutri.text.isEmpty ||
                             crnController.text.isEmpty ||
                             contatoController.text.isEmpty ||
@@ -217,7 +218,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                             isNutri: true,
                             crn: crnController.text.trim(),
                             contato: contatoController.text.trim(),
-                            plano: planoSelecionado!,
+                            plano: planoSelecionado!, 
                           );
 
                           if (sucesso) {
@@ -263,19 +264,14 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
               _buildTextField('Senha', senhaControllerUser, obscureText: true),
               _buildTextField('Confirmar Senha', confirmarSenhaControllerUser,
                   obscureText: true),
-
               const SizedBox(height: 10),
-
-              // 🔹 Campo para selecionar o plano individual
               GestureDetector(
                 onTap: () async {
-                  // Abre o overlay mostrando apenas o plano individual
                   final plano = await Navigator.of(context).push(
                     PageRouteBuilder(
                       opaque: false,
                       barrierColor: Colors.transparent,
-                      pageBuilder: (_, __, ___) =>
-                          const PlanosOverlay(), // o filtro interno mostra só "individual"
+                      pageBuilder: (_, __, ___) => const PlanosOverlay(),
                     ),
                   );
 
@@ -297,9 +293,7 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        planoSelecionado == null
-                            ? 'Selecionar Plano'
-                            : 'Plano: $planoSelecionado',
+                        planoSelecionado ?? "Selecionar Plano",
                         style: TextStyle(
                           color: planoSelecionado == null
                               ? Colors.grey[600]
@@ -313,18 +307,14 @@ class _TelaCadastroFormState extends State<TelaCadastroForm>
                   ),
                 ),
               ),
-
               const SizedBox(height: 25),
-
               if (viewModel.erro != null)
                 Text(viewModel.erro!,
                     style: const TextStyle(color: Colors.red)),
-
               viewModel.carregando
                   ? const CircularProgressIndicator(color: Colors.white)
                   : ElevatedButton(
                       onPressed: () async {
-                        // validações específicas usuário comum
                         if (nomeControllerUser.text.isEmpty ||
                             cpfController.text.isEmpty ||
                             emailControllerUser.text.isEmpty ||

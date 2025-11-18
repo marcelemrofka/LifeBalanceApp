@@ -15,7 +15,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
     final proteinas = refeicao['proteinas'] ?? 0;
     final gorduras = refeicao['gorduras'] ?? 0;
     final fibras = refeicao['fibras'] ?? 0;
-    String? alimentosIncluidos = refeicao['nome'];
+    String? alimentosIncluidos = refeicao['nome_alimento'];
     final comentario = refeicao['comentario'] ?? '';
     final imagemUrl = refeicao['imagemUrl']; // 🔹 URL da imagem
 
