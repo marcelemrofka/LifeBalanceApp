@@ -2,7 +2,6 @@ import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/refeicao_vm.dart';
-import '../utils/color.dart';
 import 'package:intl/intl.dart';
 import 'tela_detalhes_refeicao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

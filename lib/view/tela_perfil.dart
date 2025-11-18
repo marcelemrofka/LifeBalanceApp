@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../viewmodel/auth_viewmodel.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -26,12 +25,12 @@ class _TelaPerfilState extends State<TelaPerfil> {
   final _emailController = TextEditingController();
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
+  final _sexoController = TextEditingController();
   final _objetivoController = TextEditingController();
   final _metaCalController = TextEditingController();
   final _metaSonoController = TextEditingController();
   final _metaAguaController = TextEditingController();
   final _idadeController = TextEditingController();
-  final _sexoController = TextEditingController();
   String? _nivelAtividade;
   String? _imagemUrl;
   bool _temNutricionista = false;
@@ -80,6 +79,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
       _pesoController.text = dadosUsuario['peso']?.toString() ?? '';
       _alturaController.text = dadosUsuario['altura']?.toString() ?? '';
       _objetivoController.text = dadosUsuario['objetivo'] ?? '';
+      _sexoController.text = dadosUsuario['sexo'] ?? '';
       _metaCalController.text = dadosUsuario['meta_cal']?.toString() ?? '';
       _metaSonoController.text = dadosUsuario['meta_sono']?.toString() ?? '';
       _metaAguaController.text = dadosUsuario['meta_agua']?.toString() ?? '';
@@ -130,37 +130,36 @@ class _TelaPerfilState extends State<TelaPerfil> {
   }
 
   Future<void> _abrirPdf(String? url) async {
-  if (url == null || url.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nenhum documento disponível.')),
-    );
-    return;
-  }
-
-  try {
-    // Faz o download temporário do arquivo
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}/documento.pdf';
-      final file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-
-      // Abre o arquivo no visualizador de PDF do sistema
-      await OpenFilex.open(filePath);
-    } else {
+    if (url == null || url.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao baixar o arquivo PDF.')),
+        const SnackBar(content: Text('Nenhum documento disponível.')),
+      );
+      return;
+    }
+
+    try {
+      // Faz o download temporário do arquivo
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final tempDir = await getTemporaryDirectory();
+        final filePath = '${tempDir.path}/documento.pdf';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        // Abre o arquivo no visualizador de PDF do sistema
+        await OpenFilex.open(filePath);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao baixar o arquivo PDF.')),
+        );
+      }
+    } catch (e) {
+      print('Erro ao abrir PDF: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao abrir o PDF.')),
       );
     }
-  } catch (e) {
-    print('Erro ao abrir PDF: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Erro ao abrir o PDF.')),
-    );
   }
-}
-
 
   Future<void> _acaoDocumento(String tipo) async {
     if (_isNutricionista) {
@@ -204,6 +203,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
         'nome': _nomeController.text.trim(),
         'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
         'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
+        'sexo': _sexoController.text.trim(),
         'objetivo': _objetivoController.text.trim(),
         'meta_cal': double.tryParse(_metaCalController.text.trim()) ?? 0,
         'meta_sono': double.tryParse(_metaSonoController.text.trim()) ?? 0,
@@ -282,14 +282,11 @@ class _TelaPerfilState extends State<TelaPerfil> {
             _buildTextField('Nome', _nomeController,
                 enabled: !_camposBloqueados),
             _buildTextField('Email', _emailController, enabled: false),
-            _buildTextField('Idade', _idadeController, enabled: false),
-            _buildTextField('Sexo', _sexoController, enabled: false),
-            _buildTextField('Altura (cm)', _alturaController,
-                enabled: !_camposBloqueados),
-            _buildTextField('Peso (kg)', _pesoController,
-                enabled: !_camposBloqueados),
-            _buildTextField('Objetivo', _objetivoController,
-                enabled: !_camposBloqueados),
+            _buildTextField('Idade', _idadeController),
+            _buildTextField('Sexo', _sexoController, enabled: !_camposBloqueados),
+            _buildTextField('Altura (cm)', _alturaController),
+            _buildTextField('Peso (kg)', _pesoController),
+            _buildTextField('Objetivo', _objetivoController),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: DropdownButtonFormField<String>(
@@ -326,13 +323,11 @@ class _TelaPerfilState extends State<TelaPerfil> {
                   child: OutlinedButton(
                     onPressed: () => _acaoDocumento('plano'),
                     style: OutlinedButton.styleFrom(
-                      side:
-                          BorderSide(color: AppColors.laranja, width: 1.5),
+                      side: BorderSide(color: AppColors.laranja, width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       'Plano Alimentar',
@@ -348,13 +343,11 @@ class _TelaPerfilState extends State<TelaPerfil> {
                   child: OutlinedButton(
                     onPressed: () => _acaoDocumento('ficha'),
                     style: OutlinedButton.styleFrom(
-                      side:
-                          BorderSide(color: AppColors.laranja, width: 1.5),
+                      side: BorderSide(color: AppColors.laranja, width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       'Ficha Completa',
