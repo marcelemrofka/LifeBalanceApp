@@ -76,8 +76,7 @@ class CadastroViewModel extends ChangeNotifier {
           'nome': nome,
           'crn': crn ?? '',
           'contato': contato ?? '',
-          'plano': 'profissional',
-          'email': email,
+          'plano_ref': _firestore.collection('planos').doc(plano),
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
@@ -88,7 +87,7 @@ class CadastroViewModel extends ChangeNotifier {
           'nome': nome,
           'email': email,
           'cpf': cpf,
-          'plano': 'individual',
+          'plano_ref': _firestore.collection('planos').doc(plano),
           'createdAt': FieldValue.serverTimestamp(),
         });
       }

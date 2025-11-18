@@ -104,18 +104,32 @@ class TelaPacientes extends StatelessWidget {
                     final dados = pacienteSnap.data() as Map<String, dynamic>?;
 
                     final relacaoRef = dados?['relacao_nutri_paciente_ref'];
+                    final uidNutri = FirebaseAuth.instance.currentUser!.uid;
 
-                    // 🔹 1. Remove vínculo do paciente
+                    // 1️⃣ Remover vínculo do paciente
                     await pacienteRef.update({
                       'nutricionista_uid': FieldValue.delete(),
                       'relacao_nutri_paciente_ref': FieldValue.delete(),
                     });
 
-                    // 🔹 2. Atualiza documento da relação (data_fim + esta_ativo=false)
+                    // 2️⃣ Atualizar relação para inativa
                     if (relacaoRef != null) {
                       await relacaoRef.update({
                         'data_fim': DateTime.now(),
                         'esta_ativo': false,
+                      });
+                    }
+
+                    // 3️⃣ Remover o nutricionista das refeições vinculadas
+                    final refeicoesSnap = await FirebaseFirestore.instance
+                        .collection('refeicoes')
+                        .where('uid_paciente', isEqualTo: pacienteUid)
+                        .where('uid_nutri', isEqualTo: uidNutri)
+                        .get();
+
+                    for (var doc in refeicoesSnap.docs) {
+                      await doc.reference.update({
+                        'uid_nutri': FieldValue.delete(),
                       });
                     }
 
