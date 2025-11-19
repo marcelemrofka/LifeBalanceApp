@@ -35,7 +35,7 @@ class HistoricoDiarioRepository {
     if (!snap.exists) {
       // cria base do dia
       final base = <String, dynamic>{
-        'uid_usuario': _db.doc('usuarios/$uidUsuario'),
+        'uid_usuario': _db.doc('paciente/$uidUsuario'),
         'data': Timestamp.fromDate(now),
         // totais do dia começam em 0
         'total_calorias': 0,
@@ -50,7 +50,7 @@ class HistoricoDiarioRepository {
 
       // adiciona uid_nutri apenas se fornecido
       if (uidNutri != null && uidNutri.isNotEmpty) {
-        base['uid_nutri'] = _db.doc('usuarios/$uidNutri');
+        base['uid_nutri'] = _db.doc('nutricionista/$uidNutri');
       }
 
       await docRef.set(base, SetOptions(merge: true));
