@@ -206,6 +206,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
       'meta_sono': double.tryParse(_metaSonoController.text.trim()) ?? 0,
       'meta_agua': double.tryParse(_metaAguaController.text.trim()) ?? 0,
       'nivel_atividade': _nivelAtividade,
+      'idade': int.tryParse(_idadeController.text.trim()) ?? 0,
+      'sexo': _sexoController.text.trim(),
     });
 
     setState(() => _modoEdicao = false);
@@ -261,9 +263,9 @@ class _TelaPerfilState extends State<TelaPerfil> {
             const SizedBox(height: 20),
             _buildTextField('Nome', _nomeController,
                 enabled: !_camposBloqueados),
-            _buildTextField('Email', _emailController, enabled: false),
-            _buildTextField('Idade', _idadeController, enabled: false),
-            _buildTextField('Sexo', _sexoController, enabled: false),
+            _buildTextField('Email', _emailController, enabled: !_camposBloqueados),
+            _buildTextField('Idade', _idadeController, enabled: !_camposBloqueados),
+            _buildTextField('Sexo', _sexoController, enabled: !_camposBloqueados),
             _buildTextField('Altura (cm)', _alturaController,
                 enabled: !_camposBloqueados),
             _buildTextField('Peso (kg)', _pesoController,
