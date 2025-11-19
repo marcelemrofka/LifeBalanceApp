@@ -13,23 +13,16 @@ class Menu extends StatelessWidget {
     try {
       final firestore = FirebaseFirestore.instance;
 
-      // Verifica primeiro se o UID está na coleção 'nutricionistas'
-      final docNutri =
-          await firestore.collection('nutricionista').doc(user.uid).get();
-
+      final docNutri = await firestore.collection('nutricionista').doc(user.uid).get();
       if (docNutri.exists) {
         Navigator.pushNamed(context, '/tela_perfil_nutri');
         return;
       }
 
-      // Se não for nutricionista, tenta buscar em 'pacientes'
-      final docPaciente =
-          await firestore.collection('paciente').doc(user.uid).get();
-
+      final docPaciente = await firestore.collection('paciente').doc(user.uid).get();
       if (docPaciente.exists) {
         Navigator.pushNamed(context, '/tela_perfil');
       } else {
-        // Caso não esteja em nenhuma coleção (erro ou conta nova)
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuário não encontrado.')),
         );
@@ -42,21 +35,54 @@ class Menu extends StatelessWidget {
     }
   }
 
+  Stream<DocumentSnapshot> _getUserStream(String uid) {
+    final firestore = FirebaseFirestore.instance;
+
+    return firestore
+        .collection('nutricionista')
+        .doc(uid)
+        .snapshots()
+        .asyncExpand((nutriDoc) {
+      if (nutriDoc.exists) {
+        return Stream.value(nutriDoc);
+      }
+      return firestore.collection('paciente').doc(uid).snapshots();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
     return Container(
-      // fundo branco fixo
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(
-            icon: const Icon(
-              Icons.account_circle,
-              size: 45,
-              color: AppColors.midGrey,
+          GestureDetector(
+            onTap: () => _irParaPerfil(context),
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: _getUserStream(uid!),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return const CircleAvatar(
+                    radius: 22,
+                    backgroundImage: AssetImage('lib/images/logo-circulo.png'),
+                  );
+                }
+
+                final dados = snapshot.data!.data() as Map<String, dynamic>;
+                final imagem = dados['imagemPerfil'];
+
+                return CircleAvatar(
+                  radius: 22,
+                  backgroundImage: (imagem != null && imagem.isNotEmpty)
+                      ? NetworkImage(imagem)
+                      : const AssetImage('lib/images/logo-circulo.png')
+                          as ImageProvider,
+                );
+              },
             ),
-            onPressed: () => _irParaPerfil(context),
           ),
         ],
       ),
