@@ -195,11 +195,7 @@ class TelaDetalhesRefeicao extends StatelessWidget {
                               horizontal: 20, vertical: 12),
                         ),
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const TelaRefeicao()),
-                          );
+                          Navigator.pop(context, true);
                         },
                         child: const Text(
                           "OK",
