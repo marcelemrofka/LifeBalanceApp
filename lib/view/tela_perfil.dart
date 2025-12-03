@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../viewmodel/auth_viewmodel.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -32,6 +34,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
   final _metaAguaController = TextEditingController();
   final _idadeController = TextEditingController();
   final _sexoController = TextEditingController();
+
   String? _nivelAtividade;
   String? _imagemUrl;
   bool _temNutricionista = false;
@@ -53,6 +56,27 @@ class _TelaPerfilState extends State<TelaPerfil> {
   void initState() {
     super.initState();
     _carregarPerfil();
+  }
+
+  Future<void> _selecionarImagem() async {
+    final picker = ImagePicker();
+    final XFile? img = await picker.pickImage(source: ImageSource.gallery);
+    if (img == null) return;
+
+    final file = File(img.path);
+    final uid = widget.uidPaciente ??
+        Provider.of<AuthViewModel>(context, listen: false).user!.uid;
+
+    final ref = FirebaseStorage.instance.ref()
+        .child("paciente_fotos/$uid.jpg");
+
+    await ref.putFile(file);
+    final url = await ref.getDownloadURL();
+
+    await FirebaseFirestore.instance.collection('paciente').doc(uid)
+        .update({"imagemPerfil": url});
+
+    setState(() => _imagemUrl = url);
   }
 
   Future<void> _carregarPerfil() async {
@@ -104,67 +128,44 @@ class _TelaPerfilState extends State<TelaPerfil> {
     final path = 'users/$uid/$tipo/${tipo}.pdf';
     final ref = FirebaseStorage.instance.ref().child(path);
 
-    try {
-      await ref.putFile(file);
-      final url = await ref.getDownloadURL();
+    await ref.putFile(file);
+    final url = await ref.getDownloadURL();
 
-      await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
-        if (tipo == 'plano') 'planoUrl': url,
-        if (tipo == 'ficha') 'fichaUrl': url,
-      });
+    await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
+      if (tipo == 'plano') 'planoUrl': url,
+      if (tipo == 'ficha') 'fichaUrl': url,
+    });
 
-      setState(() {
-        if (tipo == 'plano') _planoUrl = url;
-        if (tipo == 'ficha') _fichaUrl = url;
-      });
+    setState(() {
+      if (tipo == 'plano') _planoUrl = url;
+      if (tipo == 'ficha') _fichaUrl = url;
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$tipo enviado com sucesso!')),
-      );
-    } catch (e) {
-      print('Erro ao enviar arquivo: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao enviar arquivo.')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$tipo enviado com sucesso!')),
+    );
   }
 
   Future<void> _abrirPdf(String? url) async {
-  if (url == null || url.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nenhum documento disponível.')),
-    );
-    return;
-  }
+    if (url == null || url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nenhum documento disponível.')),
+      );
+      return;
+    }
 
-  try {
-    // Faz o download temporário do arquivo
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final tempDir = await getTemporaryDirectory();
       final filePath = '${tempDir.path}/documento.pdf';
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
-
-      // Abre o arquivo no visualizador de PDF do sistema
       await OpenFilex.open(filePath);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao baixar o arquivo PDF.')),
-      );
     }
-  } catch (e) {
-    print('Erro ao abrir PDF: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Erro ao abrir o PDF.')),
-    );
   }
-}
-
 
   Future<void> _acaoDocumento(String tipo) async {
     if (_isNutricionista) {
-      // Nutricionista escolhe ação
       final escolha = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -183,13 +184,10 @@ class _TelaPerfilState extends State<TelaPerfil> {
         ),
       );
 
-      if (escolha == 'inserir') {
-        await _uploadArquivo(tipo);
-      } else if (escolha == 'visualizar') {
+      if (escolha == 'inserir') await _uploadArquivo(tipo);
+      if (escolha == 'visualizar')
         await _abrirPdf(tipo == 'plano' ? _planoUrl : _fichaUrl);
-      }
     } else {
-      // Paciente apenas visualiza
       await _abrirPdf(tipo == 'plano' ? _planoUrl : _fichaUrl);
     }
   }
@@ -199,50 +197,30 @@ class _TelaPerfilState extends State<TelaPerfil> {
     final uid = widget.uidPaciente ?? authViewModel.user?.uid;
     if (uid == null) return;
 
-    try {
-      await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
-        'nome': _nomeController.text.trim(),
-        'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
-        'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
-        'objetivo': _objetivoController.text.trim(),
-        'meta_cal': double.tryParse(_metaCalController.text.trim()) ?? 0,
-        'meta_sono': double.tryParse(_metaSonoController.text.trim()) ?? 0,
-        'meta_agua': double.tryParse(_metaAguaController.text.trim()) ?? 0,
-        'nivel_atividade': _nivelAtividade,
-      });
+    await FirebaseFirestore.instance.collection('paciente').doc(uid).update({
+      'nome': _nomeController.text.trim(),
+      'peso': double.tryParse(_pesoController.text.trim()) ?? 0,
+      'altura': double.tryParse(_alturaController.text.trim()) ?? 0,
+      'objetivo': _objetivoController.text.trim(),
+      'meta_cal': double.tryParse(_metaCalController.text.trim()) ?? 0,
+      'meta_sono': double.tryParse(_metaSonoController.text.trim()) ?? 0,
+      'meta_agua': double.tryParse(_metaAguaController.text.trim()) ?? 0,
+      'nivel_atividade': _nivelAtividade,
+      'idade': int.tryParse(_idadeController.text.trim()) ?? 0,
+      'sexo': _sexoController.text.trim(),
+    });
 
-      setState(() => _modoEdicao = false);
+    setState(() => _modoEdicao = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Informações atualizadas com sucesso!')),
-      );
-    } catch (e) {
-      print('Erro ao atualizar perfil: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao atualizar perfil.')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Informações atualizadas com sucesso!')),
+    );
   }
 
   bool get _camposBloqueados {
     if (!_isNutricionista && !_temNutricionista) return false;
     if (_isNutricionista && _modoEdicao) return false;
     return true;
-  }
-
-  @override
-  void dispose() {
-    _nomeController.dispose();
-    _emailController.dispose();
-    _pesoController.dispose();
-    _alturaController.dispose();
-    _objetivoController.dispose();
-    _metaCalController.dispose();
-    _metaSonoController.dispose();
-    _metaAguaController.dispose();
-    _idadeController.dispose();
-    _sexoController.dispose();
-    super.dispose();
   }
 
   @override
@@ -269,21 +247,25 @@ class _TelaPerfilState extends State<TelaPerfil> {
         child: ListView(
           children: [
             Center(
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 50,
-                backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
-                    ? NetworkImage(_imagemUrl!)
-                    : const AssetImage('lib/images/logo-circulo.png')
-                        as ImageProvider,
+              child: GestureDetector(
+                onTap: () {
+                  if (!_camposBloqueados) _selecionarImagem();
+                },
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
+                      ? NetworkImage(_imagemUrl!)
+                      : const AssetImage('lib/images/logo-circulo.png')
+                          as ImageProvider,
+                ),
               ),
             ),
             const SizedBox(height: 20),
             _buildTextField('Nome', _nomeController,
                 enabled: !_camposBloqueados),
-            _buildTextField('Email', _emailController, enabled: false),
-            _buildTextField('Idade', _idadeController, enabled: false),
-            _buildTextField('Sexo', _sexoController, enabled: false),
+            _buildTextField('Email', _emailController, enabled: !_camposBloqueados),
+            _buildTextField('Idade', _idadeController, enabled: !_camposBloqueados),
+            _buildTextField('Sexo', _sexoController, enabled: !_camposBloqueados),
             _buildTextField('Altura (cm)', _alturaController,
                 enabled: !_camposBloqueados),
             _buildTextField('Peso (kg)', _pesoController,
@@ -320,19 +302,13 @@ class _TelaPerfilState extends State<TelaPerfil> {
                 enabled: !_camposBloqueados),
             const SizedBox(height: 25),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => _acaoDocumento('plano'),
                     style: OutlinedButton.styleFrom(
-                      side:
-                          BorderSide(color: AppColors.laranja, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: AppColors.laranja, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       'Plano Alimentar',
@@ -348,13 +324,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
                   child: OutlinedButton(
                     onPressed: () => _acaoDocumento('ficha'),
                     style: OutlinedButton.styleFrom(
-                      side:
-                          BorderSide(color: AppColors.laranja, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: AppColors.laranja, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       'Ficha Completa',
@@ -395,10 +366,10 @@ class _TelaPerfilState extends State<TelaPerfil> {
       child: TextField(
         enabled: enabled,
         controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: '',
+        ).copyWith(labelText: label),
       ),
     );
   }

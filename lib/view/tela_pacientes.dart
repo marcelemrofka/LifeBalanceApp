@@ -46,47 +46,109 @@ class TelaPacientes extends StatelessWidget {
               final nome = paciente['nome'] ?? 'Sem nome';
               final email = paciente['email'] ?? '';
               final imagem = paciente['imagemPerfil'];
-              final pacienteUid = pacientes[index].id; 
+              final pacienteUid = pacientes[index].id;
 
-              return Card(
-                elevation: 2,
-                color: Colors.white,
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              return Dismissible(
+                key: Key(pacienteUid),
+                direction: DismissDirection.endToStart, // direita → esquerda
+                background: Container(
+                  padding: const EdgeInsets.only(right: 20),
+                  alignment: Alignment.centerRight,
+                  color: Colors.red,
+                  child:
+                      const Icon(Icons.delete, color: Colors.white, size: 28),
                 ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    backgroundImage: imagem != null && imagem.isNotEmpty
-                        ? NetworkImage(imagem)
-                        : const AssetImage('lib/images/logo-circulo.png')
-                            as ImageProvider,
-                  ),
-                  title: Text(
-                    nome,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  subtitle: Text(email),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: AppColors.laranja,
-                  ),
 
-                  // 🔹 Ao clicar, abre a tela de diário do paciente selecionado
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TelaDiarioPaciente(
-                          uidPaciente: pacienteUid, // envia o UID
-                        ),
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Desvincular paciente"),
+                      content: const Text(
+                        "Tem certeza de que deseja desvincular este paciente?",
                       ),
-                    );
-                  },
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text(
+                            "Desvincular",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+
+                onDismissed: (_) async {
+                  await FirebaseFirestore.instance
+                      .collection("paciente")
+                      .doc(pacienteUid)
+                      .update({
+                    "nutricionista_uid": null,
+                    "status": "sem_nutricionista",
+                  });
+
+                  // Atualiza relação
+                  final relacao = await FirebaseFirestore.instance
+                      .collection("relacao_nutri_paciente")
+                      .where("uid_paciente",
+                          isEqualTo: FirebaseFirestore.instance
+                              .doc("paciente/$pacienteUid"))
+                      .where("esta_ativo", isEqualTo: true)
+                      .limit(1)
+                      .get();
+
+                  if (relacao.docs.isNotEmpty) {
+                    await relacao.docs.first.reference.update({
+                      "esta_ativo": false,
+                      "data_fim": FieldValue.serverTimestamp(),
+                    });
+                  }
+                },
+
+                child: Card(
+                  elevation: 2,
+                  color: Colors.white,
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      backgroundImage: imagem != null && imagem.isNotEmpty
+                          ? NetworkImage(imagem)
+                          : const AssetImage('lib/images/logo-circulo.png')
+                              as ImageProvider,
+                    ),
+                    title: Text(
+                      nome,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    subtitle: Text(email),
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios,
+                      color: AppColors.laranja,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TelaDiarioPaciente(
+                            uidPaciente: pacienteUid,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             },

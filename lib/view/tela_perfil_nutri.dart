@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:app/utils/color.dart';
 import 'package:app/widgets/custom_appbar.dart';
 import 'package:app/widgets/planos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../viewmodel/auth_viewmodel.dart';
 
@@ -19,8 +22,10 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
   final _crnController = TextEditingController();
   final _contatoController = TextEditingController();
   final _bioController = TextEditingController();
+
   String? _imagemUrl;
   String? _assinaturaPlano;
+
   bool _ehNutri = false;
   bool _carregando = true;
 
@@ -28,6 +33,42 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
   void initState() {
     super.initState();
     _carregarPerfil();
+  }
+
+  Future<void> _selecionarImagem() async {
+    if (!_ehNutri) return;
+
+    final picker = ImagePicker();
+    final XFile? imagem = await picker.pickImage(source: ImageSource.gallery);
+
+    if (imagem == null) return;
+
+    final file = File(imagem.path);
+
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final uid = authViewModel.user?.uid;
+    if (uid == null) return;
+
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child("nutricionista_fotos")
+          .child("$uid.jpg");
+
+      await ref.putFile(file);
+      final url = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance
+          .collection("nutricionista")
+          .doc(uid)
+          .update({"imagemPerfil": url});
+
+      setState(() {
+        _imagemUrl = url;
+      });
+    } catch (e) {
+      debugPrint("Erro upload: $e");
+    }
   }
 
   Future<void> _carregarPerfil() async {
@@ -39,26 +80,22 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
     final firestore = FirebaseFirestore.instance;
 
     try {
-      // 🔹 Verifica se o usuário logado é nutricionista
-      final docNutri =
-          await firestore.collection('nutricionista').doc(uid).get();
+      final docNutri = await firestore.collection('nutricionista').doc(uid).get();
 
       if (docNutri.exists) {
         _ehNutri = true;
         _preencherCampos(docNutri.data()!, authViewModel.email);
       } else {
-        // 🔹 Caso seja paciente, pega o nutricionista vinculado
-        final docPaciente =
-            await firestore.collection('paciente').doc(uid).get();
+        final docPaciente = await firestore.collection('paciente').doc(uid).get();
         if (docPaciente.exists) {
-          final dadosPaciente = docPaciente.data();
-          final uidNutri = dadosPaciente?['nutricionista_uid'];
+          final uidNutri = docPaciente['nutricionista_uid'];
+
           if (uidNutri != null && uidNutri.toString().isNotEmpty) {
             final docNutriRef =
                 await firestore.collection('nutricionista').doc(uidNutri).get();
+
             if (docNutriRef.exists) {
-              _preencherCampos(
-                  docNutriRef.data()!, docNutriRef.data()?['email'] ?? '');
+              _preencherCampos(docNutriRef.data()!, docNutriRef['email'] ?? '');
             }
           }
         }
@@ -80,23 +117,20 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
       _crnController.text = dados['crn'] ?? '';
       _contatoController.text = dados['contato'] ?? '';
       _bioController.text = dados['bio'] ?? '';
-      _imagemUrl = dados['foto'];
+      _imagemUrl = dados['imagemPerfil'];
       _assinaturaPlano = dados['plano'];
     });
   }
 
   Future<void> _salvarAlteracoes() async {
-    if (!_ehNutri) return; // paciente não edita
+    if (!_ehNutri) return;
 
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
     final uid = authViewModel.user?.uid;
     if (uid == null) return;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('nutricionista')
-          .doc(uid)
-          .update({
+      await FirebaseFirestore.instance.collection('nutricionista').doc(uid).update({
         'nome': _nomeController.text.trim(),
         'crn': _crnController.text.trim(),
         'contato': _contatoController.text.trim(),
@@ -107,7 +141,7 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
         const SnackBar(content: Text('Informações atualizadas com sucesso!')),
       );
     } catch (e) {
-      debugPrint('Erro ao atualizar perfil: $e');
+      debugPrint('Erro ao atualizar: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro ao atualizar perfil.')),
       );
@@ -125,16 +159,19 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
     return Scaffold(
       appBar: CustomAppBar(titulo: 'Perfil do Nutricionista'),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
             Center(
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
-                    ? NetworkImage(_imagemUrl!)
-                    : const AssetImage('lib/images/logo-circulo.png')
-                        as ImageProvider,
+              child: GestureDetector(
+                onTap: _selecionarImagem,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _imagemUrl != null && _imagemUrl!.isNotEmpty
+                      ? NetworkImage(_imagemUrl!)
+                      : const AssetImage('lib/images/logo-circulo.png')
+                          as ImageProvider,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -201,9 +238,7 @@ class _TelaPerfilNutriState extends State<TelaPerfilNutri> {
         enabled: enabled,
         controller: controller,
         maxLines: maxLines,
-        style: const TextStyle(
-          color: Colors.black87,
-        ),
+        style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
